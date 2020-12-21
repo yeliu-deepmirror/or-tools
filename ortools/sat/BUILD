@@ -2,12 +2,11 @@
 #
 
 load("@rules_cc//cc:defs.bzl", "cc_proto_library")
+load("//bazel:variables.bzl", "COPTS")
 
 package(
     default_visibility = ["//visibility:public"],
 )
-
-COPTS=["-std=c++17"]
 
 proto_library(
     name = "sat_parameters_proto",
@@ -44,6 +43,7 @@ cc_library(
     srcs = ["cp_model.cc"],
     hdrs = ["cp_model.h"],
     visibility = ["//visibility:public"],
+    copts = COPTS,
     deps = [
         ":cp_model_cc_proto",
         ":cp_model_solver",
@@ -62,6 +62,7 @@ cc_library(
     name = "model",
     hdrs = ["model.h"],
     visibility = ["//visibility:public"],
+    copts = COPTS,
     deps = [
         "//ortools/base",
         "//ortools/base:map_util",
@@ -75,6 +76,7 @@ cc_library(
     srcs = ["cp_model_utils.cc"],
     hdrs = ["cp_model_utils.h"],
     visibility = ["//visibility:public"],
+    copts = COPTS,
     deps = [
         ":cp_model_cc_proto",
         "//ortools/base",
@@ -89,6 +91,7 @@ cc_library(
     srcs = ["synchronization.cc"],
     hdrs = ["synchronization.h"],
     visibility = ["//visibility:public"],
+    copts = COPTS,
     deps = [
         ":cp_model_cc_proto",
         ":cp_model_loader",
@@ -109,6 +112,7 @@ cc_library(
     srcs = ["cp_model_checker.cc"],
     hdrs = ["cp_model_checker.h"],
     visibility = ["//visibility:public"],
+    copts = COPTS,
     deps = [
         ":cp_model_cc_proto",
         ":cp_model_utils",
@@ -128,6 +132,7 @@ cc_library(
     name = "cp_model_search",
     srcs = ["cp_model_search.cc"],
     hdrs = ["cp_model_search.h"],
+    copts = COPTS,
     deps = [
         ":cp_model_cc_proto",
         ":cp_model_utils",
@@ -147,6 +152,7 @@ cc_library(
     name = "cp_model_objective",
     srcs = ["cp_model_objective.cc"],
     hdrs = ["cp_model_objective.h"],
+    copts = COPTS,
     deps = [
         ":cp_model_cc_proto",
         ":cp_model_utils",
@@ -159,6 +165,7 @@ cc_library(
     srcs = ["cp_model_solver.cc"],
     hdrs = ["cp_model_solver.h"],
     visibility = ["//visibility:public"],
+    copts = COPTS,
     deps = [
         ":circuit",
         ":clause",
@@ -218,6 +225,7 @@ cc_library(
     srcs = ["cp_model_loader.cc"],
     hdrs = ["cp_model_loader.h"],
     visibility = ["//visibility:public"],
+    copts = COPTS,
     deps = [
         ":all_different",
         ":circuit",
@@ -257,6 +265,7 @@ cc_library(
     name = "presolve_util",
     srcs = ["presolve_util.cc"],
     hdrs = ["presolve_util.h"],
+    copts = COPTS,
     deps = [
         ":cp_model_cc_proto",
         ":cp_model_utils",
@@ -274,6 +283,7 @@ cc_library(
     name = "presolve_context",
     srcs = ["presolve_context.cc"],
     hdrs = ["presolve_context.h"],
+    copts = COPTS,
     deps = [
         ":cp_model_cc_proto",
         ":cp_model_utils",
@@ -299,6 +309,7 @@ cc_library(
     name = "cp_model_presolve",
     srcs = ["cp_model_presolve.cc"],
     hdrs = ["cp_model_presolve.h"],
+    copts = COPTS,
     deps = [
         ":cp_model_cc_proto",
         ":cp_model_checker",
@@ -336,6 +347,7 @@ cc_library(
         "cp_model_postsolve.cc",
     ],
     hdrs = ["cp_model_postsolve.h"],
+    copts = COPTS,
     deps = [
         ":cp_model_cc_proto",
         ":cp_model_utils",
@@ -348,6 +360,7 @@ cc_library(
     name = "cp_model_expand",
     srcs = ["cp_model_expand.cc"],
     hdrs = ["cp_model_expand.h"],
+    copts = COPTS,
     deps = [
         ":cp_model_cc_proto",
         ":cp_model_utils",
@@ -365,6 +378,7 @@ cc_library(
 cc_library(
     name = "sat_base",
     hdrs = ["sat_base.h"],
+    copts = COPTS,
     deps = [
         ":model",
         "//ortools/base",
@@ -387,6 +401,7 @@ cc_library(
         "sat_solver.cc",
     ],
     hdrs = ["sat_solver.h"],
+    copts = COPTS,
     deps = [
         ":clause",
         ":drat_proof_handler",
@@ -418,6 +433,7 @@ cc_library(
     name = "restart",
     srcs = ["restart.cc"],
     hdrs = ["restart.h"],
+    copts = COPTS,
     deps = [
         ":model",
         ":sat_decision",
@@ -435,6 +451,7 @@ cc_library(
     name = "probing",
     srcs = ["probing.cc"],
     hdrs = ["probing.h"],
+    copts = COPTS,
     deps = [
         ":clause",
         ":implied_bounds",
@@ -449,6 +466,7 @@ cc_library(
     name = "sat_inprocessing",
     srcs = ["sat_inprocessing.cc"],
     hdrs = ["sat_inprocessing.h"],
+    copts = COPTS,
     deps = [
         ":clause",
         ":model",
@@ -465,6 +483,7 @@ cc_library(
     name = "sat_decision",
     srcs = ["sat_decision.cc"],
     hdrs = ["sat_decision.h"],
+    copts = COPTS,
     deps = [
         ":model",
         ":pb_constraint",
@@ -482,6 +501,7 @@ cc_library(
     name = "clause",
     srcs = ["clause.cc"],
     hdrs = ["clause.h"],
+    copts = COPTS,
     deps = [
         ":drat_proof_handler",
         ":model",
@@ -508,6 +528,7 @@ cc_library(
     name = "simplification",
     srcs = ["simplification.cc"],
     hdrs = ["simplification.h"],
+    copts = COPTS,
     deps = [
         ":drat_proof_handler",
         ":sat_base",
@@ -533,6 +554,7 @@ cc_library(
     name = "pb_constraint",
     srcs = ["pb_constraint.cc"],
     hdrs = ["pb_constraint.h"],
+    copts = COPTS,
     deps = [
         ":sat_base",
         ":sat_parameters_cc_proto",
@@ -554,6 +576,7 @@ cc_library(
     name = "symmetry",
     srcs = ["symmetry.cc"],
     hdrs = ["symmetry.h"],
+    copts = COPTS,
     deps = [
         ":sat_base",
         "//ortools/algorithms:sparse_permutation",
@@ -569,6 +592,7 @@ cc_library(
     name = "var_domination",
     srcs = ["var_domination.cc"],
     hdrs = ["var_domination.h"],
+    copts = COPTS,
     deps = [
         ":cp_model_cc_proto",
         ":cp_model_utils",
@@ -586,6 +610,7 @@ cc_library(
     name = "integer",
     srcs = ["integer.cc"],
     hdrs = ["integer.h"],
+    copts = COPTS,
     deps = [
         ":model",
         ":sat_base",
@@ -616,6 +641,7 @@ cc_library(
     name = "integer_search",
     srcs = ["integer_search.cc"],
     hdrs = ["integer_search.h"],
+    copts = COPTS,
     deps = [
         ":integer",
         ":linear_programming_constraint",
@@ -634,6 +660,7 @@ cc_library(
     name = "pseudo_costs",
     srcs = ["pseudo_costs.cc"],
     hdrs = ["pseudo_costs.h"],
+    copts = COPTS,
     deps = [
         ":integer",
         ":sat_decision",
@@ -645,6 +672,7 @@ cc_library(
     name = "intervals",
     srcs = ["intervals.cc"],
     hdrs = ["intervals.h"],
+    copts = COPTS,
     deps = [
         ":cp_constraints",
         ":integer",
@@ -665,6 +693,7 @@ cc_library(
     name = "precedences",
     srcs = ["precedences.cc"],
     hdrs = ["precedences.h"],
+    copts = COPTS,
     deps = [
         ":cp_constraints",
         ":integer",
@@ -685,6 +714,7 @@ cc_library(
     name = "implied_bounds",
     srcs = ["implied_bounds.cc"],
     hdrs = ["implied_bounds.h"],
+    copts = COPTS,
     deps = [
         ":integer",
         ":model",
@@ -702,6 +732,7 @@ cc_library(
     name = "integer_expr",
     srcs = ["integer_expr.cc"],
     hdrs = ["integer_expr.h"],
+    copts = COPTS,
     deps = [
         ":integer",
         ":linear_constraint",
@@ -721,6 +752,7 @@ cc_library(
     name = "all_different",
     srcs = ["all_different.cc"],
     hdrs = ["all_different.h"],
+    copts = COPTS,
     deps = [
         ":integer",
         ":model",
@@ -741,6 +773,7 @@ cc_library(
     name = "theta_tree",
     srcs = ["theta_tree.cc"],
     hdrs = ["theta_tree.h"],
+    copts = COPTS,
     deps = [
         ":integer",
         "//ortools/base",
@@ -752,6 +785,7 @@ cc_library(
     name = "disjunctive",
     srcs = ["disjunctive.cc"],
     hdrs = ["disjunctive.h"],
+    copts = COPTS,
     deps = [
         ":all_different",
         ":integer",
@@ -773,6 +807,7 @@ cc_library(
     name = "timetable",
     srcs = ["timetable.cc"],
     hdrs = ["timetable.h"],
+    copts = COPTS,
     deps = [
         ":integer",
         ":intervals",
@@ -789,6 +824,7 @@ cc_library(
     name = "timetable_edgefinding",
     srcs = ["timetable_edgefinding.cc"],
     hdrs = ["timetable_edgefinding.h"],
+    copts = COPTS,
     deps = [
         ":integer",
         ":intervals",
@@ -803,6 +839,7 @@ cc_library(
     name = "cumulative",
     srcs = ["cumulative.cc"],
     hdrs = ["cumulative.h"],
+    copts = COPTS,
     deps = [
         ":cumulative_energy",
         ":disjunctive",
@@ -825,6 +862,7 @@ cc_library(
     name = "cumulative_energy",
     srcs = ["cumulative_energy.cc"],
     hdrs = ["cumulative_energy.h"],
+    copts = COPTS,
     deps = [
         ":integer",
         ":intervals",
@@ -841,6 +879,7 @@ cc_library(
 #    name = "cumulative_energy",
 #    srcs = ["cumulative_energy.cc"],
 #    hdrs = ["cumulative_energy.h"],
+#    copts = COPTS,
 #    deps = [
 #        ":integer",
 #        ":intervals",
@@ -858,6 +897,7 @@ cc_library(
     name = "boolean_problem",
     srcs = ["boolean_problem.cc"],
     hdrs = ["boolean_problem.h"],
+    copts = COPTS,
     deps = [
         ":boolean_problem_cc_proto",
         ":cp_model_cc_proto",
@@ -886,6 +926,7 @@ cc_library(
     name = "linear_relaxation",
     srcs = ["linear_relaxation.cc"],
     hdrs = ["linear_relaxation.h"],
+    copts = COPTS,
     deps = [
         ":cp_model_loader",
         ":integer",
@@ -902,6 +943,7 @@ cc_library(
     name = "linear_constraint",
     srcs = ["linear_constraint.cc"],
     hdrs = ["linear_constraint.h"],
+    copts = COPTS,
     deps = [
         ":integer",
         ":model",
@@ -914,6 +956,7 @@ cc_library(
     name = "linear_programming_constraint",
     srcs = ["linear_programming_constraint.cc"],
     hdrs = ["linear_programming_constraint.h"],
+    copts = COPTS,
     deps = [
         ":cuts",
         ":integer",
@@ -947,6 +990,7 @@ cc_library(
     name = "linear_constraint_manager",
     srcs = ["linear_constraint_manager.cc"],
     hdrs = ["linear_constraint_manager.h"],
+    copts = COPTS,
     deps = [
         ":integer",
         ":linear_constraint",
@@ -962,6 +1006,7 @@ cc_library(
     name = "cuts",
     srcs = ["cuts.cc"],
     hdrs = ["cuts.h"],
+    copts = COPTS,
     deps = [
         ":implied_bounds",
         ":integer",
@@ -980,6 +1025,7 @@ cc_library(
     name = "zero_half_cuts",
     srcs = ["zero_half_cuts.cc"],
     hdrs = ["zero_half_cuts.h"],
+    copts = COPTS,
     deps = [
         ":integer",
         ":util",
@@ -993,6 +1039,7 @@ cc_library(
     name = "lp_utils",
     srcs = ["lp_utils.cc"],
     hdrs = ["lp_utils.h"],
+    copts = COPTS,
     deps = [
         ":boolean_problem",
         ":boolean_problem_cc_proto",
@@ -1017,6 +1064,7 @@ cc_library(
     name = "optimization",
     srcs = ["optimization.cc"],
     hdrs = ["optimization.h"],
+    copts = COPTS,
     deps = [
         ":boolean_problem",
         ":boolean_problem_cc_proto",
@@ -1046,6 +1094,7 @@ cc_library(
     name = "util",
     srcs = ["util.cc"],
     hdrs = ["util.h"],
+    copts = COPTS,
     deps = [
         ":model",
         ":sat_base",
@@ -1065,6 +1114,7 @@ cc_library(
     name = "table",
     srcs = ["table.cc"],
     hdrs = ["table.h"],
+    copts = COPTS,
     deps = [
         ":integer",
         ":model",
@@ -1085,6 +1135,7 @@ cc_library(
     name = "cp_constraints",
     srcs = ["cp_constraints.cc"],
     hdrs = ["cp_constraints.h"],
+    copts = COPTS,
     deps = [
         ":integer",
         ":model",
@@ -1103,6 +1154,7 @@ cc_library(
     name = "scheduling_constraints",
     srcs = ["scheduling_constraints.cc"],
     hdrs = ["scheduling_constraints.h"],
+    copts = COPTS,
     deps = [
         ":integer",
         ":intervals",
@@ -1119,6 +1171,7 @@ cc_library(
     name = "diffn",
     srcs = ["diffn.cc"],
     hdrs = ["diffn.h"],
+    copts = COPTS,
     deps = [
         ":cumulative",
         ":disjunctive",
@@ -1140,6 +1193,7 @@ cc_library(
     name = "circuit",
     srcs = ["circuit.cc"],
     hdrs = ["circuit.h"],
+    copts = COPTS,
     deps = [
         ":integer",
         ":model",
@@ -1157,6 +1211,7 @@ cc_library(
     name = "encoding",
     srcs = ["encoding.cc"],
     hdrs = ["encoding.h"],
+    copts = COPTS,
     deps = [
         ":boolean_problem_cc_proto",
         ":pb_constraint",
@@ -1173,6 +1228,7 @@ cc_library(
     srcs = ["cp_model_lns.cc"],
     hdrs = ["cp_model_lns.h"],
     visibility = ["//visibility:public"],
+    copts = COPTS,
     deps = [
         ":cp_model_cc_proto",
         ":cp_model_loader",
@@ -1196,6 +1252,7 @@ cc_library(
     srcs = ["feasibility_pump.cc"],
     hdrs = ["feasibility_pump.h"],
     visibility = ["//visibility:public"],
+    copts = COPTS,
     deps = [
         ":cp_model_loader",
         ":cp_model_cc_proto",
@@ -1217,6 +1274,7 @@ cc_library(
     srcs = ["rins.cc"],
     hdrs = ["rins.h"],
     visibility = ["//visibility:public"],
+    copts = COPTS,
     deps = [
         ":cp_model_loader",
         ":integer",
@@ -1234,6 +1292,7 @@ cc_library(
     srcs = ["subsolver.cc"],
     hdrs = ["subsolver.h"],
     visibility = ["//visibility:public"],
+    copts = COPTS,
     deps = [
         "//ortools/base",
         "//ortools/base:threadpool",
@@ -1247,6 +1306,7 @@ cc_library(
     name = "drat_proof_handler",
     srcs = ["drat_proof_handler.cc"],
     hdrs = ["drat_proof_handler.h"],
+    copts = COPTS,
     deps = [
         ":drat_checker",
         ":drat_writer",
@@ -1270,6 +1330,7 @@ cc_library(
     #        "testdata/drup.cnf",
     #        "testdata/drup.drat",
     #    ],
+    copts = COPTS,
     deps = [
         ":sat_base",
         "//ortools/base",
@@ -1290,6 +1351,7 @@ cc_library(
     name = "drat_writer",
     srcs = ["drat_writer.cc"],
     hdrs = ["drat_writer.h"],
+    copts = COPTS,
     deps = [
         ":sat_base",
         "//ortools/base",
@@ -1304,6 +1366,7 @@ cc_library(
     name = "cp_model_symmetries",
     srcs = ["cp_model_symmetries.cc"],
     hdrs = ["cp_model_symmetries.h"],
+    copts = COPTS,
     deps = [
         ":cp_model_cc_proto",
         ":cp_model_utils",
@@ -1324,6 +1387,7 @@ cc_library(
         "//ortools/sat/java:__pkg__",
         "//ortools/sat/python:__pkg__",
     ],
+    copts = COPTS,
     deps = [
         ":cp_model_cc_proto",
         ":cp_model_checker",

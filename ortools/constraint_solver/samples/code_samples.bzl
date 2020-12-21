@@ -1,7 +1,10 @@
+load("//bazel:variables.bzl", "COPTS")
+
 def code_sample_cc(sample):
   native.cc_binary(
       name = sample,
       srcs = [sample + ".cc"],
+      copts = COPTS,
       deps = [
         "//ortools/base",
         "//ortools/constraint_solver:cp",
@@ -15,6 +18,7 @@ def code_sample_cc(sample):
       name = sample+"_test",
       size = "small",
       srcs = [sample + ".cc"],
+      copts = COPTS,
       deps = [
         ":"+sample,
         "//ortools/base",

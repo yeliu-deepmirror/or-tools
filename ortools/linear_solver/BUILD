@@ -1,5 +1,6 @@
 load("@rules_cc//cc:defs.bzl", "cc_proto_library")
 load("@bazel_skylib//rules:copy_file.bzl", "copy_file")
+load("//bazel:variables.bzl", "COPTS")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -100,7 +101,7 @@ cc_library(
         "scip_helper_macros.h",
         "scip_proto_solver.h",
     ],
-    copts = ["-DUSE_SCIP"],
+    copts = ["-DUSE_SCIP"] + COPTS,
     deps = [
         ":linear_solver_cc_proto",
         "@com_google_absl//absl/status",
@@ -143,6 +144,7 @@ copy_file(
 cc_library(
     name = "scip_helper_macros",
     hdrs = ["scip_helper_macros.h"],
+    copts = COPTS,
     deps = [
         "//ortools/base:status_macros",
         "@com_google_absl//absl/status",

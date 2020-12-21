@@ -1,9 +1,12 @@
+load("//bazel:variables.bzl", "COPTS")
+
 package(default_visibility = ["//visibility:public"])
 
 cc_library(
     name = "hungarian",
     srcs = ["hungarian.cc"],
     hdrs = ["hungarian.h"],
+    copts = COPTS,
     deps = [
         "//ortools/base",
         "//ortools/base:hash",
@@ -16,7 +19,7 @@ cc_test(
     name = "hungarian_test",
     size = "medium",
     srcs = ["hungarian_test.cc"],
-    copts = ["-Iexternal/gtest/include"],
+    copts = ["-Iexternal/gtest/include"] + COPTS,
     deps = [
         ":hungarian",
         "//ortools/base",
@@ -30,6 +33,7 @@ cc_test(
 cc_library(
     name = "knapsack_solver_base_lib",
     hdrs = ["knapsack_solver.h"],
+    copts = COPTS,
     deps = [
         ":knapsack_solver_for_interface_lib",
         "//ortools/base",
@@ -40,6 +44,7 @@ cc_library(
 cc_library(
     name = "knapsack_solver_lib",
     hdrs = ["knapsack_solver.h"],
+    copts = COPTS,
     deps = [
         ":knapsack_solver_for_interface_lib",
         "//ortools/base",
@@ -52,6 +57,7 @@ cc_library(
     name = "knapsack_solver_for_interface_lib",
     srcs = ["knapsack_solver.cc"],
     hdrs = ["knapsack_solver.h"],
+    copts = COPTS,
     deps = [
         "//ortools/base",
         "//ortools/base:stl_util",
@@ -66,6 +72,7 @@ cc_library(
     srcs = ["knapsack_solver_for_cuts.cc"],
     hdrs = ["knapsack_solver_for_cuts.h"],
     visibility = ["//visibility:public"],
+    copts = COPTS,
     deps = [
         "//ortools/base",
         "//ortools/base:int_type",
@@ -78,6 +85,7 @@ cc_library(
 cc_library(
     name = "dense_doubly_linked_list",
     hdrs = ["dense_doubly_linked_list.h"],
+    copts = COPTS,
     deps = [
         "//ortools/base",
     ],
@@ -87,6 +95,7 @@ cc_library(
     name = "dynamic_partition",
     srcs = ["dynamic_partition.cc"],
     hdrs = ["dynamic_partition.h"],
+    copts = COPTS,
     deps = [
         "//ortools/base",
         "//ortools/base:murmur",
@@ -99,6 +108,7 @@ cc_library(
     name = "sparse_permutation",
     srcs = ["sparse_permutation.cc"],
     hdrs = ["sparse_permutation.h"],
+    copts = COPTS,
     deps = [
         "//ortools/base",
         "@com_google_absl//absl/strings",
@@ -109,6 +119,7 @@ cc_library(
     name = "dynamic_permutation",
     srcs = ["dynamic_permutation.cc"],
     hdrs = ["dynamic_permutation.h"],
+    copts = COPTS,
     deps = [
         ":sparse_permutation",
         "//ortools/base",
@@ -120,6 +131,7 @@ cc_library(
     name = "find_graph_symmetries",
     srcs = ["find_graph_symmetries.cc"],
     hdrs = ["find_graph_symmetries.h"],
+    copts = COPTS,
     deps = [
         ":dense_doubly_linked_list",
         ":dynamic_partition",

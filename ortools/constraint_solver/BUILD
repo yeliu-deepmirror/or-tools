@@ -1,6 +1,6 @@
 # Home of constraint solver constraint_solver
-
 load("@rules_cc//cc:defs.bzl", "cc_proto_library")
+load("//bazel:variables.bzl", "COPTS")
 
 package(
     default_visibility = ["//visibility:public"],
@@ -132,6 +132,7 @@ cc_library(
         "constraint_solveri.h",
     ],
     visibility = ["//visibility:public"],
+    copts = COPTS,
     deps = [
         ":assignment_cc_proto",
         ":demon_profiler_cc_proto",
@@ -230,6 +231,7 @@ cc_library(
     srcs = ["routing_parameters.cc"],
     hdrs = ["routing_parameters.h"],
     visibility = ["//visibility:public"],
+    copts = COPTS,
     deps = [
         ":cp",
         ":routing_enums_cc_proto",
@@ -252,6 +254,7 @@ cc_library(
     ],
     hdrs = ["routing_flags.h"],
     visibility = ["//visibility:public"],
+    copts = COPTS,
     deps = [
         ":cp",
         ":routing_enums_cc_proto",
@@ -270,6 +273,7 @@ cc_library(
     name = "routing_types",
     hdrs = ["routing_types.h"],
     visibility = ["//visibility:public"],
+    copts = COPTS,
     deps = [
         "//ortools/base",
         "//ortools/base:int_type",
@@ -281,6 +285,7 @@ cc_library(
     srcs = ["routing_index_manager.cc"],
     hdrs = ["routing_index_manager.h"],
     visibility = ["//visibility:public"],
+    copts = COPTS,
     deps = [
         ":routing_types",
         "//ortools/base",
@@ -307,6 +312,7 @@ cc_library(
         "routing_neighborhoods.h",
     ],
     visibility = ["//visibility:public"],
+    copts = COPTS,
     deps = [
         ":cp",
         ":routing_enums_cc_proto",

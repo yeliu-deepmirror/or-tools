@@ -1,18 +1,6 @@
+load("//bazel:variables.bzl", "COPTS")
+
 package(default_visibility = ["//visibility:public"])
-
-config_setting(
-    name = "on_linux",
-    constraint_values = [
-        "@platforms//os:linux",
-    ],
-)
-
-config_setting(
-    name = "on_windows",
-    constraint_values = [
-        "@platforms//os:windows",
-    ],
-)
 
 cc_library(
     name = "base",
@@ -41,9 +29,9 @@ cc_library(
     copts = [
         "-DOR_TOOLS_MAJOR=8",
         "-DOR_TOOLS_MINOR=1",
-    ],
+    ] + COPTS,
     defines = select({
-        "on_windows": ["OR_TOOLS_EXPORTS"],
+        "@platforms//os:windows": ["OR_TOOLS_EXPORTS"],
         "//conditions:default": [],
     }),
     deps = [
@@ -67,6 +55,7 @@ cc_library(
     hdrs = [
         "container_logging.h",
     ],
+    copts = COPTS,
     deps = [
         ":base",
     ],
@@ -77,6 +66,7 @@ cc_library(
     hdrs = [
         "iterator_adaptors.h",
     ],
+    copts = COPTS,
     deps = [
         ":base",
     ],
@@ -87,6 +77,7 @@ cc_library(
     hdrs = [
         "status_macros.h",
     ],
+    copts = COPTS,
     deps = [
         ":base",
         "@com_google_absl//absl/status",
@@ -99,6 +90,7 @@ cc_library(
     hdrs = [
         "encodingutils.h",
     ],
+    copts = COPTS,
     deps = [
         ":base",
     ],
@@ -109,6 +101,7 @@ cc_library(
     hdrs = [
         "ptr_util.h",
     ],
+    copts = COPTS,
 )
 
 cc_library(
@@ -119,6 +112,7 @@ cc_library(
     hdrs = [
         "sysinfo.h",
     ],
+    copts = COPTS,
     deps = [
         ":base",
         "@com_google_absl//absl/strings",
@@ -133,6 +127,7 @@ cc_library(
     hdrs = [
         "file.h",
     ],
+    copts = COPTS,
     deps = [
         ":base",
         "@com_google_absl//absl/status",
@@ -144,6 +139,7 @@ cc_library(
 cc_library(
     name = "filelineiter",
     hdrs = ["filelineiter.h"],
+    copts = COPTS,
     deps = [
         ":base",
         ":file",
@@ -161,6 +157,7 @@ cc_library(
         "recordio.h",
     ],
     linkopts = ["-lz"],
+    copts = COPTS,
     deps = [
         ":base",
         ":file",
@@ -175,6 +172,7 @@ cc_library(
     hdrs = [
         "protoutil.h",
     ],
+    copts = COPTS,
     deps = [
         ":timer",
         "@com_google_absl//absl/status",
@@ -189,6 +187,7 @@ cc_library(
         "hash.h",
         "thorough_hash.h",
     ],
+    copts = COPTS,
     deps = [
         ":base",
         "@com_google_absl//absl/strings",
@@ -201,6 +200,7 @@ cc_library(
     hdrs = [
         "typeid.h",
     ],
+    copts = COPTS,
 )
 
 cc_library(
@@ -211,6 +211,7 @@ cc_library(
     hdrs = [
         "random.h",
     ],
+    copts = COPTS,
     deps = [
         ":base",
         ":hash",
@@ -223,6 +224,7 @@ cc_library(
     hdrs = [
         "cleanup.h",
     ],
+    copts = COPTS,
     deps = [
         ":base",
     ],
@@ -233,6 +235,7 @@ cc_library(
     hdrs = [
         "murmur.h",
     ],
+    copts = COPTS,
     deps = [
         ":base",
         ":hash",
@@ -245,6 +248,7 @@ cc_library(
     hdrs = [
         "map_util.h",
     ],
+    copts = COPTS,
     deps = [
         ":base",
     ],
@@ -255,6 +259,7 @@ cc_library(
     hdrs = [
         "small_map.h",
     ],
+    copts = COPTS,
     deps = [
         ":base",
     ],
@@ -265,6 +270,7 @@ cc_library(
     hdrs = [
         "small_ordered_set.h",
     ],
+    copts = COPTS,
     deps = [
         ":base",
     ],
@@ -275,6 +281,7 @@ cc_library(
     hdrs = [
         "status_builder.h",
     ],
+    copts = COPTS,
     deps = [
         ":base",
         "@com_google_absl//absl/status",
@@ -286,6 +293,7 @@ cc_library(
     hdrs = [
         "protobuf_util.h",
     ],
+    copts = COPTS,
 )
 
 cc_library(
@@ -293,6 +301,7 @@ cc_library(
     hdrs = [
         "stl_util.h",
     ],
+    copts = COPTS,
     deps = [
         ":base",
     ],
@@ -303,6 +312,7 @@ cc_library(
     hdrs = [
         "accurate_sum.h",
     ],
+    copts = COPTS,
     deps = [
         ":base",
     ],
@@ -313,6 +323,7 @@ cc_library(
     hdrs = [
         "mathutil.h",
     ],
+    copts = COPTS,
     deps = [
         ":base",
     ],
@@ -326,6 +337,7 @@ cc_library(
     hdrs = [
         "timer.h",
     ],
+    copts = COPTS,
     deps = [
         ":base",
         "@com_google_absl//absl/time",
@@ -335,12 +347,14 @@ cc_library(
 cc_library(
     name = "int_type",
     hdrs = ["int_type.h"],
+    copts = COPTS,
     deps = [":base"],
 )
 
 cc_library(
     name = "strong_vector",
     hdrs = ["strong_vector.h"],
+    copts = COPTS,
     deps = [
         ":base",
         ":int_type",
@@ -353,6 +367,7 @@ cc_library(
         "adjustable_priority_queue.h",
         "adjustable_priority_queue-inl.h",
     ],
+    copts = COPTS,
     deps = [
         ":base",
     ],
@@ -366,6 +381,7 @@ cc_library(
     hdrs = [
         "bitmap.h",
     ],
+    copts = COPTS,
     deps = [
         ":base",
     ],
@@ -379,6 +395,7 @@ cc_library(
     hdrs = [
         "threadpool.h",
     ],
+    copts = COPTS,
     deps = [
         ":base",
         "@com_google_absl//absl/synchronization",
@@ -389,8 +406,9 @@ cc_library(
     name = "dynamic_library",
     hdrs = ["dynamic_library.h"],
     linkopts = select({
-        "on_linux": ["-Wl,--no-as-needed -ldl"],
+        "@platforms//os:linux": ["-Wl,--no-as-needed -ldl"],
         "//conditions:default": [],
     }),
+    copts = COPTS,
     deps = [":base"],
 )
