@@ -838,7 +838,11 @@ MPSolver::ResultStatus SCIPInterface::Solve(const MPSolverParameters& param) {
       break;
   }
 
+  RETURN_ABNORMAL_IF_SCIP_ERROR(SCIPfreeSolve(scip_, /*Restart=*/false));
+
   RETURN_ABNORMAL_IF_SCIP_ERROR(SCIPresetParams(scip_));
+
+  RETURN_ABNORMAL_IF_SCIP_ERROR(SCIPfreeTransform(scip_));
 
   sync_status_ = SOLUTION_SYNCHRONIZED;
   return result_status_;
