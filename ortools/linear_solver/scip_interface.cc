@@ -180,6 +180,9 @@ class SCIPInterface : public MPSolverInterface {
   // Copy sol from SCIP to MPSolver.
   void SetSolution(SCIP_SOL* solution);
 
+  // Copy iterations from SCIP to MPSolver.
+  void GetIterations();
+
   absl::Status CreateSCIP();
   // Deletes variables and constraints from scip_ and reset scip_ to null. If
   // return_scip is false, deletes the SCIP object; if true, returns it (but
@@ -198,6 +201,7 @@ class SCIPInterface : public MPSolverInterface {
   std::vector<SCIP_VAR*> scip_variables_;
   std::vector<SCIP_CONS*> scip_constraints_;
   int current_solution_index_ = 0;
+  int64_t iterations_ = 0;
   MPCallback* callback_ = nullptr;
   std::unique_ptr<ScipConstraintHandlerForMPCallback> scip_constraint_handler_;
   // See ScipConstraintHandlerForMPCallback below.
@@ -796,6 +800,7 @@ MPSolver::ResultStatus SCIPInterface::Solve(const MPSolverParameters& param) {
   VLOG(1) << absl::StrFormat("Solved in %s.",
                              absl::FormatDuration(timer.GetDuration()));
   current_solution_index_ = 0;
+  iterations_ = 0;
   // Get the results.
   SCIP_SOL* const solution = SCIPgetBestSol(scip_);
   if (solution != nullptr) {
@@ -838,6 +843,8 @@ MPSolver::ResultStatus SCIPInterface::Solve(const MPSolverParameters& param) {
       break;
   }
 
+  GetIterations();
+
   RETURN_ABNORMAL_IF_SCIP_ERROR(SCIPfreeSolve(scip_, /*Restart=*/false));
 
   RETURN_ABNORMAL_IF_SCIP_ERROR(SCIPresetParams(scip_));
@@ -861,6 +868,10 @@ void SCIPInterface::SetSolution(SCIP_SOL* solution) {
     var->set_solution_value(val);
     VLOG(3) << var->name() << "=" << val;
   }
+}
+
+void SCIPInterface::GetIterations() {
+  iterations_ = SCIPgetNLPIterations(scip_);
 }
 
 absl::optional<MPSolutionResponse> SCIPInterface::DirectlySolveProto(
@@ -900,10 +911,7 @@ bool SCIPInterface::NextSolution() {
 }
 
 int64_t SCIPInterface::iterations() const {
-  // NOTE(user): As of 2018-12 it doesn't run in the stubby server, and is
-  // a specialized call, so it's ok to crash if the status is broken.
-  if (!CheckSolutionIsSynchronized()) return kUnknownNumberOfIterations;
-  return SCIPgetNLPIterations(scip_);
+  return iterations_;
 }
 
 int64_t SCIPInterface::nodes() const {
