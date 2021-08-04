@@ -17,7 +17,6 @@
 A description of the problem can be found here:
 http://en.wikipedia.org/wiki/Travelling_salesman_problem.
 """
-
 # [START import]
 from ortools.constraint_solver import routing_enums_pb2
 from ortools.constraint_solver import pywrapcp
