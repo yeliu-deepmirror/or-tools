@@ -1375,8 +1375,8 @@ class FailDecision : public Decision {
 class BalancingDecision : public Decision {
  public:
   ~BalancingDecision() override {}
-  void Apply(Solver* const s) override {}
-  void Refute(Solver* const s) override {}
+  void Apply(Solver* const /*s*/) override {}
+  void Refute(Solver* const /*s*/) override {}
 };
 }  // namespace
 
@@ -2537,9 +2537,9 @@ std::string DecisionBuilder::GetName() const {
 }
 
 void DecisionBuilder::AppendMonitors(
-    Solver* const solver, std::vector<SearchMonitor*>* const extras) {}
+    Solver* const /*solver*/, std::vector<SearchMonitor*>* const /*extras*/) {}
 
-void DecisionBuilder::Accept(ModelVisitor* const visitor) const {}
+void DecisionBuilder::Accept(ModelVisitor* const /*visitor*/) const {}
 
 // ---------- Decision and DecisionVisitor ----------
 
@@ -2547,19 +2547,21 @@ void Decision::Accept(DecisionVisitor* const visitor) const {
   visitor->VisitUnknownDecision();
 }
 
-void DecisionVisitor::VisitSetVariableValue(IntVar* const var, int64_t value) {}
-void DecisionVisitor::VisitSplitVariableDomain(IntVar* const var, int64_t value,
-                                               bool lower) {}
+void DecisionVisitor::VisitSetVariableValue(IntVar* const /*var*/,
+                                            int64_t /*value*/) {}
+void DecisionVisitor::VisitSplitVariableDomain(IntVar* const /*var*/,
+                                               int64_t /*value*/,
+                                               bool /*lower*/) {}
 void DecisionVisitor::VisitUnknownDecision() {}
-void DecisionVisitor::VisitScheduleOrPostpone(IntervalVar* const var,
-                                              int64_t est) {}
-void DecisionVisitor::VisitScheduleOrExpedite(IntervalVar* const var,
-                                              int64_t est) {}
-void DecisionVisitor::VisitRankFirstInterval(SequenceVar* const sequence,
-                                             int index) {}
+void DecisionVisitor::VisitScheduleOrPostpone(IntervalVar* const /*var*/,
+                                              int64_t /*est*/) {}
+void DecisionVisitor::VisitScheduleOrExpedite(IntervalVar* const /*var*/,
+                                              int64_t /*est*/) {}
+void DecisionVisitor::VisitRankFirstInterval(SequenceVar* const /*sequence*/,
+                                             int /*index*/) {}
 
-void DecisionVisitor::VisitRankLastInterval(SequenceVar* const sequence,
-                                            int index) {}
+void DecisionVisitor::VisitRankLastInterval(SequenceVar* const /*sequence*/,
+                                            int /*index*/) {}
 
 // ---------- ModelVisitor ----------
 
@@ -2741,40 +2743,41 @@ const char ModelVisitor::kTraceOperation[] = "trace";
 
 ModelVisitor::~ModelVisitor() {}
 
-void ModelVisitor::BeginVisitModel(const std::string& type_name) {}
-void ModelVisitor::EndVisitModel(const std::string& type_name) {}
+void ModelVisitor::BeginVisitModel(const std::string& /*type_name*/) {}
+void ModelVisitor::EndVisitModel(const std::string& /*type_name*/) {}
 
-void ModelVisitor::BeginVisitConstraint(const std::string& type_name,
-                                        const Constraint* const constraint) {}
-void ModelVisitor::EndVisitConstraint(const std::string& type_name,
-                                      const Constraint* const constraint) {}
+void ModelVisitor::BeginVisitConstraint(
+    const std::string& /*type_name*/, const Constraint* const /*constraint*/) {}
+void ModelVisitor::EndVisitConstraint(const std::string& /*type_name*/,
+                                      const Constraint* const /*constraint*/) {}
 
-void ModelVisitor::BeginVisitExtension(const std::string& type) {}
-void ModelVisitor::EndVisitExtension(const std::string& type) {}
+void ModelVisitor::BeginVisitExtension(const std::string& /*type*/) {}
+void ModelVisitor::EndVisitExtension(const std::string& /*type*/) {}
 
-void ModelVisitor::BeginVisitIntegerExpression(const std::string& type_name,
-                                               const IntExpr* const expr) {}
-void ModelVisitor::EndVisitIntegerExpression(const std::string& type_name,
-                                             const IntExpr* const expr) {}
+void ModelVisitor::BeginVisitIntegerExpression(const std::string& /*type_name*/,
+                                               const IntExpr* const /*expr*/) {}
+void ModelVisitor::EndVisitIntegerExpression(const std::string& /*type_name*/,
+                                             const IntExpr* const /*expr*/) {}
 
-void ModelVisitor::VisitIntegerVariable(const IntVar* const variable,
+void ModelVisitor::VisitIntegerVariable(const IntVar* const /*variable*/,
                                         IntExpr* const delegate) {
   if (delegate != nullptr) {
     delegate->Accept(this);
   }
 }
 
-void ModelVisitor::VisitIntegerVariable(const IntVar* const variable,
-                                        const std::string& operation,
-                                        int64_t value, IntVar* const delegate) {
+void ModelVisitor::VisitIntegerVariable(const IntVar* const /*variable*/,
+                                        const std::string& /*operation*/,
+                                        int64_t /*value*/,
+                                        IntVar* const delegate) {
   if (delegate != nullptr) {
     delegate->Accept(this);
   }
 }
 
-void ModelVisitor::VisitIntervalVariable(const IntervalVar* const variable,
-                                         const std::string& operation,
-                                         int64_t value,
+void ModelVisitor::VisitIntervalVariable(const IntervalVar* const /*variable*/,
+                                         const std::string& /*operation*/,
+                                         int64_t /*value*/,
                                          IntervalVar* const delegate) {
   if (delegate != nullptr) {
     delegate->Accept(this);
@@ -2787,45 +2790,48 @@ void ModelVisitor::VisitSequenceVariable(const SequenceVar* const variable) {
   }
 }
 
-void ModelVisitor::VisitIntegerArgument(const std::string& arg_name,
-                                        int64_t value) {}
+void ModelVisitor::VisitIntegerArgument(const std::string& /*arg_name*/,
+                                        int64_t /*value*/) {}
 
 void ModelVisitor::VisitIntegerArrayArgument(
-    const std::string& arg_name, const std::vector<int64_t>& values) {}
+    const std::string& /*arg_name*/, const std::vector<int64_t>& /*values*/) {}
 
-void ModelVisitor::VisitIntegerMatrixArgument(const std::string& arg_name,
-                                              const IntTupleSet& tuples) {}
+void ModelVisitor::VisitIntegerMatrixArgument(const std::string& /*arg_name*/,
+                                              const IntTupleSet& /*tuples*/) {}
 
-void ModelVisitor::VisitIntegerExpressionArgument(const std::string& arg_name,
-                                                  IntExpr* const argument) {
+void ModelVisitor::VisitIntegerExpressionArgument(
+    const std::string& /*arg_name*/, IntExpr* const argument) {
   argument->Accept(this);
 }
 
 void ModelVisitor::VisitIntegerVariableEvaluatorArgument(
-    const std::string& arg_name, const Solver::Int64ToIntVar& arguments) {}
+    const std::string& /*arg_name*/,
+    const Solver::Int64ToIntVar& /*arguments*/) {}
 
 void ModelVisitor::VisitIntegerVariableArrayArgument(
-    const std::string& arg_name, const std::vector<IntVar*>& arguments) {
+    const std::string& /*arg_name*/, const std::vector<IntVar*>& arguments) {
   ForAll(arguments, &IntVar::Accept, this);
 }
 
-void ModelVisitor::VisitIntervalArgument(const std::string& arg_name,
+void ModelVisitor::VisitIntervalArgument(const std::string& /*arg_name*/,
                                          IntervalVar* const argument) {
   argument->Accept(this);
 }
 
 void ModelVisitor::VisitIntervalArrayArgument(
-    const std::string& arg_name, const std::vector<IntervalVar*>& arguments) {
+    const std::string& /*arg_name*/,
+    const std::vector<IntervalVar*>& arguments) {
   ForAll(arguments, &IntervalVar::Accept, this);
 }
 
-void ModelVisitor::VisitSequenceArgument(const std::string& arg_name,
+void ModelVisitor::VisitSequenceArgument(const std::string& /*arg_name*/,
                                          SequenceVar* const argument) {
   argument->Accept(this);
 }
 
 void ModelVisitor::VisitSequenceArrayArgument(
-    const std::string& arg_name, const std::vector<SequenceVar*>& arguments) {
+    const std::string& /*arg_name*/,
+    const std::vector<SequenceVar*>& arguments) {
   ForAll(arguments, &SequenceVar::Accept, this);
 }
 
@@ -2877,12 +2883,12 @@ void ModelVisitor::VisitInt64ToInt64AsArray(const Solver::IndexEvaluator1& eval,
 void SearchMonitor::EnterSearch() {}
 void SearchMonitor::RestartSearch() {}
 void SearchMonitor::ExitSearch() {}
-void SearchMonitor::BeginNextDecision(DecisionBuilder* const b) {}
-void SearchMonitor::EndNextDecision(DecisionBuilder* const b,
-                                    Decision* const d) {}
-void SearchMonitor::ApplyDecision(Decision* const d) {}
-void SearchMonitor::RefuteDecision(Decision* const d) {}
-void SearchMonitor::AfterDecision(Decision* const d, bool apply) {}
+void SearchMonitor::BeginNextDecision(DecisionBuilder* const /*b*/) {}
+void SearchMonitor::EndNextDecision(DecisionBuilder* const /*b*/,
+                                    Decision* const /*d*/) {}
+void SearchMonitor::ApplyDecision(Decision* const /*d*/) {}
+void SearchMonitor::RefuteDecision(Decision* const /*d*/) {}
+void SearchMonitor::AfterDecision(Decision* const /*d*/, bool /*apply*/) {}
 void SearchMonitor::BeginFail() {}
 void SearchMonitor::EndFail() {}
 void SearchMonitor::BeginInitialPropagation() {}
@@ -2891,13 +2897,14 @@ bool SearchMonitor::AcceptSolution() { return true; }
 bool SearchMonitor::AtSolution() { return false; }
 void SearchMonitor::NoMoreSolutions() {}
 bool SearchMonitor::LocalOptimum() { return false; }
-bool SearchMonitor::AcceptDelta(Assignment* delta, Assignment* deltadelta) {
+bool SearchMonitor::AcceptDelta(Assignment* /*delta*/,
+                                Assignment* /*deltadelta*/) {
   return true;
 }
 void SearchMonitor::AcceptNeighbor() {}
 void SearchMonitor::AcceptUncheckedNeighbor() {}
 void SearchMonitor::PeriodicCheck() {}
-void SearchMonitor::Accept(ModelVisitor* const visitor) const {}
+void SearchMonitor::Accept(ModelVisitor* const /*visitor*/) const {}
 // A search monitors adds itself on the active search.
 void SearchMonitor::Install() {
   solver()->searches_.back()->push_monitor(this);
@@ -3253,7 +3260,7 @@ Decision* ProfiledDecisionBuilder::Next(Solver* const solver) {
   timer_.Start();
   // In case db_->Next() fails, gathering the running time on backtrack.
   solver->AddBacktrackAction(
-      [this](Solver* solver) {
+      [this](Solver* /*solver*/) {
         if (timer_.IsRunning()) {
           timer_.Stop();
           seconds_ += timer_.Get();

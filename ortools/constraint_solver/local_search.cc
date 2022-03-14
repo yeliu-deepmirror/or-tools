@@ -318,7 +318,7 @@ class IncrementValue : public ChangeValue {
   explicit IncrementValue(const std::vector<IntVar*>& vars)
       : ChangeValue(vars) {}
   ~IncrementValue() override {}
-  int64_t ModifyValue(int64_t index, int64_t value) override {
+  int64_t ModifyValue(int64_t /*index*/, int64_t value) override {
     return value + 1;
   }
 
@@ -332,7 +332,7 @@ class DecrementValue : public ChangeValue {
   explicit DecrementValue(const std::vector<IntVar*>& vars)
       : ChangeValue(vars) {}
   ~DecrementValue() override {}
-  int64_t ModifyValue(int64_t index, int64_t value) override {
+  int64_t ModifyValue(int64_t /*index*/, int64_t value) override {
     return value - 1;
   }
 
@@ -883,7 +883,7 @@ class TwoOpt : public PathOperator {
   std::string DebugString() const override { return "TwoOpt"; }
 
  protected:
-  bool OnSamePathAsPreviousBase(int64_t base_index) override {
+  bool OnSamePathAsPreviousBase(int64_t /*base_index*/) override {
     // Both base nodes have to be on the same path.
     return true;
   }
@@ -965,7 +965,7 @@ class Relocate : public PathOperator {
   std::string DebugString() const override { return name_; }
 
  protected:
-  bool OnSamePathAsPreviousBase(int64_t base_index) override {
+  bool OnSamePathAsPreviousBase(int64_t /*base_index*/) override {
     // Both base nodes have to be on the same path when it's the single path
     // version.
     return single_path_;
@@ -1292,7 +1292,7 @@ class MakeChainInactiveOperator : public PathOperator {
   }
 
  protected:
-  bool OnSamePathAsPreviousBase(int64_t base_index) override {
+  bool OnSamePathAsPreviousBase(int64_t /*base_index*/) override {
     // Start and end of chain (defined by both base nodes) must be on the same
     // path.
     return true;
@@ -2014,7 +2014,7 @@ int64_t CompoundOperatorNoRestart(int size, int active_index,
                                          : operator_index - active_index;
 }
 
-int64_t CompoundOperatorRestart(int active_index, int operator_index) {
+int64_t CompoundOperatorRestart(int /*active_index*/, int /*operator_index*/) {
   return 0;
 }
 }  // namespace
@@ -2510,7 +2510,7 @@ class MinOperation {
   int64_t value() const {
     return (!values_set_.empty()) ? *values_set_.begin() : 0;
   }
-  void set_value(int64_t new_value) {}
+  void set_value(int64_t /*new_value*/) {}
 
  private:
   std::set<int64_t> values_set_;
@@ -2524,7 +2524,7 @@ class MaxOperation {
   int64_t value() const {
     return (!values_set_.empty()) ? *values_set_.rbegin() : 0;
   }
-  void set_value(int64_t new_value) {}
+  void set_value(int64_t /*new_value*/) {}
 
  private:
   std::set<int64_t> values_set_;
@@ -2534,12 +2534,12 @@ class MaxOperation {
 class AcceptFilter : public LocalSearchFilter {
  public:
   std::string DebugString() const override { return "AcceptFilter"; }
-  bool Accept(const Assignment* delta, const Assignment* deltadelta,
-              int64_t obj_min, int64_t obj_max) override {
+  bool Accept(const Assignment* /*delta*/, const Assignment* /*deltadelta*/,
+              int64_t /*obj_min*/, int64_t /*obj_max*/) override {
     return true;
   }
-  void Synchronize(const Assignment* assignment,
-                   const Assignment* delta) override {}
+  void Synchronize(const Assignment* /*assignment*/,
+                   const Assignment* /*delta*/) override {}
 };
 }  // namespace
 
@@ -2552,12 +2552,12 @@ namespace {
 class RejectFilter : public LocalSearchFilter {
  public:
   std::string DebugString() const override { return "RejectFilter"; }
-  bool Accept(const Assignment* delta, const Assignment* deltadelta,
-              int64_t obj_min, int64_t obj_max) override {
+  bool Accept(const Assignment* /*delta*/, const Assignment* /*deltadelta*/,
+              int64_t /*obj_min*/, int64_t /*obj_max*/) override {
     return false;
   }
-  void Synchronize(const Assignment* assignment,
-                   const Assignment* delta) override {}
+  void Synchronize(const Assignment* /*assignment*/,
+                   const Assignment* /*delta*/) override {}
 };
 }  // namespace
 
@@ -2730,12 +2730,12 @@ class PathStateFilter : public LocalSearchFilter {
   PathStateFilter(std::unique_ptr<PathState> path_state,
                   const std::vector<IntVar*>& nexts);
   void Relax(const Assignment* delta, const Assignment* deltadelta) override;
-  bool Accept(const Assignment* delta, const Assignment* deltadelta,
-              int64_t objective_min, int64_t objective_max) override {
+  bool Accept(const Assignment* /*delta*/, const Assignment* /*deltadelta*/,
+              int64_t /*objective_min*/, int64_t /*objective_max*/) override {
     return true;
   }
-  void Synchronize(const Assignment* delta,
-                   const Assignment* deltadelta) override{};
+  void Synchronize(const Assignment* /*delta*/,
+                   const Assignment* /*deltadelta*/) override{};
   void Commit(const Assignment* assignment, const Assignment* delta) override;
   void Revert() override;
   void Reset() override;

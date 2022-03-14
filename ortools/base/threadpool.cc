@@ -25,7 +25,7 @@ void RunWorker(void* data) {
   }
 }
 
-ThreadPool::ThreadPool(const std::string& prefix, int num_workers)
+ThreadPool::ThreadPool(const std::string& /*prefix*/, int num_workers)
     : num_workers_(num_workers) {}
 
 ThreadPool::~ThreadPool() {

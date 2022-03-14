@@ -1365,7 +1365,7 @@ void StaticGraph<NodeIndexType, ArcIndexType>::Build(
   }
 
   // We use "tail_" (which now contains rubbish) to permute "head_" faster.
-  CHECK_EQ(tail_.size(), num_arcs_);
+  CHECK_EQ(static_cast<int>(tail_.size()), num_arcs_);
   tail_.swap(head_);
   for (int i = 0; i < num_arcs_; ++i) {
     head_[perm[i]] = tail_[i];

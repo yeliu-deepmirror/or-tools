@@ -55,6 +55,7 @@ const DenseRow& PrimalEdgeNorms::GetSquaredNorms() {
     case GlopParameters::DEVEX:
       return GetDevexWeights();
   }
+  return DenseRow; // never reach
 }
 
 const DenseRow& PrimalEdgeNorms::GetEdgeSquaredNorms() {
@@ -154,7 +155,7 @@ void PrimalEdgeNorms::ComputeEdgeSquaredNorms() {
 // the value of direction is no longer needed. This will simplify the code and
 // avoid a copy here.
 void PrimalEdgeNorms::ComputeDirectionLeftInverse(
-    ColIndex entering_col, const ScatteredColumn& direction) {
+    ColIndex /*entering_col*/, const ScatteredColumn& direction) {
   SCOPED_TIME_STAT(&stats_);
 
   // Initialize direction_left_inverse_ to direction. Note the special case when
@@ -244,7 +245,7 @@ void PrimalEdgeNorms::UpdateEdgeSquaredNorms(ColIndex entering_col,
 }
 
 void PrimalEdgeNorms::UpdateDevexWeights(
-    ColIndex entering_col /* index q in the paper */,
+    ColIndex /*entering_col*/ /* index q in the paper */,
     ColIndex leaving_col /* index p in the paper */, RowIndex leaving_row,
     const DenseColumn& direction, const UpdateRow& update_row) {
   SCOPED_TIME_STAT(&stats_);

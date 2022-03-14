@@ -661,7 +661,7 @@ void MinimizeLinearAssignment(
   std::vector<int> task;
   HungarianOptimizer hungarian_optimizer(cost);
   hungarian_optimizer.Minimize(&agent, &task);
-  for (int i = 0; i < agent.size(); ++i) {
+  for (size_t i = 0; i < agent.size(); ++i) {
     (*direct_assignment)[agent[i]] = task[i];
     (*reverse_assignment)[task[i]] = agent[i];
   }
@@ -679,7 +679,7 @@ void MaximizeLinearAssignment(
   std::vector<int> task;
   HungarianOptimizer hungarian_optimizer(cost);
   hungarian_optimizer.Maximize(&agent, &task);
-  for (int i = 0; i < agent.size(); ++i) {
+  for (size_t i = 0; i < agent.size(); ++i) {
     (*direct_assignment)[agent[i]] = task[i];
     (*reverse_assignment)[task[i]] = agent[i];
   }

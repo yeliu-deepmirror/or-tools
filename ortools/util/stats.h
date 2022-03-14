@@ -342,8 +342,8 @@ class EnabledScopedTimeDistributionUpdater {
 
 class DisabledScopedTimeDistributionUpdater {
  public:
-  explicit DisabledScopedTimeDistributionUpdater(TimeDistribution* stat) {}
-  void AlsoUpdate(TimeDistribution* also_update) {}
+  explicit DisabledScopedTimeDistributionUpdater(TimeDistribution* /*stat*/) {}
+  void AlsoUpdate(TimeDistribution* /*also_update*/) {}
 
  private:
   DISALLOW_COPY_AND_ASSIGN(DisabledScopedTimeDistributionUpdater);
@@ -380,7 +380,7 @@ class EnabledScopedInstructionCounter {
 
 class DisabledScopedInstructionCounter {
  public:
-  explicit DisabledScopedInstructionCounter(const std::string& name) {}
+  explicit DisabledScopedInstructionCounter(const std::string& /*name*/) {}
   DisabledScopedInstructionCounter(const DisabledScopedInstructionCounter&) =
       delete;
   DisabledScopedInstructionCounter& operator=(

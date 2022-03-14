@@ -239,7 +239,11 @@ class TimeLimit {
    * \c AdvanceDeterministicTime(double).
    */
   inline void AdvanceDeterministicTime(double deterministic_duration,
-                                       const char* counter_name) {
+                                       const char*
+#ifndef NDEBUG
+                                           counter_name
+#endif
+  ) {
     AdvanceDeterministicTime(deterministic_duration);
 #ifndef NDEBUG
     deterministic_counters_[counter_name] += deterministic_duration;

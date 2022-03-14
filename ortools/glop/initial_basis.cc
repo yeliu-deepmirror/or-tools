@@ -214,6 +214,7 @@ int InitialBasis::GetMarosPriority(ColIndex col) const {
     case VariableType::FIXED_VARIABLE:
       return 0;
   }
+  return -1;  // Never reached.
 }
 
 int InitialBasis::GetMarosPriority(RowIndex row) const {
@@ -383,6 +384,7 @@ int InitialBasis::GetColumnCategory(ColIndex col) const {
     case VariableType::FIXED_VARIABLE:
       return 5;
   }
+  return -1;  // Never reached.
 }
 
 Fractional InitialBasis::GetColumnPenalty(ColIndex col) const {

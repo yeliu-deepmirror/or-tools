@@ -206,7 +206,7 @@ bool LiteralWatchers::Propagate(Trail* trail) {
   return true;
 }
 
-absl::Span<const Literal> LiteralWatchers::Reason(const Trail& trail,
+absl::Span<const Literal> LiteralWatchers::Reason(const Trail& /*trail*/,
                                                   int trail_index) const {
   return reasons_[trail_index]->PropagationReason();
 }
@@ -789,7 +789,7 @@ bool BinaryImplicationGraph::Propagate(Trail* trail) {
 }
 
 absl::Span<const Literal> BinaryImplicationGraph::Reason(
-    const Trail& trail, int trail_index) const {
+    const Trail& /*trail*/, int trail_index) const {
   return {&reasons_[trail_index], 1};
 }
 
@@ -896,7 +896,7 @@ void BinaryImplicationGraph::MinimizeConflictFirst(
 // computation to remove redundant implication in the implication list of the
 // first UIP conflict.
 void BinaryImplicationGraph::MinimizeConflictFirstWithTransitiveReduction(
-    const Trail& trail, std::vector<Literal>* conflict,
+    const Trail& /*trail*/, std::vector<Literal>* conflict,
     SparseBitset<BooleanVariable>* marked, absl::BitGenRef random) {
   SCOPED_TIME_STAT(&stats_);
   const LiteralIndex root_literal_index = conflict->front().NegatedIndex();

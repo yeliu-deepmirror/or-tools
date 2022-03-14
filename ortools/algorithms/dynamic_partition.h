@@ -59,7 +59,7 @@ class DynamicPartition {
 
   // Accessors.
   int NumElements() const { return element_.size(); }
-  const int NumParts() const { return part_.size(); }
+  int NumParts() const { return part_.size(); }
 
   // To iterate over the elements in part #i:
   // for (int element : partition.ElementsInPart(i)) { ... }
@@ -284,20 +284,20 @@ inline DynamicPartition::IterablePart DynamicPartition::ElementsInPart(
 
 inline int DynamicPartition::PartOf(int element) const {
   DCHECK_GE(element, 0);
-  DCHECK_LT(element, part_of_.size());
+  DCHECK_LT(element, static_cast<int>(part_of_.size()));
   return part_of_[element];
 }
 
 inline int DynamicPartition::SizeOfPart(int part) const {
   DCHECK_GE(part, 0);
-  DCHECK_LT(part, part_.size());
+  DCHECK_LT(part, static_cast<int>(part_.size()));
   const Part& p = part_[part];
   return p.end_index - p.start_index;
 }
 
 inline int DynamicPartition::ParentOfPart(int part) const {
   DCHECK_GE(part, 0);
-  DCHECK_LT(part, part_.size());
+  DCHECK_LT(part, static_cast<int>(part_.size()));
   return part_[part].parent_part;
 }
 
@@ -308,7 +308,7 @@ inline DynamicPartition::IterablePart DynamicPartition::ElementsInSamePartAs(
 
 inline uint64_t DynamicPartition::FprintOfPart(int part) const {
   DCHECK_GE(part, 0);
-  DCHECK_LT(part, part_.size());
+  DCHECK_LT(part, static_cast<int>(part_.size()));
   return part_[part].fprint;
 }
 

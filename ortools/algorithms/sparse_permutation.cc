@@ -51,7 +51,8 @@ void SparsePermutation::RemoveCycles(const std::vector<int>& cycle_indices) {
 
 std::string SparsePermutation::DebugString() const {
   DCHECK_EQ(cycles_.empty(), cycle_ends_.empty());
-  if (!cycles_.empty()) DCHECK_EQ(cycles_.size(), cycle_ends_.back());
+  if (!cycles_.empty())
+    DCHECK_EQ(static_cast<int>(cycles_.size()), cycle_ends_.back());
   std::vector<std::vector<int>> cycles;
   int start = 0;
   for (const int end : cycle_ends_) {

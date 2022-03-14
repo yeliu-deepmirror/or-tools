@@ -140,7 +140,7 @@ EtaFactorization::~EtaFactorization() { Clear(); }
 
 void EtaFactorization::Clear() { gtl::STLDeleteElements(&eta_matrix_); }
 
-void EtaFactorization::Update(ColIndex entering_col,
+void EtaFactorization::Update(ColIndex /*entering_col*/,
                               RowIndex leaving_variable_row,
                               const ScatteredColumn& direction) {
   const ColIndex leaving_variable_col = RowToColIndex(leaving_variable_row);

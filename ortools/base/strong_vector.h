@@ -227,8 +227,8 @@ class StrongVector {
 
   ParentType v_;
 
-  COMPILE_ASSERT(std::is_integral<typename IndexType::ValueType>::value,
-                 int_type_indexed_vector_must_have_integral_index);
+  static_assert(std::is_integral<typename IndexType::ValueType>::value,
+                "invalid integer index type for strong vector");
 };
 
 }  // namespace absl

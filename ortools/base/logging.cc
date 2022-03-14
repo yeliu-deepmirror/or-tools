@@ -1594,6 +1594,7 @@ void SetExitOnDFatal(bool value) {
 }  // namespace internal
 }  // namespace base
 
+/*
 // Shell-escaping as we need to shell out ot /bin/mail.
 static const char kDontNeedShellEscapeChars[] =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -1628,6 +1629,7 @@ static string ShellEscape(const string& src) {
   }
   return result;
 }
+*/
 
 static void GetTempDirectories(vector<string>* list) {
   list->clear();
@@ -1866,7 +1868,7 @@ void MakeCheckOpValueString(std::ostream* os, const unsigned char& v) {
 }
 
 template <>
-void MakeCheckOpValueString(std::ostream* os, const std::nullptr_t& v) {
+void MakeCheckOpValueString(std::ostream* os, const std::nullptr_t& /*v*/) {
   (*os) << "nullptr";
 }
 

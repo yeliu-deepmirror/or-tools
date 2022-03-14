@@ -499,7 +499,7 @@ void Markowitz::UpdateDegree(ColIndex col, int degree) {
 }
 
 void Markowitz::RemoveRowFromResidualMatrix(RowIndex pivot_row,
-                                            ColIndex pivot_col) {
+                                            ColIndex /*pivot_col*/) {
   SCOPED_TIME_STAT(&stats_);
   // Note that instead of calling:
   //   residual_matrix_non_zero_.RemoveDeletedColumnsFromRow(pivot_row);
@@ -520,7 +520,7 @@ void Markowitz::RemoveRowFromResidualMatrix(RowIndex pivot_row,
   }
 }
 
-void Markowitz::RemoveColumnFromResidualMatrix(RowIndex pivot_row,
+void Markowitz::RemoveColumnFromResidualMatrix(RowIndex /*pivot_row*/,
                                                ColIndex pivot_col) {
   SCOPED_TIME_STAT(&stats_);
   // The entries of the pivot column are exactly the symbolic non-zeros of the

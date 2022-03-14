@@ -66,7 +66,7 @@ class ClosureDemon : public Demon {
 
   ~ClosureDemon() override {}
 
-  void Run(Solver* const solver) override { closure_(); }
+  void Run(Solver* const /*solver*/) override { closure_(); }
 
  private:
   Solver::Closure closure_;
@@ -495,7 +495,7 @@ class IndexOfFirstMaxValue : public Constraint {
                            JoinDebugStringPtr(vars_, ", "));
   }
 
-  void Accept(ModelVisitor* const visitor) const override {
+  void Accept(ModelVisitor* const /*visitor*/) const override {
     // TODO(user): Implement me.
   }
 

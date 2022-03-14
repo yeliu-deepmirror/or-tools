@@ -150,7 +150,7 @@ class ImpliedBounds {
   //
   // TODO(user): Implement and call when we create new views in the linear
   // relaxation.
-  void NotifyNewIntegerView(Literal literal) {}
+  void NotifyNewIntegerView(Literal /*literal*/) {}
 
  private:
   const SatParameters& parameters_;

@@ -61,12 +61,14 @@ using ::Eigen::VectorXd;
 using IterationStatsCallback =
     std::function<void(const IterationCallbackInfo&)>;
 
+/*
 // Returns infinity norm of the given matrix viewed as a vector.
 double MaxAbsCoefficient(
     const Eigen::SparseMatrix<double, Eigen::ColMajor, int64_t>& matrix) {
   // Note: matrix.coeffs().lpNorm<Eigen::Infinity>() gives a link error.
   return matrix.nonZeros() ? matrix.coeffs().cwiseAbs().maxCoeff() : 0;
 }
+*/
 
 // If `num_shards' is positive, returns it. Otherwise returns a reasonable
 // number of shards to use with ShardedQuadraticProgram for the given number of
@@ -138,6 +140,7 @@ std::string ToShortString(
     case OPTIMALITY_NORM_UNSPECIFIED:
       LOG(FATAL) << "Invalid residual norm.";
   }
+  return "";  // never reach
 }
 
 // Returns a string describing iter_stats, based on the ConvergenceInformation

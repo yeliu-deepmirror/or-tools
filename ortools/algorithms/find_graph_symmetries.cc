@@ -390,7 +390,7 @@ absl::Status GraphSymmetryFinder::FindSymmetries(
   IF_STATS_ENABLED(stats_.initialization_time.StartTimer());
   generators->clear();
   factorized_automorphism_group_size->clear();
-  if (node_equivalence_classes_io->size() != NumNodes()) {
+  if (static_cast<int>(node_equivalence_classes_io->size()) != NumNodes()) {
     return absl::Status(absl::StatusCode::kInvalidArgument,
                         "Invalid 'node_equivalence_classes_io'.");
   }

@@ -110,7 +110,7 @@ class KnapsackSearchNodeForCuts {
       delete;
 
   int depth() const { return depth_; }
-  const KnapsackSearchNodeForCuts* const parent() const { return parent_; }
+  const KnapsackSearchNodeForCuts* parent() const { return parent_; }
   const KnapsackAssignmentForCuts& assignment() const { return assignment_; }
 
   double current_profit() const { return current_profit_; }
@@ -340,7 +340,7 @@ class KnapsackSolverForCuts {
   double Solve(TimeLimit* time_limit, bool* is_solution_optimal);
   // Returns true if the item 'item_id' is packed in the optimal knapsack.
   bool best_solution(int item_id) const {
-    DCHECK(item_id < best_solution_.size());
+    DCHECK(item_id < static_cast<int>(best_solution_.size()));
     return best_solution_[item_id];
   }
 

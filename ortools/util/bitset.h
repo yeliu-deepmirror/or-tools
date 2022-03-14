@@ -19,6 +19,7 @@
 #include <string.h>
 
 #include <algorithm>
+#include <cstdint>
 #include <vector>
 
 #include "ortools/base/integral_types.h"
@@ -125,7 +126,7 @@ inline int LeastSignificantBitPosition64Default(uint64_t n) {
 }
 
 inline int LeastSignificantBitPosition64(uint64_t n) {
-  DCHECK_NE(n, 0);
+  DCHECK_NE(n, uint64_t{0});
 #ifdef USE_FAST_LEAST_SIGNIFICANT_BIT
   return LeastSignificantBitPosition64Fast(n);
 #elif defined(USE_DEBRUIJN)
@@ -180,7 +181,7 @@ inline int LeastSignificantBitPosition32Default(uint32_t n) {
 }
 
 inline int LeastSignificantBitPosition32(uint32_t n) {
-  DCHECK_NE(n, 0);
+  DCHECK_NE(n, uint32_t{0});
 #ifdef USE_FAST_LEAST_SIGNIFICANT_BIT
   return LeastSignificantBitPosition32Fast(n);
 #elif defined(USE_DEBRUIJN)
@@ -283,38 +284,38 @@ inline int MostSignificantBitPosition32(uint32_t n) {
 
 // Returns a word with bits from s to e set.
 inline uint64_t OneRange64(uint64_t s, uint64_t e) {
-  DCHECK_LE(s, 63);
-  DCHECK_LE(e, 63);
+  DCHECK_LE(s, uint64_t{63});
+  DCHECK_LE(e, uint64_t{63});
   DCHECK_LE(s, e);
   return (kAllBits64 << s) ^ ((kAllBits64 - 1) << e);
 }
 
 inline uint32_t OneRange32(uint32_t s, uint32_t e) {
-  DCHECK_LE(s, 31);
-  DCHECK_LE(e, 31);
+  DCHECK_LE(s, uint32_t{31});
+  DCHECK_LE(e, uint32_t{31});
   DCHECK_LE(s, e);
   return (kAllBits32 << s) ^ ((kAllBits32 - 1) << e);
 }
 
 // Returns a word with s least significant bits unset.
 inline uint64_t IntervalUp64(uint64_t s) {
-  DCHECK_LE(s, 63);
+  DCHECK_LE(s, uint64_t{63});
   return kAllBits64 << s;
 }
 
 inline uint32_t IntervalUp32(uint32_t s) {
-  DCHECK_LE(s, 31);
+  DCHECK_LE(s, uint32_t{31});
   return kAllBits32 << s;
 }
 
 // Returns a word with the s most significant bits unset.
 inline uint64_t IntervalDown64(uint64_t s) {
-  DCHECK_LE(s, 63);
+  DCHECK_LE(s, uint64_t{63});
   return kAllBits64 >> (63 - s);
 }
 
 inline uint32_t IntervalDown32(uint32_t s) {
-  DCHECK_LE(s, 31);
+  DCHECK_LE(s, uint32_t{31});
   return kAllBits32 >> (31 - s);
 }
 

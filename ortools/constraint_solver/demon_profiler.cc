@@ -170,9 +170,9 @@ class DemonProfiler : public PropagationMonitor {
     active_demon_ = nullptr;
   }
 
-  void StartProcessingIntegerVariable(IntVar* const var) override {}
-  void EndProcessingIntegerVariable(IntVar* const var) override {}
-  void PushContext(const std::string& context) override {}
+  void StartProcessingIntegerVariable(IntVar* const /*var*/) override {}
+  void EndProcessingIntegerVariable(IntVar* const /*var*/) override {}
+  void PushContext(const std::string& /*context*/) override {}
   void PopContext() override {}
 
   void BeginFail() override {
@@ -205,42 +205,47 @@ class DemonProfiler : public PropagationMonitor {
   }
 
   // IntExpr modifiers.
-  void SetMin(IntExpr* const expr, int64_t new_min) override {}
-  void SetMax(IntExpr* const expr, int64_t new_max) override {}
-  void SetRange(IntExpr* const expr, int64_t new_min,
-                int64_t new_max) override {}
+  void SetMin(IntExpr* const /*expr*/, int64_t /*new_min*/) override {}
+  void SetMax(IntExpr* const /*expr*/, int64_t /*new_max*/) override {}
+  void SetRange(IntExpr* const /*expr*/, int64_t /*new_min*/,
+                int64_t /*new_max*/) override {}
   // IntVar modifiers.
-  void SetMin(IntVar* const var, int64_t new_min) override {}
-  void SetMax(IntVar* const var, int64_t new_max) override {}
-  void SetRange(IntVar* const var, int64_t new_min, int64_t new_max) override {}
-  void RemoveValue(IntVar* const var, int64_t value) override {}
-  void SetValue(IntVar* const var, int64_t value) override {}
-  void RemoveInterval(IntVar* const var, int64_t imin, int64_t imax) override {}
-  void SetValues(IntVar* const var,
-                 const std::vector<int64_t>& values) override {}
-  void RemoveValues(IntVar* const var,
-                    const std::vector<int64_t>& values) override {}
+  void SetMin(IntVar* const /*var*/, int64_t /*new_min*/) override {}
+  void SetMax(IntVar* const /*var*/, int64_t /*new_max*/) override {}
+  void SetRange(IntVar* const /*var*/, int64_t /*new_min*/,
+                int64_t /*new_max*/) override {}
+  void RemoveValue(IntVar* const /*var*/, int64_t /*value*/) override {}
+  void SetValue(IntVar* const /*var*/, int64_t /*value*/) override {}
+  void RemoveInterval(IntVar* const /*var*/, int64_t /*imin*/,
+                      int64_t /*imax*/) override {}
+  void SetValues(IntVar* const /*var*/,
+                 const std::vector<int64_t>& /*values*/) override {}
+  void RemoveValues(IntVar* const /*var*/,
+                    const std::vector<int64_t>& /*values*/) override {}
   // IntervalVar modifiers.
-  void SetStartMin(IntervalVar* const var, int64_t new_min) override {}
-  void SetStartMax(IntervalVar* const var, int64_t new_max) override {}
-  void SetStartRange(IntervalVar* const var, int64_t new_min,
-                     int64_t new_max) override {}
-  void SetEndMin(IntervalVar* const var, int64_t new_min) override {}
-  void SetEndMax(IntervalVar* const var, int64_t new_max) override {}
-  void SetEndRange(IntervalVar* const var, int64_t new_min,
-                   int64_t new_max) override {}
-  void SetDurationMin(IntervalVar* const var, int64_t new_min) override {}
-  void SetDurationMax(IntervalVar* const var, int64_t new_max) override {}
-  void SetDurationRange(IntervalVar* const var, int64_t new_min,
-                        int64_t new_max) override {}
-  void SetPerformed(IntervalVar* const var, bool value) override {}
-  void RankFirst(SequenceVar* const var, int index) override {}
-  void RankNotFirst(SequenceVar* const var, int index) override {}
-  void RankLast(SequenceVar* const var, int index) override {}
-  void RankNotLast(SequenceVar* const var, int index) override {}
-  void RankSequence(SequenceVar* const var, const std::vector<int>& rank_first,
-                    const std::vector<int>& rank_last,
-                    const std::vector<int>& unperformed) override {}
+  void SetStartMin(IntervalVar* const /*var*/, int64_t /*new_min*/) override {}
+  void SetStartMax(IntervalVar* const /*var*/, int64_t /*new_max*/) override {}
+  void SetStartRange(IntervalVar* const /*var*/, int64_t /*new_min*/,
+                     int64_t /*new_max*/) override {}
+  void SetEndMin(IntervalVar* const /*var*/, int64_t /*new_min*/) override {}
+  void SetEndMax(IntervalVar* const /*var*/, int64_t /*new_max*/) override {}
+  void SetEndRange(IntervalVar* const /*var*/, int64_t /*new_min*/,
+                   int64_t /*new_max*/) override {}
+  void SetDurationMin(IntervalVar* const /*var*/,
+                      int64_t /*new_min*/) override {}
+  void SetDurationMax(IntervalVar* const /*var*/,
+                      int64_t /*new_max*/) override {}
+  void SetDurationRange(IntervalVar* const /*var*/, int64_t /*new_min*/,
+                        int64_t /*new_max*/) override {}
+  void SetPerformed(IntervalVar* const /*var*/, bool /*value*/) override {}
+  void RankFirst(SequenceVar* const /*var*/, int /*index*/) override {}
+  void RankNotFirst(SequenceVar* const /*var*/, int /*index*/) override {}
+  void RankLast(SequenceVar* const /*var*/, int /*index*/) override {}
+  void RankNotLast(SequenceVar* const /*var*/, int /*index*/) override {}
+  void RankSequence(SequenceVar* const /*var*/,
+                    const std::vector<int>& /*rank_first*/,
+                    const std::vector<int>& /*rank_last*/,
+                    const std::vector<int>& /*unperformed*/) override {}
 
   // Useful for unit tests.
   void AddFakeRun(Demon* const demon, int64_t start_time, int64_t end_time,
@@ -460,7 +465,7 @@ Demon* Solver::RegisterDemon(Demon* const demon) {
 
 // ----- Exported Methods for Unit Tests -----
 
-void RegisterDemon(Solver* const solver, Demon* const demon,
+void RegisterDemon(Solver* const /*solver*/, Demon* const demon,
                    DemonProfiler* const monitor) {
   monitor->RegisterDemon(demon);
 }

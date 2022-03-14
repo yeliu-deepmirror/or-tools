@@ -2410,29 +2410,29 @@ class ExprLinearizer : public ModelParser {
   ~ExprLinearizer() override {}
 
   // Begin/End visit element.
-  void BeginVisitModel(const std::string& solver_name) override {
+  void BeginVisitModel(const std::string& /*solver_name*/) override {
     LOG(FATAL) << "Should not be here";
   }
 
-  void EndVisitModel(const std::string& solver_name) override {
+  void EndVisitModel(const std::string& /*solver_name*/) override {
     LOG(FATAL) << "Should not be here";
   }
 
-  void BeginVisitConstraint(const std::string& type_name,
-                            const Constraint* const constraint) override {
+  void BeginVisitConstraint(const std::string& /*type_name*/,
+                            const Constraint* const /*constraint*/) override {
     LOG(FATAL) << "Should not be here";
   }
 
-  void EndVisitConstraint(const std::string& type_name,
-                          const Constraint* const constraint) override {
+  void EndVisitConstraint(const std::string& /*type_name*/,
+                          const Constraint* const /*constraint*/) override {
     LOG(FATAL) << "Should not be here";
   }
 
-  void BeginVisitExtension(const std::string& type) override {}
+  void BeginVisitExtension(const std::string& /*type*/) override {}
 
-  void EndVisitExtension(const std::string& type) override {}
-  void BeginVisitIntegerExpression(const std::string& type_name,
-                                   const IntExpr* const expr) override {
+  void EndVisitExtension(const std::string& /*type*/) override {}
+  void BeginVisitIntegerExpression(const std::string& /*type_name*/,
+                                   const IntExpr* const /*expr*/) override {
     BeginVisit(true);
   }
 
@@ -2456,7 +2456,7 @@ class ExprLinearizer : public ModelParser {
     EndVisit();
   }
 
-  void VisitIntegerVariable(const IntVar* const variable,
+  void VisitIntegerVariable(const IntVar* const /*variable*/,
                             const std::string& operation, int64_t value,
                             IntVar* const delegate) override {
     if (operation == ModelVisitor::kSumOperation) {
@@ -2518,12 +2518,12 @@ class ExprLinearizer : public ModelParser {
   }
 
   // Visit interval argument.
-  void VisitIntervalArgument(const std::string& arg_name,
-                             IntervalVar* const argument) override {}
+  void VisitIntervalArgument(const std::string& /*arg_name*/,
+                             IntervalVar* const /*argument*/) override {}
 
   void VisitIntervalArrayArgument(
-      const std::string& arg_name,
-      const std::vector<IntervalVar*>& argument) override {}
+      const std::string& /*arg_name*/,
+      const std::vector<IntervalVar*>& /*argument*/) override {}
 
   void Visit(const IntExpr* const expr, int64_t multiplier) {
     if (expr->Min() == expr->Max()) {
@@ -2540,7 +2540,7 @@ class ExprLinearizer : public ModelParser {
   std::string DebugString() const override { return "ExprLinearizer"; }
 
  private:
-  void BeginVisit(bool active) { PushArgumentHolder(); }
+  void BeginVisit(bool /*active*/) { PushArgumentHolder(); }
 
   void EndVisit() { PopArgumentHolder(); }
 
@@ -2548,7 +2548,7 @@ class ExprLinearizer : public ModelParser {
     cp_expr->Accept(this);
   }
 
-  void VisitSum(const IntExpr* const cp_expr) {
+  void VisitSum(const IntExpr* const /*cp_expr*/) {
     if (Top()->HasIntegerVariableArrayArgument(ModelVisitor::kVarsArgument)) {
       const std::vector<IntVar*>& cp_vars =
           Top()->FindIntegerVariableArrayArgumentOrDie(
@@ -2574,7 +2574,7 @@ class ExprLinearizer : public ModelParser {
     }
   }
 
-  void VisitScalProd(const IntExpr* const cp_expr) {
+  void VisitScalProd(const IntExpr* const /*cp_expr*/) {
     const std::vector<IntVar*>& cp_vars =
         Top()->FindIntegerVariableArrayArgumentOrDie(
             ModelVisitor::kVarsArgument);
@@ -2590,7 +2590,7 @@ class ExprLinearizer : public ModelParser {
     }
   }
 
-  void VisitDifference(const IntExpr* const cp_expr) {
+  void VisitDifference(const IntExpr* const /*cp_expr*/) {
     if (Top()->HasIntegerExpressionArgument(ModelVisitor::kLeftArgument)) {
       const IntExpr* const left = Top()->FindIntegerExpressionArgumentOrDie(
           ModelVisitor::kLeftArgument);
@@ -2612,7 +2612,7 @@ class ExprLinearizer : public ModelParser {
     }
   }
 
-  void VisitOpposite(const IntExpr* const cp_expr) {
+  void VisitOpposite(const IntExpr* const /*cp_expr*/) {
     const IntExpr* const expr = Top()->FindIntegerExpressionArgumentOrDie(
         ModelVisitor::kExpressionArgument);
     PushMultiplier(-1);
@@ -2635,7 +2635,7 @@ class ExprLinearizer : public ModelParser {
     }
   }
 
-  void VisitTrace(const IntExpr* const cp_expr) {
+  void VisitTrace(const IntExpr* const /*cp_expr*/) {
     const IntExpr* const expr = Top()->FindIntegerExpressionArgumentOrDie(
         ModelVisitor::kExpressionArgument);
     VisitSubExpression(expr);

@@ -235,7 +235,7 @@ struct AssignmentType {
 // and the information of each assignment.
 class Trail {
  public:
-  explicit Trail(Model* model) : Trail() {}
+  explicit Trail(Model* /*model*/) : Trail() {}
 
   Trail() {
     current_info_.trail_index = 0;
@@ -475,7 +475,7 @@ class SatPropagator {
   // TODO(user): It is not yet 100% the case, but this can be guaranteed to be
   // called with a trail index that will always be the start of a new decision
   // level.
-  virtual void Untrail(const Trail& trail, int trail_index) {
+  virtual void Untrail(const Trail& /*trail*/, int trail_index) {
     propagation_trail_index_ = std::min(propagation_trail_index_, trail_index);
   }
 
@@ -489,8 +489,8 @@ class SatPropagator {
   // The returned Span has to be valid until the literal is untrailed. A client
   // can use trail_.GetEmptyVectorToStoreReason() if it doesn't have a memory
   // location that already contains the reason.
-  virtual absl::Span<const Literal> Reason(const Trail& trail,
-                                           int trail_index) const {
+  virtual absl::Span<const Literal> Reason(const Trail& /*trail*/,
+                                           int /*trail_index*/) const {
     LOG(FATAL) << "Not implemented.";
     return {};
   }

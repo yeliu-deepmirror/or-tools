@@ -111,7 +111,7 @@ namespace operations_research {
     ++value_;                             \
     return *this;                         \
   }                                       \
-  const ThisType operator++(int v) {      \
+  const ThisType operator++(int /*v*/) {  \
     ThisType temp(*this);                 \
     ++value_;                             \
     return temp;                          \
@@ -120,7 +120,7 @@ namespace operations_research {
     --value_;                             \
     return *this;                         \
   }                                       \
-  const ThisType operator--(int v) {      \
+  const ThisType operator--(int /*v*/) {  \
     ThisType temp(*this);                 \
     --value_;                             \
     return temp;                          \

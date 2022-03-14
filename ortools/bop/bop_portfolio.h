@@ -70,7 +70,7 @@ class PortfolioOptimizer : public BopOptimizerBase {
                      const std::string& name);
   ~PortfolioOptimizer() override;
 
-  bool ShouldBeRun(const ProblemState& problem_state) const override {
+  bool ShouldBeRun(const ProblemState& /*problem_state*/) const override {
     return true;
   }
   Status Optimize(const BopParameters& parameters,

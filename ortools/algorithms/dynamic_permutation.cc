@@ -29,7 +29,7 @@ void DynamicPermutation::AddMappings(const std::vector<int>& src,
   DCHECK_EQ(src.size(), dst.size());
   mapping_src_size_stack_.push_back(mapping_src_stack_.size());
   mapping_src_stack_.reserve(mapping_src_stack_.size() + src.size());
-  for (int i = 0; i < src.size(); ++i) {
+  for (size_t i = 0; i < src.size(); ++i) {
     const int s = src[i];
     const int d = dst[i];
     DCHECK_EQ(s, ImageOf(s));    // No prior image of s.

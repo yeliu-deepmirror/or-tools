@@ -3032,7 +3032,7 @@ bool RemoveNearZeroEntriesPreprocessor::Run(LinearProgram* lp) {
 }
 
 void RemoveNearZeroEntriesPreprocessor::RecoverSolution(
-    ProblemSolution* solution) const {}
+    ProblemSolution* /*solution*/) const {}
 
 // --------------------------------------------------------
 // SingletonColumnSignPreprocessor
@@ -3916,7 +3916,7 @@ bool ToMinimizationPreprocessor::Run(LinearProgram* lp) {
 }
 
 void ToMinimizationPreprocessor::RecoverSolution(
-    ProblemSolution* solution) const {}
+    ProblemSolution* /*solution*/) const {}
 
 // --------------------------------------------------------
 // AddSlackVariablesPreprocessor

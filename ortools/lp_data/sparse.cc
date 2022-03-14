@@ -1341,8 +1341,8 @@ void TriangularMatrix::ComputeRowsToConsiderInSortedOrder(
 }
 
 void TriangularMatrix::ComputeRowsToConsiderInSortedOrder(
-    RowIndexVector* non_zero_rows, Fractional sparsity_ratio,
-    Fractional num_ops_ratio) const {
+    RowIndexVector* non_zero_rows, Fractional /*sparsity_ratio*/,
+    Fractional /*num_ops_ratio*/) const {
   if (non_zero_rows->empty()) return;
 
   // TODO(user): Investigate the best thresholds.

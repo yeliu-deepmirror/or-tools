@@ -21,7 +21,7 @@ namespace operations_research {
 int64_t GetProcessMemoryUsage();
 }  // namespace operations_research
 
-inline int64_t MemoryUsage(int unused) {
+inline int64_t MemoryUsage(int /*unused*/) {
   return operations_research::GetProcessMemoryUsage();
 }
 

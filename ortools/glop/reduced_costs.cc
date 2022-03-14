@@ -519,7 +519,7 @@ PrimalPrices::PrimalPrices(absl::BitGenRef random,
   primal_edge_norms->AddRecomputationWatcher(&recompute_);
 }
 
-void PrimalPrices::UpdateBeforeBasisPivot(ColIndex entering_col,
+void PrimalPrices::UpdateBeforeBasisPivot(ColIndex /*entering_col*/,
                                           UpdateRow* update_row) {
   // If we are recomputing everything when requested, no need to update.
   if (recompute_) return;

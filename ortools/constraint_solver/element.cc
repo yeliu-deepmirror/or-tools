@@ -284,7 +284,8 @@ class IntElementConstraint : public CastConstraint {
 
 // ----- IntExprElement
 
-IntVar* BuildDomainIntVar(Solver* const solver, std::vector<int64_t>* values);
+// IntVar* BuildDomainIntVar(Solver* const solver, std::vector<int64_t>*
+// values);
 
 class IntExprElement : public BaseIntExprElement {
  public:
@@ -1183,7 +1184,7 @@ class IfThenElseCt : public CastConstraint {
                            target_var_->DebugString());
   }
 
-  void Accept(ModelVisitor* const visitor) const override {}
+  void Accept(ModelVisitor* const /*visitor*/) const override {}
 
  private:
   IntVar* const condition_;

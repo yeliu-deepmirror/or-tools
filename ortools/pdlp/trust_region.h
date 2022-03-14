@@ -357,7 +357,7 @@ class PrimalTrustRegionProblem {
     return qp_.variable_upper_bounds[index];
   }
   double CenterPoint(int64_t index) const { return primal_solution_[index]; }
-  double NormWeight(int64_t index) const { return norm_weight_; }
+  double NormWeight(int64_t /*index*/) const { return norm_weight_; }
 
  private:
   const QuadraticProgram& qp_;
@@ -402,7 +402,7 @@ class DualTrustRegionProblem {
                : 0.0;
   }
   double CenterPoint(int64_t index) const { return dual_solution_[index]; }
-  double NormWeight(int64_t index) const { return norm_weight_; }
+  double NormWeight(int64_t /*index*/) const { return norm_weight_; }
 
  private:
   const QuadraticProgram& qp_;

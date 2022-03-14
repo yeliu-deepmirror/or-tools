@@ -341,7 +341,7 @@ class KnapsackSearchNode {
   KnapsackSearchNode(const KnapsackSearchNode* const parent,
                      const KnapsackAssignment& assignment);
   int depth() const { return depth_; }
-  const KnapsackSearchNode* const parent() const { return parent_; }
+  const KnapsackSearchNode* parent() const { return parent_; }
   const KnapsackAssignment& assignment() const { return assignment_; }
 
   int64_t current_profit() const { return current_profit_; }

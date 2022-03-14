@@ -108,15 +108,18 @@ class FindVar : public DecisionVisitor {
     operation_ = start_with_lower_half ? SPLIT_LOW : SPLIT_HIGH;
   }
 
-  void VisitScheduleOrPostpone(IntervalVar* const var, int64_t est) override {
+  void VisitScheduleOrPostpone(IntervalVar* const /*var*/,
+                               int64_t /*est*/) override {
     operation_ = NONE;
   }
 
-  virtual void VisitTryRankFirst(SequenceVar* const sequence, int index) {
+  virtual void VisitTryRankFirst(SequenceVar* const /*sequence*/,
+                                 int /*index*/) {
     operation_ = NONE;
   }
 
-  virtual void VisitTryRankLast(SequenceVar* const sequence, int index) {
+  virtual void VisitTryRankLast(SequenceVar* const /*sequence*/,
+                                int /*index*/) {
     operation_ = NONE;
   }
 
@@ -179,7 +182,7 @@ class InitVarImpacts : public DecisionBuilder {
     value_index_ = 0;
   }
 
-  Decision* Next(Solver* const solver) override {
+  Decision* Next(Solver* const /*solver*/) override {
     CHECK(var_ != nullptr);
     CHECK(iterator_ != nullptr);
     if (new_start_) {
@@ -220,7 +223,7 @@ class InitVarImpacts : public DecisionBuilder {
       update_impact_closure_();
       solver->Fail();
     }
-    void Refute(Solver* const solver) override {}
+    void Refute(Solver* const /*solver*/) override {}
     // Public data for easy access.
     IntVar* var_;
     int64_t value_;
@@ -265,7 +268,7 @@ class InitVarImpactsWithSplits : public DecisionBuilder {
       update_impact_closure_();
       solver->Fail();
     }
-    void Refute(Solver* const solver) override {}
+    void Refute(Solver* const /*solver*/) override {}
 
     // Public for easy access.
     IntVar* var_;
@@ -314,7 +317,7 @@ class InitVarImpactsWithSplits : public DecisionBuilder {
     return (min_value_ + length * index / split_size_);
   }
 
-  Decision* Next(Solver* const solver) override {
+  Decision* Next(Solver* const /*solver*/) override {
     if (new_start_) {
       min_value_ = var_->Min();
       max_value_ = var_->Max();
@@ -402,7 +405,7 @@ class ImpactRecorder : public SearchMonitor {
     }
   }
 
-  void AfterDecision(Decision* const d, bool apply) override {
+  void AfterDecision(Decision* const /*d*/, bool apply) override {
     if (init_done_ && current_var_ != kUninitializedVarIndex) {
       if (current_log_space_ > 0.0) {
         const double log_space = domain_watcher_->LogSearchSpaceSize();
@@ -710,7 +713,7 @@ class RunHeuristicsAsDives : public Decision {
     }
   }
 
-  void Refute(Solver* const solver) override {}
+  void Refute(Solver* const /*solver*/) override {}
 
   bool ShouldRun() {
     if (heuristic_period_ <= 0) {

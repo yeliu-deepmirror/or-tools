@@ -1313,7 +1313,7 @@ bool RelaxationInducedNeighborhoodGenerator::ReadyToGenerate() const {
 }
 
 Neighborhood RelaxationInducedNeighborhoodGenerator::Generate(
-    const CpSolverResponse& initial_solution, double difficulty,
+    const CpSolverResponse& /*initial_solution*/, double difficulty,
     absl::BitGenRef random) {
   Neighborhood neighborhood = helper_.FullNeighborhood();
   neighborhood.is_generated = false;
@@ -1406,7 +1406,7 @@ Neighborhood RelaxationInducedNeighborhoodGenerator::Generate(
 }
 
 Neighborhood ConsecutiveConstraintsRelaxationNeighborhoodGenerator::Generate(
-    const CpSolverResponse& initial_solution, double difficulty,
+    const CpSolverResponse& /*initial_solution*/, double difficulty,
     absl::BitGenRef random) {
   std::vector<int> removable_constraints;
   const int num_constraints = helper_.ModelProto().constraints_size();
@@ -1533,7 +1533,7 @@ void WeightedRandomRelaxationNeighborhoodGenerator::
 }
 
 Neighborhood WeightedRandomRelaxationNeighborhoodGenerator::Generate(
-    const CpSolverResponse& initial_solution, double difficulty,
+    const CpSolverResponse& /*initial_solution*/, double difficulty,
     absl::BitGenRef random) {
   const int target_size =
       std::round((1.0 - difficulty) * num_removable_constraints_);

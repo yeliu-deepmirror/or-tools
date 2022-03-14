@@ -44,7 +44,7 @@ void DualEdgeNorms::UpdateDataOnBasisPermutation(
 }
 
 void DualEdgeNorms::UpdateBeforeBasisPivot(
-    ColIndex entering_col, RowIndex leaving_row,
+    ColIndex /*entering_col*/, RowIndex leaving_row,
     const ScatteredColumn& direction,
     const ScatteredRow& unit_row_left_inverse) {
   // No need to update if we will recompute it from scratch later.

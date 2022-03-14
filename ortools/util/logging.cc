@@ -27,7 +27,7 @@ void SolverLogger::AddInfoLoggingCallback(
 
 void SolverLogger::ClearInfoLoggingCallbacks() { info_callbacks_.clear(); }
 
-void SolverLogger::LogInfo(const char* source_filename, int source_line,
+void SolverLogger::LogInfo(const char* /*source_filename*/, int /*source_line*/,
                            const std::string& message) {
   if (log_to_stdout_) {
     std::cout << message << std::endl;

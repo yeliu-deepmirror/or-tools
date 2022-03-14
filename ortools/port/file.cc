@@ -48,8 +48,8 @@ namespace operations_research {
 #endif  // !defined(__PORTABLE_PLATFORM__)
 }
 
-bool PortableTemporaryFile(const char* directory_prefix,
-                           std::string* filename_out) {
+bool PortableTemporaryFile(const char* /*directory_prefix*/,
+                           std::string* /*filename_out*/) {
 #if defined(__PORTABLE_PLATFORM__)
   LOG(ERROR) << "Temporary files are not implemented for this platform.";
   return false;

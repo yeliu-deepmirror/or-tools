@@ -1511,7 +1511,7 @@ class PathTransitPrecedenceConstraint : public Constraint {
     output += absl::StrJoin(elements, ",") + ")";
     return output;
   }
-  void Accept(ModelVisitor* const visitor) const override {
+  void Accept(ModelVisitor* const /*visitor*/) const override {
     // TODO(user): Implement.
   }
 

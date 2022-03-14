@@ -503,7 +503,7 @@ class CallMethod0 : public Demon {
 
   ~CallMethod0() override {}
 
-  void Run(Solver* const s) override { (constraint_->*method_)(); }
+  void Run(Solver* const /*s*/) override { (constraint_->*method_)(); }
 
   std::string DebugString() const override {
     return "CallMethod_" + name_ + "(" + constraint_->DebugString() + ")";
@@ -542,7 +542,7 @@ class CallMethod1 : public Demon {
 
   ~CallMethod1() override {}
 
-  void Run(Solver* const s) override { (constraint_->*method_)(param1_); }
+  void Run(Solver* const /*s*/) override { (constraint_->*method_)(param1_); }
 
   std::string DebugString() const override {
     return absl::StrCat("CallMethod_", name_, "(", constraint_->DebugString(),
@@ -661,7 +661,7 @@ class DelayedCallMethod0 : public Demon {
 
   ~DelayedCallMethod0() override {}
 
-  void Run(Solver* const s) override { (constraint_->*method_)(); }
+  void Run(Solver* const /*s*/) override { (constraint_->*method_)(); }
 
   Solver::DemonPriority priority() const override {
     return Solver::DELAYED_PRIORITY;
@@ -695,7 +695,7 @@ class DelayedCallMethod1 : public Demon {
 
   ~DelayedCallMethod1() override {}
 
-  void Run(Solver* const s) override { (constraint_->*method_)(param1_); }
+  void Run(Solver* const /*s*/) override { (constraint_->*method_)(param1_); }
 
   Solver::DemonPriority priority() const override {
     return Solver::DELAYED_PRIORITY;
@@ -840,7 +840,7 @@ class VarLocalSearchOperator : public LocalSearchOperator {
   }
   /// Returns the variable of given index.
   V* Var(int64_t index) const { return vars_[index]; }
-  virtual bool SkipUnchanged(int index) const { return false; }
+  virtual bool SkipUnchanged(int /*index*/) const { return false; }
   const Val& OldValue(int64_t index) const { return old_values_[index]; }
   void SetValue(int64_t index, const Val& value) {
     values_[index] = value;
@@ -1222,7 +1222,7 @@ inline bool SequenceVarLocalSearchHandler::ValueFromAssignment(
 }
 
 inline void SequenceVarLocalSearchHandler::OnRevertChanges(
-    int64_t index, const std::vector<int>& value) {
+    int64_t index, const std::vector<int>& /*value*/) {
   op_->backward_values_[index].clear();
 }
 
@@ -1433,7 +1433,7 @@ class PathOperator : public IntVarLocalSearchOperator {
   // TODO(user): ideally this should be OnSamePath(int64_t node1, int64_t
   // node2);
   /// it's currently way more complicated to implement.
-  virtual bool OnSamePathAsPreviousBase(int64_t base_index) { return false; }
+  virtual bool OnSamePathAsPreviousBase(int64_t /*base_index*/) { return false; }
   /// Returns the index of the node to which the base node of index base_index
   /// must be set to when it reaches the end of a path.
   /// By default, it is set to the start of the current path.
@@ -1449,7 +1449,7 @@ class PathOperator : public IntVarLocalSearchOperator {
   }
   /// Indicates if alternatives should be considered when iterating over base
   /// nodes.
-  virtual bool ConsiderAlternatives(int64_t base_index) const { return false; }
+  virtual bool ConsiderAlternatives(int64_t /*base_index*/) const { return false; }
 
   int64_t OldNext(int64_t node) const {
     DCHECK(!IsPathEnd(node));
@@ -1731,9 +1731,9 @@ class LocalSearchFilter : public BaseObject {
  public:
   /// Lets the filter know what delta and deltadelta will be passed in the next
   /// Accept().
-  virtual void Relax(const Assignment* delta, const Assignment* deltadelta) {}
+  virtual void Relax(const Assignment* /*delta*/, const Assignment* /*deltadelta*/) {}
   /// Dual of Relax(), lets the filter know that the delta was accepted.
-  virtual void Commit(const Assignment* delta, const Assignment* deltadelta) {}
+  virtual void Commit(const Assignment* /*delta*/, const Assignment* /*deltadelta*/) {}
 
   /// Accepts a "delta" given the assignment with which the filter has been
   /// synchronized; the delta holds the variables which have been modified and
@@ -1848,7 +1848,7 @@ class IntVarLocalSearchFilter : public LocalSearchFilter {
   bool IsVarSynced(int index) const { return var_synced_[index]; }
 
  protected:
-  virtual void OnSynchronize(const Assignment* delta) {}
+  virtual void OnSynchronize(const Assignment* /*delta*/) {}
   void SynchronizeOnAssignment(const Assignment* assignment);
 
  private:
@@ -2944,7 +2944,7 @@ bool IsArrayInRange(const std::vector<IntVar*>& vars, T range_min,
 }
 
 inline bool AreAllBound(const std::vector<IntVar*>& vars) {
-  for (int i = 0; i < vars.size(); ++i) {
+  for (size_t i = 0; i < vars.size(); ++i) {
     if (!vars[i]->Bound()) {
       return false;
     }
@@ -2961,7 +2961,7 @@ inline bool AreAllBooleans(const std::vector<IntVar*>& vars) {
 template <class T>
 bool AreAllBoundOrNull(const std::vector<IntVar*>& vars,
                        const std::vector<T>& values) {
-  for (int i = 0; i < vars.size(); ++i) {
+  for (size_t i = 0; i < vars.size(); ++i) {
     if (values[i] != 0 && !vars[i]->Bound()) {
       return false;
     }
@@ -2971,7 +2971,7 @@ bool AreAllBoundOrNull(const std::vector<IntVar*>& vars,
 
 /// Returns true if all variables are assigned to 'value'.
 inline bool AreAllBoundTo(const std::vector<IntVar*>& vars, int64_t value) {
-  for (int i = 0; i < vars.size(); ++i) {
+  for (size_t i = 0; i < vars.size(); ++i) {
     if (!vars[i]->Bound() || vars[i]->Min() != value) {
       return false;
     }
@@ -2982,7 +2982,7 @@ inline bool AreAllBoundTo(const std::vector<IntVar*>& vars, int64_t value) {
 inline int64_t MaxVarArray(const std::vector<IntVar*>& vars) {
   DCHECK(!vars.empty());
   int64_t result = kint64min;
-  for (int i = 0; i < vars.size(); ++i) {
+  for (size_t i = 0; i < vars.size(); ++i) {
     /// The std::max<int64_t> is needed for compilation on MSVC.
     result = std::max<int64_t>(result, vars[i]->Max());
   }
@@ -2992,7 +2992,7 @@ inline int64_t MaxVarArray(const std::vector<IntVar*>& vars) {
 inline int64_t MinVarArray(const std::vector<IntVar*>& vars) {
   DCHECK(!vars.empty());
   int64_t result = kint64max;
-  for (int i = 0; i < vars.size(); ++i) {
+  for (size_t i = 0; i < vars.size(); ++i) {
     /// The std::min<int64_t> is needed for compilation on MSVC.
     result = std::min<int64_t>(result, vars[i]->Min());
   }

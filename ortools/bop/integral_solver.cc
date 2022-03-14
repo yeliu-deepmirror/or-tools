@@ -294,6 +294,9 @@ std::vector<bool> IntegralVariable::GetBooleanSolutionValues(
   return std::vector<bool>();
 }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
+
 std::string IntegralVariable::DebugString() const {
   std::string str;
   CHECK_EQ(bits_.size(), weights_.size());
@@ -303,6 +306,8 @@ std::string IntegralVariable::DebugString() const {
   str += absl::StrFormat(" Offset: %d", offset_);
   return str;
 }
+
+#pragma GCC diagnostic pop
 
 //------------------------------------------------------------------------------
 // IntegralProblemConverter

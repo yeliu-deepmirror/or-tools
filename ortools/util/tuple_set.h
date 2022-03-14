@@ -330,7 +330,7 @@ inline bool IntTupleSet::Contains(const std::vector<int64_t>& tuple) const {
 inline void IntTupleSet::InsertAll(
     const std::vector<std::vector<int> >& tuples) {
   data_ = data_->CopyIfShared();
-  for (int i = 0; i < tuples.size(); ++i) {
+  for (size_t i = 0; i < tuples.size(); ++i) {
     Insert(tuples[i]);
   }
 }

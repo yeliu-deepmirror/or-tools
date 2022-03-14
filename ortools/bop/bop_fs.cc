@@ -211,7 +211,7 @@ BopOptimizerBase::Status GuidedSatFirstSolutionGenerator::Optimize(
 // BopRandomFirstSolutionGenerator
 //------------------------------------------------------------------------------
 BopRandomFirstSolutionGenerator::BopRandomFirstSolutionGenerator(
-    const std::string& name, const BopParameters& parameters,
+    const std::string& name, const BopParameters& /*parameters*/,
     sat::SatSolver* sat_propagator, absl::BitGenRef random)
     : BopOptimizerBase(name),
       random_(random),
@@ -445,7 +445,7 @@ bool LinearRelaxation::ShouldBeRun(const ProblemState& problem_state) const {
 }
 
 BopOptimizerBase::Status LinearRelaxation::Optimize(
-    const BopParameters& parameters, const ProblemState& problem_state,
+    const BopParameters& /*parameters*/, const ProblemState& problem_state,
     LearnedInfo* learned_info, TimeLimit* time_limit) {
   CHECK(learned_info != nullptr);
   CHECK(time_limit != nullptr);

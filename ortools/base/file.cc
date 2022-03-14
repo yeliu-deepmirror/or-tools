@@ -210,7 +210,8 @@ bool WriteStringToFile(const std::string& data,
 namespace {
 class NoOpErrorCollector : public google::protobuf::io::ErrorCollector {
  public:
-  virtual void AddError(int line, int column, const std::string& message) {}
+  virtual void AddError(int /*line*/, int /*column*/,
+                        const std::string& /*message*/) {}
 };
 }  // namespace
 

@@ -278,7 +278,7 @@ class DataWrapper<LinearProgram> {
     data_->SetCoefficient(RowIndex(row_index), ColIndex(col_index),
                           coefficient);
   }
-  void SetIsLazy(int row_index) {
+  void SetIsLazy(int /*row_index*/) {
     LOG_FIRST_N(WARNING, 1)
         << "LAZYCONS section detected. It will be handled as an extension of "
            "the ROWS section.";
@@ -297,7 +297,7 @@ class DataWrapper<LinearProgram> {
     data_->SetVariableType(ColIndex(index),
                            LinearProgram::VariableType::INTEGER);
   }
-  void SetVariableTypeToSemiContinuous(int index) {
+  void SetVariableTypeToSemiContinuous(int /*index*/) {
     LOG(FATAL) << "Semi continuous variables are not supported";
   }
   void SetVariableBounds(int index, double lower_bound, double upper_bound) {
@@ -316,8 +316,9 @@ class DataWrapper<LinearProgram> {
     return data_->variable_upper_bounds()[ColIndex(index)];
   }
 
-  absl::Status CreateIndicatorConstraint(std::string row_name, int col_index,
-                                         bool col_value) {
+  absl::Status CreateIndicatorConstraint(std::string /*row_name*/,
+                                         int /*col_index*/,
+                                         bool /*col_value*/) {
     return absl::UnimplementedError(
         "LinearProgram does not support indicator constraints.");
   }

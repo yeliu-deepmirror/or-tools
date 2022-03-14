@@ -301,7 +301,7 @@ struct AffineExpression {
 
 // A model singleton that holds the INITIAL integer variable domains.
 struct IntegerDomains : public absl::StrongVector<IntegerVariable, Domain> {
-  explicit IntegerDomains(Model* model) {}
+  explicit IntegerDomains(Model* /*model*/) {}
 };
 
 // A model singleton used for debugging. If this is set in the model, then we
@@ -309,7 +309,7 @@ struct IntegerDomains : public absl::StrongVector<IntegerVariable, Domain> {
 // is a known optimal solution for instance).
 struct DebugSolution
     : public absl::StrongVector<IntegerVariable, IntegerValue> {
-  explicit DebugSolution(Model* model) {}
+  explicit DebugSolution(Model* /*model*/) {}
 };
 
 // A value and a literal.
@@ -1199,7 +1199,7 @@ class PropagatorInterface {
   // - At level zero, it will not contain any indices associated with literals
   //   that were already fixed when the propagator was registered. Only the
   //   indices of the literals modified after the registration will be present.
-  virtual bool IncrementalPropagate(const std::vector<int>& watch_indices) {
+  virtual bool IncrementalPropagate(const std::vector<int>& /*watch_indices*/) {
     LOG(FATAL) << "Not implemented.";
     return false;  // Remove warning in Windows
   }
@@ -1280,9 +1280,9 @@ class GenericLiteralWatcher : public SatPropagator {
 
   // No-op overload for "constant" IntegerVariable that are sometimes templated
   // as an IntegerValue.
-  void WatchLowerBound(IntegerValue i, int id) {}
-  void WatchUpperBound(IntegerValue i, int id) {}
-  void WatchIntegerVariable(IntegerValue v, int id) {}
+  void WatchLowerBound(IntegerValue /*i*/, int /*id*/) {}
+  void WatchUpperBound(IntegerValue /*i*/, int /*id*/) {}
+  void WatchIntegerVariable(IntegerValue /*v*/, int /*id*/) {}
 
   // Registers a reversible class with a given propagator. This class will be
   // changed to the correct state just before the propagator is called.

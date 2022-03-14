@@ -172,7 +172,7 @@ bool KnapsackPropagatorForCuts::Update(
 void KnapsackPropagatorForCuts::CopyCurrentStateToSolution(
     std::vector<bool>* solution) const {
   DCHECK(solution != nullptr);
-  for (int i(0); i < items_.size(); ++i) {
+  for (size_t i = 0; i < items_.size(); ++i) {
     const int item_id = items_[i]->id;
     (*solution)[item_id] = state_->is_bound(item_id) && state_->is_in(item_id);
   }
@@ -195,7 +195,7 @@ void KnapsackPropagatorForCuts::ComputeProfitBounds() {
 
   double remaining_capacity = capacity_ - consumed_capacity_;
   int break_sorted_item_id = kNoSelection;
-  for (int sorted_id(0); sorted_id < sorted_items_.size(); ++sorted_id) {
+  for (size_t sorted_id = 0; sorted_id < sorted_items_.size(); ++sorted_id) {
     if (!state().is_bound(sorted_items_[sorted_id]->id)) {
       const KnapsackItemForCutsPtr& item = sorted_items_[sorted_id];
       break_item_id_ = item->id;
@@ -227,7 +227,7 @@ void KnapsackPropagatorForCuts::InitPropagator() {
   break_item_id_ = kNoSelection;
   sorted_items_.clear();
   sorted_items_.reserve(items().size());
-  for (int i(0); i < items().size(); ++i) {
+  for (size_t i = 0; i < items().size(); ++i) {
     sorted_items_.emplace_back(absl::make_unique<KnapsackItemForCuts>(
         i, items()[i]->weight, items()[i]->profit));
   }
@@ -244,7 +244,7 @@ double KnapsackPropagatorForCuts::GetAdditionalProfitUpperBound(
     double remaining_capacity, int break_item_id) const {
   const int after_break_item_id = break_item_id + 1;
   double additional_profit_when_no_break_item = 0;
-  if (after_break_item_id < sorted_items_.size()) {
+  if (after_break_item_id < static_cast<int>(sorted_items_.size())) {
     // As items are sorted by decreasing profit / weight ratio, and the current
     // weight is non-zero, the next_weight is non-zero too.
     const double next_weight = sorted_items_[after_break_item_id]->weight;
@@ -290,7 +290,7 @@ void KnapsackSolverForCuts::Init(const std::vector<double>& profits,
   const int number_of_items(profits.size());
   state_.Init(number_of_items);
   best_solution_.assign(number_of_items, false);
-  CHECK_EQ(number_of_items, weights.size());
+  CHECK_EQ(number_of_items, static_cast<int>(weights.size()));
 
   propagator_.Init(profits, weights, capacity);
 }

@@ -113,7 +113,7 @@ inline void RunningAverage::Add(int value) {
   global_sum_ += value;
   local_sum_ += value;
   values_.push_back(value);
-  if (values_.size() > window_size_) {
+  if (static_cast<int>(values_.size()) > window_size_) {
     local_sum_ -= values_.front();
     values_.pop_front();
   }
@@ -134,7 +134,7 @@ inline void RunningAverage::ClearWindow() {
 }
 
 inline bool RunningAverage::IsWindowFull() const {
-  return values_.size() == window_size_;
+  return static_cast<int>(values_.size()) == window_size_;
 }
 
 template <class Number>
@@ -145,7 +145,7 @@ RunningMax<Number>::RunningMax(int window_size)
 
 template <class Number>
 void RunningMax<Number>::Add(Number value) {
-  if (values_.size() < window_size_) {
+  if (static_cast<int>(values_.size()) < window_size_) {
     // Starting phase until values_ reaches its final size.
     // Note that last_index_ stays at 0 during this phase.
     if (values_.empty() || value >= GetCurrentMax()) {
@@ -155,7 +155,7 @@ void RunningMax<Number>::Add(Number value) {
     return;
   }
   // We are in the steady state.
-  DCHECK_EQ(values_.size(), window_size_);
+  DCHECK_EQ(static_cast<int>(values_.size()), window_size_);
   // Note the use of >= instead of > to get the O(1) behavior in presence of
   // many identical values.
   if (value >= GetCurrentMax()) {
@@ -169,7 +169,7 @@ void RunningMax<Number>::Add(Number value) {
       // GetCurrentMax() in the last window_size_ updates.
       max_index_ = 0;
       Number max_value = values_[max_index_];
-      for (int i = 1; i < values_.size(); ++i) {
+      for (size_t i = 1; i < values_.size(); ++i) {
         if (values_[i] > max_value) {
           max_value = values_[i];
           max_index_ = i;

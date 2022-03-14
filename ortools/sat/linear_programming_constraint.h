@@ -565,7 +565,7 @@ class LinearProgrammingDispatcher
     : public absl::flat_hash_map<IntegerVariable,
                                  LinearProgrammingConstraint*> {
  public:
-  explicit LinearProgrammingDispatcher(Model* model) {}
+  explicit LinearProgrammingDispatcher(Model* /*model*/) {}
 };
 
 // A class that stores the collection of all LP constraints in a model.

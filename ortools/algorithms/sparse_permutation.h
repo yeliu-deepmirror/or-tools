@@ -89,9 +89,9 @@ inline void SparsePermutation::AddToCurrentCycle(int x) {
 
 inline void SparsePermutation::CloseCurrentCycle() {
   if (cycle_ends_.empty()) {
-    DCHECK_GE(cycles_.size(), 2);
+    DCHECK_GE(cycles_.size(), size_t{2});
   } else {
-    DCHECK_GE(cycles_.size(), cycle_ends_.back() + 2);
+    DCHECK_GE(static_cast<int>(cycles_.size()), cycle_ends_.back() + 2);
   }
   cycle_ends_.push_back(cycles_.size());
 }
@@ -123,7 +123,7 @@ inline SparsePermutation::Iterator SparsePermutation::Cycle(int i) const {
 
 inline int SparsePermutation::LastElementInCycle(int i) const {
   DCHECK_GE(i, 0);
-  DCHECK_LT(i, cycle_ends_.size());
+  DCHECK_LT(i, static_cast<int>(cycle_ends_.size()));
   DCHECK_GT(cycle_ends_[i], i == 0 ? 0 : cycle_ends_[i - 1]);
   return cycles_[cycle_ends_[i] - 1];
 }

@@ -273,8 +273,8 @@ class StrongInt {
   // The integer value of type ValueType.
   ValueType value_;
 
-  COMPILE_ASSERT(std::is_integral<ValueType>::value,
-                 invalid_integer_type_for_id_type_);
+  static_assert(std::is_integral<ValueType>::value,
+                "invalid integer type for strong int");
 } ABSL_ATTRIBUTE_PACKED;
 
 // -- NON-MEMBER STREAM OPERATORS ----------------------------------------------

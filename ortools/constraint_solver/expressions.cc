@@ -311,7 +311,7 @@ class DomainIntVar : public IntVar {
   template <class T>
   class RevIntPtrMap {
    public:
-    RevIntPtrMap(Solver* const solver, int64_t rmin, int64_t rmax)
+    RevIntPtrMap(Solver* const solver, int64_t rmin, int64_t /*rmax*/)
         : solver_(solver), range_min_(rmin), start_(0) {}
 
     ~RevIntPtrMap() {}
@@ -327,7 +327,7 @@ class DomainIntVar : public IntVar {
       elements_.push_back(std::make_pair(value, elem));
       if (solver_->state() != Solver::OUTSIDE_SEARCH) {
         solver_->AddBacktrackAction(
-            [this, value](Solver* s) { Uninsert(value); }, false);
+            [this, value](Solver* /*s*/) { Uninsert(value); }, false);
       }
     }
 
@@ -414,7 +414,7 @@ class DomainIntVar : public IntVar {
           : value_watcher_(watcher), value_(value), var_(var) {}
       ~WatchDemon() override {}
 
-      void Run(Solver* const solver) override {
+      void Run(Solver* const /*solver*/) override {
         value_watcher_->ProcessValueWatcher(value_, var_);
       }
 
@@ -431,7 +431,9 @@ class DomainIntVar : public IntVar {
 
       ~VarDemon() override {}
 
-      void Run(Solver* const solver) override { value_watcher_->ProcessVar(); }
+      void Run(Solver* const /*solver*/) override {
+        value_watcher_->ProcessVar();
+      }
 
      private:
       ValueWatcher* const value_watcher_;
@@ -641,7 +643,7 @@ class DomainIntVar : public IntVar {
           : value_watcher_(watcher), value_(value), var_(var) {}
       ~WatchDemon() override {}
 
-      void Run(Solver* const solver) override {
+      void Run(Solver* const /*solver*/) override {
         value_watcher_->ProcessValueWatcher(value_, var_);
       }
 
@@ -658,7 +660,9 @@ class DomainIntVar : public IntVar {
 
       ~VarDemon() override {}
 
-      void Run(Solver* const solver) override { value_watcher_->ProcessVar(); }
+      void Run(Solver* const /*solver*/) override {
+        value_watcher_->ProcessVar();
+      }
 
      private:
       DenseValueWatcher* const value_watcher_;
@@ -900,7 +904,7 @@ class DomainIntVar : public IntVar {
           : value_watcher_(watcher), index_(index), var_(var) {}
       ~WatchDemon() override {}
 
-      void Run(Solver* const solver) override {
+      void Run(Solver* const /*solver*/) override {
         value_watcher_->ProcessUpperBoundWatcher(index_, var_);
       }
 
@@ -916,7 +920,9 @@ class DomainIntVar : public IntVar {
           : value_watcher_(watcher) {}
       ~VarDemon() override {}
 
-      void Run(Solver* const solver) override { value_watcher_->ProcessVar(); }
+      void Run(Solver* const /*solver*/) override {
+        value_watcher_->ProcessVar();
+      }
 
      private:
       UpperBoundWatcher* const value_watcher_;
@@ -1144,7 +1150,7 @@ class DomainIntVar : public IntVar {
           : value_watcher_(watcher), value_(value), var_(var) {}
       ~WatchDemon() override {}
 
-      void Run(Solver* const solver) override {
+      void Run(Solver* const /*solver*/) override {
         value_watcher_->ProcessUpperBoundWatcher(value_, var_);
       }
 
@@ -1161,7 +1167,9 @@ class DomainIntVar : public IntVar {
 
       ~VarDemon() override {}
 
-      void Run(Solver* const solver) override { value_watcher_->ProcessVar(); }
+      void Run(Solver* const /*solver*/) override {
+        value_watcher_->ProcessVar();
+      }
 
      private:
       DenseUpperBoundWatcher* const value_watcher_;
@@ -2599,9 +2607,9 @@ class IntConst : public IntVar {
       solver()->Fail();
     }
   }
-  void WhenBound(Demon* d) override {}
-  void WhenRange(Demon* d) override {}
-  void WhenDomain(Demon* d) override {}
+  void WhenBound(Demon* /*d*/) override {}
+  void WhenRange(Demon* /*d*/) override {}
+  void WhenDomain(Demon* /*d*/) override {}
   uint64_t Size() const override { return 1; }
   bool Contains(int64_t v) const override { return (v == value_); }
   IntVarIterator* MakeHoleIterator(bool reversible) const override {
@@ -6493,7 +6501,8 @@ IntVar* Solver::MakeIntConst(int64_t val) { return MakeIntConst(val, ""); }
 // ----- Int Var and associated methods -----
 
 namespace {
-std::string IndexedName(const std::string& prefix, int index, int max_index) {
+std::string IndexedName(const std::string& prefix, int index,
+                        int /*max_index*/) {
 #if 0
 #if defined(_MSC_VER)
   const int digits = max_index > 0 ?
@@ -7230,7 +7239,7 @@ class PiecewiseLinearExpr : public BaseIntExpr {
 
   void WhenRange(Demon* d) override { expr_->WhenRange(d); }
 
-  void Accept(ModelVisitor* const visitor) const override {
+  void Accept(ModelVisitor* const /*visitor*/) const override {
     // TODO(user): Implement visitor.
   }
 
