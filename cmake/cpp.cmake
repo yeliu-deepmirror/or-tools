@@ -2,6 +2,22 @@ if(NOT BUILD_CXX)
   return()
 endif()
 
+if (MSVC)
+    # warning level 4 and all warnings as errors
+    add_compile_options(/W4 /WX)
+else()
+    # lots of warnings and all warnings as errors
+    add_compile_options(
+      -Wunused-parameter
+      -Wunused-function
+      -Wunused-variable
+      #-Wsign-compare
+      #-Wall
+      #-Wextra
+      #-pedantic
+      -Werror)
+endif()
+
 # Main Target
 add_library(${PROJECT_NAME} "")
 # Xcode fails to build if library doesn't contains at least one source file.
