@@ -88,6 +88,12 @@ if(USE_GLPK)
   endif()
 endif()
 
+if(USE_HIGHS)
+  if(NOT BUILD_HIGHS)
+    find_package(HIGHS REQUIRED)
+  endif()
+endif()
+
 if(USE_PDLP)
   if(NOT BUILD_PDLP)
     find_package(PDLP REQUIRED)

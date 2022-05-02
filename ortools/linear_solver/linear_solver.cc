@@ -74,6 +74,7 @@ bool SolverTypeIsMip(MPModelRequest::SolverType solver_type) {
     case MPModelRequest::GLOP_LINEAR_PROGRAMMING:
     case MPModelRequest::CLP_LINEAR_PROGRAMMING:
     case MPModelRequest::GLPK_LINEAR_PROGRAMMING:
+    case MPModelRequest::HIGHS_LINEAR_PROGRAMMING:
     case MPModelRequest::GUROBI_LINEAR_PROGRAMMING:
     case MPModelRequest::XPRESS_LINEAR_PROGRAMMING:
     case MPModelRequest::CPLEX_LINEAR_PROGRAMMING:
@@ -81,6 +82,7 @@ bool SolverTypeIsMip(MPModelRequest::SolverType solver_type) {
 
     case MPModelRequest::SCIP_MIXED_INTEGER_PROGRAMMING:
     case MPModelRequest::GLPK_MIXED_INTEGER_PROGRAMMING:
+    case MPModelRequest::HIGHS_MIXED_INTEGER_PROGRAMMING:
     case MPModelRequest::CBC_MIXED_INTEGER_PROGRAMMING:
     case MPModelRequest::GUROBI_MIXED_INTEGER_PROGRAMMING:
     case MPModelRequest::KNAPSACK_MIXED_INTEGER_PROGRAMMING:
@@ -367,6 +369,9 @@ extern MPSolverInterface* BuildCBCInterface(MPSolver* const solver);
 #if defined(USE_GLPK)
 extern MPSolverInterface* BuildGLPKInterface(bool mip, MPSolver* const solver);
 #endif
+#if defined(USE_HIGHS)
+extern MPSolverInterface* BuildHIGHSInterface(bool mip, MPSolver* const solver);
+#endif
 extern MPSolverInterface* BuildBopInterface(MPSolver* const solver);
 extern MPSolverInterface* BuildGLOPInterface(MPSolver* const solver);
 extern MPSolverInterface* BuildPdlpInterface(MPSolver* const solver);
@@ -401,6 +406,12 @@ MPSolverInterface* BuildSolverInterface(MPSolver* const solver) {
       return BuildGLPKInterface(false, solver);
     case MPSolver::GLPK_MIXED_INTEGER_PROGRAMMING:
       return BuildGLPKInterface(true, solver);
+#endif
+#if defined(USE_HIGHS)
+    case MPSolver::HIGHS_LINEAR_PROGRAMMING:
+      return BuildHIGHSInterface(false, solver);
+    case MPSolver::HIGHS_MIXED_INTEGER_PROGRAMMING:
+      return BuildHIGHSInterface(true, solver);
 #endif
 #if defined(USE_CLP) || defined(USE_CBC)
     case MPSolver::CLP_LINEAR_PROGRAMMING:
@@ -477,6 +488,12 @@ bool MPSolver::SupportsProblemType(OptimizationProblemType problem_type) {
     return true;
   }
 #endif
+#ifdef USE_HIGHS
+  if (problem_type == HIGHS_LINEAR_PROGRAMMING ||
+      problem_type == HIGHS_MIXED_INTEGER_PROGRAMMING) {
+    return true;
+  }
+#endif
   if (problem_type == BOP_INTEGER_PROGRAMMING) return true;
   if (problem_type == SAT_INTEGER_PROGRAMMING) return true;
   if (problem_type == GLOP_LINEAR_PROGRAMMING) return true;
@@ -526,6 +543,7 @@ constexpr
         {MPSolver::CLP_LINEAR_PROGRAMMING, "clp"},
         {MPSolver::GUROBI_LINEAR_PROGRAMMING, "gurobi_lp"},
         {MPSolver::GLPK_LINEAR_PROGRAMMING, "glpk_lp"},
+        {MPSolver::HIGHS_LINEAR_PROGRAMMING, "highs_lp"},
         {MPSolver::CPLEX_LINEAR_PROGRAMMING, "cplex_lp"},
         {MPSolver::XPRESS_LINEAR_PROGRAMMING, "xpress_lp"},
         {MPSolver::SCIP_MIXED_INTEGER_PROGRAMMING, "scip"},
@@ -534,6 +552,7 @@ constexpr
         {MPSolver::BOP_INTEGER_PROGRAMMING, "bop"},
         {MPSolver::GUROBI_MIXED_INTEGER_PROGRAMMING, "gurobi"},
         {MPSolver::GLPK_MIXED_INTEGER_PROGRAMMING, "glpk"},
+        {MPSolver::HIGHS_MIXED_INTEGER_PROGRAMMING, "highs"},
         {MPSolver::PDLP_LINEAR_PROGRAMMING, "pdlp"},
         {MPSolver::KNAPSACK_MIXED_INTEGER_PROGRAMMING, "knapsack"},
         {MPSolver::CPLEX_MIXED_INTEGER_PROGRAMMING, "cplex"},
