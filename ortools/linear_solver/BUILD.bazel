@@ -7,8 +7,33 @@ package(default_visibility = ["//visibility:public"])
 exports_files(["model_exporter_swig_helper.h"])
 
 config_setting(
+    name = "with_cbc",
+    values = {"define": "USE_CBC="},
+)
+
+config_setting(
+    name = "with_clp",
+    values = {"define": "USE_CLP="},
+)
+
+config_setting(
     name = "with_glpk",
     values = {"define": "USE_GLPK="},
+)
+
+config_setting(
+    name = "with_highs",
+    values = {"define": "USE_HIGHS="},
+)
+
+config_setting(
+    name = "with_pdlp",
+    values = {"define": "USE_PDLP="},
+)
+
+config_setting(
+    name = "with_scip",
+    values = {"define": "USE_SCIP="},
 )
 
 config_setting(
@@ -19,16 +44,6 @@ config_setting(
 config_setting(
     name = "with_xpress",
     values = {"define": "USE_XPRESS="},
-)
-
-config_setting(
-    name = "with_cbc",
-    values = {"define": "USE_CBC="},
-)
-
-config_setting(
-    name = "with_clp",
-    values = {"define": "USE_CLP="},
 )
 
 proto_library(
@@ -83,13 +98,19 @@ cc_library(
         ":with_clp": ["clp_interface.cc"],
         "//conditions:default": [],
     }) + select({
+        ":with_glpk": ["glpk_interface.cc"],
+        "//conditions:default": [],
+    }) + select({
+        ":with_highs": ["highs_interface.cc"],
+        "//conditions:default": [],
+    }) + select({
+        ":with_pdlp": ["pdlp_interface.cc"],
+        "//conditions:default": [],
+    }) + select({
         ":with_cplex": ["cplex_interface.cc"],
         "//conditions:default": [],
     }) + select({
         ":with_xpress": ["xpress_interface.cc"],
-        "//conditions:default": [],
-    }) + select({
-        ":with_glpk": ["glpk_interface.cc"],
         "//conditions:default": [],
     }),
     hdrs = [
@@ -107,9 +128,9 @@ cc_library(
         "scip_helper_macros.h",
         "scip_proto_solver.h",
     ],
-    copts = [
-        "-DUSE_PDLP",
-        "-DUSE_SCIP",
+    defines = [
+        "USE_PDLP",
+        "USE_SCIP",
     ],
     deps = [
         ":linear_solver_cc_proto",
