@@ -90,7 +90,7 @@ cc_library(
         ]),
         copts = [
         "$(STACK_FRAME_UNLIMITED)",  # src/scip/reader_cnf.c
-        "-DSCIP_WITH_ZLIB",
+        #"-DSCIP_WITH_ZLIB",
         "-DWITH_SCIPDEF",
         "-DSCIP_ROUNDING_FE",
         "-DTPI_TNYC",  # src/tpi/type_tpi_tnycthrd.h

@@ -16,7 +16,7 @@
 
 #include "ortools/base/integral_types.h"
 #include "ortools/base/log_severity.h"
-
+/*
 namespace google {
 
 #if defined(__GNUC__)
@@ -77,5 +77,5 @@ extern GOOGLE_GLOG_DLL_DECL bool InitVLOG3__(int32_t** vmodule_info,
                                              int32_t verbose_level);
 
 }  // namespace google
-
+*/
 #endif  // OR_TOOLS_BASE_VLOG_IS_ON_H_

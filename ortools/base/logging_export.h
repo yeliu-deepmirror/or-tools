@@ -14,6 +14,7 @@
 #ifndef OR_TOOLS_BASE_LOGGING_EXPORT_H_
 #define OR_TOOLS_BASE_LOGGING_EXPORT_H_
 
+/*
 // Annoying stuff for windows -- makes sure clients can import these functions
 #if defined(_MSC_VER) && defined(OR_TOOLS_AS_DYNAMIC_LIB)
 #if defined(OR_TOOLS_EXPORTS)
@@ -26,5 +27,5 @@
 #ifndef GOOGLE_GLOG_DLL_DECL
 #define GOOGLE_GLOG_DLL_DECL
 #endif
-
+*/
 #endif  // OR_TOOLS_BASE_LOGGING_EXPORT_H_

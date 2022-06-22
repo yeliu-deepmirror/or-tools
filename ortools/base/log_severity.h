@@ -16,6 +16,7 @@
 
 #include "ortools/base/logging_export.h"
 
+/*
 // Variables of type LogSeverity are widely taken to lie in the range
 // [0, NUM_SEVERITIES-1].  Be careful to preserve this assumption if
 // you ever need to change their values or add a new severity.
@@ -38,5 +39,5 @@ const int INFO = google::GLOG_INFO, WARNING = google::GLOG_WARNING,
 #else
 #define DFATAL_LEVEL FATAL
 #endif
-
+*/
 #endif  // OR_TOOLS_BASE_LOG_SEVERITY_H_

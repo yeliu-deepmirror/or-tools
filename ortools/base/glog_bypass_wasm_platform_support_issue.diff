@@ -1,0 +1,12 @@
+diff --git a/src/glog/platform.h b/src/glog/platform.h
+index e614411..61fb333 100644
+--- a/src/glog/platform.h
++++ b/src/glog/platform.h
+@@ -52,7 +52,6 @@
+ #define GLOG_OS_OPENBSD
+ #else
+ // TODO(hamaji): Add other platforms.
+-#error Platform not supported by glog. Please consider to contribute platform information by submitting a pull request on Github.
+ #endif
+ 
+ #endif // GLOG_PLATFORM_H

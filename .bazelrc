@@ -1,0 +1,66 @@
+# +------------------------------------------------------------+
+# | Startup Options                                            |
+# +------------------------------------------------------------+
+startup --batch_cpu_scheduling
+
+startup --host_jvm_args=-XX:-UseParallelGC
+
+# +------------------------------------------------------------+
+# | Test Configurations                                        |
+# +------------------------------------------------------------+
+
+# By default prints output only from failed tests.
+test --test_output=errors
+
+# Work around the sandbox issue.
+test --spawn_strategy=local
+
+# Specify protobuf cc toolchain
+test --proto_toolchain_for_cc="@com_google_protobuf//:cc_toolchain"
+
+# +------------------------------------------------------------+
+# | Coverage Configurations                                    |
+# +------------------------------------------------------------+
+
+# set java
+coverage --javabase=@bazel_tools//tools/jdk:remote_jdk
+
+# +------------------------------------------------------------+
+# | Build Configurations                                       |
+# +------------------------------------------------------------+
+# Do not show warnings from external dependencies.
+build --output_filter="^//"
+
+build --show_timestamps
+
+# Work around the sandbox issue.
+build --spawn_strategy=local
+
+# Specify protobuf cc toolchain
+build --proto_toolchain_for_cc="@com_google_protobuf//:cc_toolchain"
+
+# Consider warning as error. Exclude third_party and external files.
+build --per_file_copt="-\\.$@-Wall,-Wextra,-Werror"
+build --per_file_copt="-\\.$,external/.*@-w"
+build --per_file_copt="-\\.$,ortools/.*@-w"
+
+# If a command fails, print out the full command line.
+build --verbose_failures
+
+# Enable C++17
+build --cxxopt="-std=c++17"
+# Enable colorful output of GCC
+build --cxxopt="-fdiagnostics-color=always"
+
+# Group options. Will be included when the option --config=name is present.
+# Use optimized builds for C++ code.
+build:release -c opt
+build -c opt
+
+# Import clang related config.
+try-import %workspace%/clang.bazelrc
+
+build:clang --crosstool_top=//toolchain:clang_suite
+
+# Exclude visualize binary.
+build --build_tag_filters=-visualize

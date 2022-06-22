@@ -137,8 +137,8 @@ MPSolver::ResultStatus PdlpInterface::Solve(const MPSolverParameters& param) {
   *request.mutable_model() = std::move(model_proto);
   if (!google::protobuf::TextFormat::PrintToString(
           parameters_, request.mutable_solver_specific_parameters())) {
-    LOG(QFATAL) << "Error converting parameters to text format: "
-                << parameters_.DebugString();
+    LOG(FATAL) << "Error converting parameters to text format: "
+               << parameters_.DebugString();
   }
   absl::StatusOr<MPSolutionResponse> response =
       PdlpSolveProto(request, /*relax_integer_variables=*/true);
