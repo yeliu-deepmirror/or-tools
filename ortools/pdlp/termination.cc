@@ -132,7 +132,7 @@ std::optional<TerminationReasonAndPointType> CheckTerminationCriteria(
     return TerminationReasonAndPointType{
         .reason = TERMINATION_REASON_NUMERICAL_ERROR, .type = POINT_TYPE_NONE};
   }
-  return absl::nullopt;
+  return std::nullopt;
 }
 
 QuadraticProgramBoundNorms BoundNormsFromProblemStats(

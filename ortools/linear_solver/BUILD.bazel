@@ -107,6 +107,7 @@ cc_library(
         ":linear_solver_cc_proto",
         ":scip_with_glop",
         ":model_exporter",
+        "@zlib//:zlib",
         "@com_google_absl//absl/status",
         "@com_google_absl//absl/status:statusor",
         "@com_google_absl//absl/strings",
@@ -141,6 +142,16 @@ cc_library(
         "//conditions:default": [],
     }),
 )
+
+cc_binary(
+    name = "linear_solver_test",
+    srcs = ["linear_solver_test.cc"],
+    deps = [
+        ":linear_solver",
+        #"@com_google_googletest//:gtest",
+    ],
+)
+
 
 copy_file(
     name = "lpi_glop",
