@@ -1,18 +1,24 @@
 load("@rules_cc//cc:defs.bzl", "cc_proto_library")
-
-package(
-    default_visibility = ["//visibility:public"],
-)
+package(default_visibility = ["//visibility:public"])
 
 cc_library(
     name = "legacy_scip_params",
     srcs = ["legacy_scip_params.cc"],
     hdrs = ["legacy_scip_params.h"],
     deps = [
+        ":scip_with_glop",
         "//ortools/linear_solver:scip_helper_macros",
-        "//ortools/linear_solver:scip_with_glop",
         "@com_google_absl//absl/status",
         "@com_google_absl//absl/strings",
         "@com_google_absl//absl/strings:str_format",
+    ],
+)
+
+cc_library(
+    name = "scip_with_glop",
+    srcs = ["lpi_glop.cpp"],
+    deps = [
+        "//ortools/glop:lp_solver",
+        "@scip//:libscip",
     ],
 )

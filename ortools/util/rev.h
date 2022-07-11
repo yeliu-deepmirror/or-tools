@@ -17,7 +17,6 @@
 
 #include <vector>
 
-#include "absl/container/flat_hash_map.h"
 #include "ortools/base/logging.h"
 #include "ortools/base/strong_vector.h"
 
@@ -264,7 +263,7 @@ class RevGrowingMultiMap : ReversibleInterface {
   // TODO(user): use inlined vectors. Another datastructure that may be more
   // efficient is to use a linked list inside added_keys_ for the values sharing
   // the same key.
-  absl::flat_hash_map<Key, std::vector<Value>> map_;
+  std::map<Key, std::vector<Value>> map_;
 
   // Backtracking data.
   std::vector<Key> added_keys_;

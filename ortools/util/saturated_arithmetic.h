@@ -14,12 +14,32 @@
 #ifndef OR_TOOLS_UTIL_SATURATED_ARITHMETIC_H_
 #define OR_TOOLS_UTIL_SATURATED_ARITHMETIC_H_
 
-#include "absl/base/casts.h"
+#include <cstdint>
+#include <bit>
 #include "ortools/base/integral_types.h"
 #include "ortools/util/bitset.h"
 
 namespace operations_research {
 // ---------- Overflow utility functions ----------
+
+// https://en.cppreference.com/w/cpp/numeric/bit_cast
+template <class To, class From>
+std::enable_if_t<
+    sizeof(To) == sizeof(From) &&
+    std::is_trivially_copyable_v<From> &&
+    std::is_trivially_copyable_v<To>,
+    To>
+// constexpr support needs compiler magic
+bit_cast(const From& src) noexcept
+{
+    static_assert(std::is_trivially_constructible_v<To>,
+        "This implementation additionally requires "
+        "destination type to be trivially constructible");
+
+    To dst;
+    std::memcpy(&dst, &src, sizeof(To));
+    return dst;
+}
 
 // Implement two's complement addition and subtraction on int64s.
 //
@@ -38,14 +58,14 @@ namespace operations_research {
 inline int64_t TwosComplementAddition(int64_t x, int64_t y) {
   static_assert(static_cast<uint64_t>(-1LL) == ~0ULL,
                 "The target architecture does not use two's complement.");
-  return absl::bit_cast<int64_t>(static_cast<uint64_t>(x) +
+  return bit_cast<int64_t>(static_cast<uint64_t>(x) +
                                  static_cast<uint64_t>(y));
 }
 
 inline int64_t TwosComplementSubtraction(int64_t x, int64_t y) {
   static_assert(static_cast<uint64_t>(-1LL) == ~0ULL,
                 "The target architecture does not use two's complement.");
-  return absl::bit_cast<int64_t>(static_cast<uint64_t>(x) -
+  return bit_cast<int64_t>(static_cast<uint64_t>(x) -
                                  static_cast<uint64_t>(y));
 }
 
@@ -205,7 +225,7 @@ inline int64_t CapProdGeneric(int64_t x, int64_t y) {
   // These can be optimized as follows (and if the condition is false, it is
   // safe to compute x * y.
   if (u_prod >= static_cast<uint64_t>(cap)) return cap;
-  const int64_t abs_result = absl::bit_cast<int64_t>(u_prod);
+  const int64_t abs_result = bit_cast<int64_t>(u_prod);
   return cap < 0 ? -abs_result : abs_result;
 }
 

@@ -15,7 +15,6 @@
 
 #include <cmath>
 
-#include "absl/strings/str_format.h"
 #include "ortools/base/stl_util.h"
 #include "ortools/port/sysinfo.h"
 #include "ortools/port/utf8.h"
@@ -29,13 +28,13 @@ std::string MemoryUsage() {
   static const int64_t kMegaByte = kKiloByte * kKiloByte;
   static const int64_t kGigaByte = kMegaByte * kKiloByte;
   if (mem > kDisplayThreshold * kGigaByte) {
-    return absl::StrFormat("%.2lf GB", mem * 1.0 / kGigaByte);
+    return fmt::format("%.2lf GB", mem * 1.0 / kGigaByte);
   } else if (mem > kDisplayThreshold * kMegaByte) {
-    return absl::StrFormat("%.2lf MB", mem * 1.0 / kMegaByte);
+    return fmt::format("%.2lf MB", mem * 1.0 / kMegaByte);
   } else if (mem > kDisplayThreshold * kKiloByte) {
-    return absl::StrFormat("%2lf KB", mem * 1.0 / kKiloByte);
+    return fmt::format("%2lf KB", mem * 1.0 / kKiloByte);
   } else {
-    return absl::StrFormat("%d", mem);
+    return fmt::format("%d", mem);
   }
 }
 
@@ -182,12 +181,12 @@ std::string TimeDistribution::PrintCyclesAsTime(double cycles) {
   // This epsilon is just to avoid displaying 1000.00ms instead of 1.00s.
   double eps1 = 1 + 1e-3;
   double sec = CyclesToSeconds(cycles);
-  if (sec * eps1 >= 3600.0) return absl::StrFormat("%.2fh", sec / 3600.0);
-  if (sec * eps1 >= 60.0) return absl::StrFormat("%.2fm", sec / 60.0);
-  if (sec * eps1 >= 1.0) return absl::StrFormat("%.2fs", sec);
-  if (sec * eps1 >= 1e-3) return absl::StrFormat("%.2fms", sec * 1e3);
-  if (sec * eps1 >= 1e-6) return absl::StrFormat("%.2fus", sec * 1e6);
-  return absl::StrFormat("%.2fns", sec * 1e9);
+  if (sec * eps1 >= 3600.0) return fmt::format("%.2fh", sec / 3600.0);
+  if (sec * eps1 >= 60.0) return fmt::format("%.2fm", sec / 60.0);
+  if (sec * eps1 >= 1.0) return fmt::format("%.2fs", sec);
+  if (sec * eps1 >= 1e-3) return fmt::format("%.2fms", sec * 1e3);
+  if (sec * eps1 >= 1e-6) return fmt::format("%.2fus", sec * 1e6);
+  return fmt::format("%.2fns", sec * 1e9);
 }
 
 void TimeDistribution::AddTimeInSec(double seconds) {
@@ -202,7 +201,7 @@ void TimeDistribution::AddTimeInCycles(double cycles) {
 }
 
 std::string TimeDistribution::ValueAsString() const {
-  return absl::StrFormat(
+  return fmt::format(
       "%8u [%8s, %8s] %8s %8s %8s\n", num_, PrintCyclesAsTime(min_),
       PrintCyclesAsTime(max_), PrintCyclesAsTime(Average()),
       PrintCyclesAsTime(StdDeviation()), PrintCyclesAsTime(sum_));
@@ -214,7 +213,7 @@ void RatioDistribution::Add(double value) {
 }
 
 std::string RatioDistribution::ValueAsString() const {
-  return absl::StrFormat("%8u [%7.2f%%, %7.2f%%] %7.2f%% %7.2f%%\n", num_,
+  return fmt::format("%8u [%7.2f%%, %7.2f%%] %7.2f%% %7.2f%%\n", num_,
                          100.0 * min_, 100.0 * max_, 100.0 * Average(),
                          100.0 * StdDeviation());
 }
@@ -222,7 +221,7 @@ std::string RatioDistribution::ValueAsString() const {
 void DoubleDistribution::Add(double value) { AddToDistribution(value); }
 
 std::string DoubleDistribution::ValueAsString() const {
-  return absl::StrFormat("%8u [%8.1e, %8.1e] %8.1e %8.1e\n", num_, min_, max_,
+  return fmt::format("%8u [%8.1e, %8.1e] %8.1e %8.1e\n", num_, min_, max_,
                          Average(), StdDeviation());
 }
 
@@ -231,7 +230,7 @@ void IntegerDistribution::Add(int64_t value) {
 }
 
 std::string IntegerDistribution::ValueAsString() const {
-  return absl::StrFormat("%8u [%8.f, %8.f] %8.2f %8.2f %8.f\n", num_, min_,
+  return fmt::format("%8u [%8.f, %8.f] %8.2f %8.2f %8.f\n", num_, min_,
                          max_, Average(), StdDeviation(), sum_);
 }
 

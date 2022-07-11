@@ -28,7 +28,6 @@
 #include <algorithm>
 #include <string>
 
-#include "absl/strings/match.h"
 #include "ortools/base/file.h"
 #include "ortools/base/logging.h"
 

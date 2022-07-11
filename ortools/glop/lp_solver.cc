@@ -91,11 +91,7 @@ void DumpLinearProgramIfRequiredByFlags(const LinearProgram& linear_program,
       absl::StrCat(absl::GetFlag(FLAGS_lp_dump_dir), "/", filename);
   MPModelProto proto;
   LinearProgramToMPModelProto(linear_program, &proto);
-  const ProtoWriteFormat write_format = absl::GetFlag(FLAGS_lp_dump_binary_file)
-                                            ? ProtoWriteFormat::kProtoBinary
-                                            : ProtoWriteFormat::kProtoText;
-  if (!WriteProtoToFile(filespec, proto, write_format,
-                        absl::GetFlag(FLAGS_lp_dump_compressed_file))) {
+  if (!file::WriteProtoToFile(proto, filespec)) {
     LOG(DFATAL) << "Could not write " << filespec;
   }
 #endif

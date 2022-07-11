@@ -33,7 +33,6 @@ cc_library(
         "linear_expr.cc",
         "linear_solver_callback.cc",
         "linear_solver.cc",
-        "lpi_glop.cpp",
         "model_validator.cc",
         "pdlp_interface.cc",
         "pdlp_proto_solver.cc",
@@ -65,7 +64,7 @@ cc_library(
     ],
     deps = [
         ":linear_solver_cc_proto",
-        ":scip_with_glop",
+        "//ortools/gscip:scip_with_glop",
         ":model_exporter",
         "@com_google_absl//absl/status",
         "@com_google_absl//absl/status:statusor",
@@ -105,22 +104,6 @@ cc_binary(
     deps = [
         ":linear_solver",
         #"@com_google_googletest//:gtest",
-    ],
-)
-
-
-copy_file(
-    name = "lpi_glop",
-    src = "@scip//:src/lpi/lpi_glop.cpp",
-    out = "lpi_glop.cpp",
-)
-
-cc_library(
-    name = "scip_with_glop",
-    srcs = ["lpi_glop.cpp"],
-    deps = [
-        "//ortools/glop:lp_solver",
-        "@scip//:libscip",
     ],
 )
 

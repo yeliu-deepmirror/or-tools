@@ -17,7 +17,6 @@
 #include <algorithm>
 #include <string>
 
-#include "absl/strings/str_format.h"
 #include "ortools/base/logging.h"
 #include "ortools/base/macros.h"
 
@@ -210,12 +209,10 @@ std::string MonoidOperationTree<T>::DebugString() const {
   for (int i = 0; i < num_nodes_; ++i) {
     if (((i + 1) & i) == 0) {
       // New layer
-      absl::StrAppendFormat(&out, "-------------- Layer %d ---------------\n",
-                            layer);
+      out += fmt::format("-------------- Layer %d ---------------\n", layer);
       ++layer;
     }
-    absl::StrAppendFormat(&out, "Position %d: %s\n", i,
-                          nodes_[i].DebugString());
+    out += fmt::format("Position %d: %s\n", i, nodes_[i].DebugString());
   }
   return out;
 }

@@ -16,18 +16,18 @@
 #include "ortools/base/commandlineflags.h"
 #include "ortools/base/logging.h"
 
-ABSL_FLAG(int, bitset_small_bitset_count, 8,
-          "threshold to count bits with buckets");
-
 namespace operations_research {
 
+namespace {
+constexpr int kBitsetsmallbitsecount = 8;
+}
 // ---------- Bit Operations ----------
 
 #define BIT_COUNT_RANGE(size, zero)                                           \
   uint##size##_t BitCountRange##size(const uint##size##_t* const bits,        \
                                      uint##size##_t start,                    \
                                      uint##size##_t end) {                    \
-    if (end - start > absl::GetFlag(FLAGS_bitset_small_bitset_count)) {       \
+    if (end - start > kBitsetsmallbitsecount) {                               \
       const int offset_start = BitOffset##size(start);                        \
       const int pos_start = BitPos##size(start);                              \
       const int offset_end = BitOffset##size(end);                            \
