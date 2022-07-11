@@ -52,6 +52,10 @@
 #include <utility>
 #include <vector>
 
+#include "absl/status/statusor.h"
+#include "absl/strings/str_cat.h"
+#include "absl/strings/str_join.h"
+#include "absl/strings/str_split.h"
 #include "absl/base/attributes.h"
 #include "absl/status/status.h"
 #include "absl/strings/match.h"
@@ -62,7 +66,7 @@
 #include "ortools/base/map_util.h"
 #include "ortools/base/timer.h"
 #include "ortools/gurobi/environment.h"
-#include "ortools/linear_solver/gurobi_proto_solver.h"
+//#include "ortools/linear_solver/gurobi_proto_solver.h"
 #include "ortools/linear_solver/linear_solver.h"
 #include "ortools/linear_solver/linear_solver_callback.h"
 #include "ortools/util/time_limit.h"
@@ -84,8 +88,7 @@ class GurobiInterface : public MPSolverInterface {
   // ----- Solve -----
   // Solves the problem using the parameter values specified.
   MPSolver::ResultStatus Solve(const MPSolverParameters& param) override;
-  absl::optional<MPSolutionResponse> DirectlySolveProto(
-      const MPModelRequest& request, std::atomic<bool>* interrupt) override;
+  
   // Writes the model.
   void Write(const std::string& filename) override;
 
@@ -268,6 +271,47 @@ void CheckedGurobiCall(int err, GRBenv* const env) {
   CHECK_EQ(0, err) << "Fatal error with code " << err << ", due to "
                    << GRBgeterrormsg(env);
 }
+
+absl::Status SetSolverSpecificParameters(const std::string& parameters,
+                                         GRBenv* gurobi) {
+  if (parameters.empty()) return absl::OkStatus();
+  std::vector<std::string> error_messages;
+  for (absl::string_view line : absl::StrSplit(parameters, '\n')) {
+    // Comment tokens end at the next new-line, or the end of the string.
+    // The first character must be '#'
+    if (line[0] == '#') continue;
+    for (absl::string_view token :
+         absl::StrSplit(line, ',', absl::SkipWhitespace())) {
+      if (token.empty()) continue;
+      std::vector<std::string> key_value =
+          absl::StrSplit(token, absl::ByAnyChar(" ="), absl::SkipWhitespace());
+      // If one parameter fails, we keep processing the list of parameters.
+      if (key_value.size() != 2) {
+        const std::string current_message =
+            absl::StrCat("Cannot parse parameter '", token,
+                         "'. Expected format is 'ParameterName value' or "
+                         "'ParameterName=value'");
+        error_messages.push_back(current_message);
+        continue;
+      }
+      const int gurobi_code =
+          GRBsetparam(gurobi, key_value[0].c_str(), key_value[1].c_str());
+      if (gurobi_code != 0) {   //  GRB_OK = 0
+        const std::string current_message = absl::StrCat(
+            "Error setting parameter '", key_value[0], "' to value '",
+            key_value[1], "': ", GRBgeterrormsg(gurobi));
+        error_messages.push_back(current_message);
+        continue;
+      }
+      VLOG(2) << absl::StrCat("Set parameter '", key_value[0], "' to value '",
+                              key_value[1]);
+    }
+  }
+
+  if (error_messages.empty()) return absl::OkStatus();
+  return absl::InvalidArgumentError(absl::StrJoin(error_messages, "\n"));
+}
+
 
 // For interacting directly with the Gurobi C API for callbacks.
 struct GurobiInternalCallbackContext {
@@ -1316,28 +1360,6 @@ MPSolver::ResultStatus GurobiInterface::Solve(const MPSolverParameters& param) {
   sync_status_ = SOLUTION_SYNCHRONIZED;
   GRBresetparams(GRBgetenv(model_));
   return result_status_;
-}
-
-absl::optional<MPSolutionResponse> GurobiInterface::DirectlySolveProto(
-    const MPModelRequest& request, std::atomic<bool>* interrupt) {
-  // Interruption via atomic<bool> is not directly supported by Gurobi.
-  if (interrupt != nullptr) return absl::nullopt;
-
-  // Here we reuse the Gurobi environment to support single-use license that
-  // forbids creating a second environment if one already exists.
-  const auto status_or = GurobiSolveProto(request, env_);
-  if (status_or.ok()) return status_or.value();
-  // Special case: if something is not implemented yet, fall back to solving
-  // through MPSolver.
-  if (absl::IsUnimplemented(status_or.status())) return absl::nullopt;
-
-  if (request.enable_internal_solver_output()) {
-    LOG(INFO) << "Invalid Gurobi status: " << status_or.status();
-  }
-  MPSolutionResponse response;
-  response.set_status(MPSOLVER_NOT_SOLVED);
-  response.set_status_str(status_or.status().ToString());
-  return response;
 }
 
 bool GurobiInterface::NextSolution() {

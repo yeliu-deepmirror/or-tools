@@ -677,7 +677,7 @@ std::string FindErrorInMPModelProto(
   return std::string();
 }
 
-absl::optional<LazyMutableCopy<MPModelProto>>
+std::optional<LazyMutableCopy<MPModelProto>>
 ExtractValidMPModelOrPopulateResponseStatus(const MPModelRequest& request,
                                             MPSolutionResponse* response) {
   CHECK(response != nullptr);
@@ -685,13 +685,13 @@ ExtractValidMPModelOrPopulateResponseStatus(const MPModelRequest& request,
   if (!request.has_model() && !request.has_model_delta()) {
     response->set_status(MPSOLVER_OPTIMAL);
     response->set_status_str("Requests without model are considered OPTIMAL");
-    return absl::nullopt;
+    return std::nullopt;
   }
   if (request.has_model() && request.has_model_delta()) {
     response->set_status(MPSOLVER_MODEL_INVALID);
     response->set_status_str(
         "Fields 'model' and 'model_delta' are mutually exclusive");
-    return absl::nullopt;
+    return std::nullopt;
   }
 
   // Extract the baseline model.

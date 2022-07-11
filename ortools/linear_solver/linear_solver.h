@@ -539,27 +539,6 @@ class MPSolver {
   /// Encodes the current solution in a solution response protocol buffer.
   void FillSolutionResponseProto(MPSolutionResponse* response) const;
 
-  /**
-   * Solves the model encoded by a MPModelRequest protocol buffer and fills the
-   * solution encoded as a MPSolutionResponse. The solve is stopped prematurely
-   * if interrupt is non-null at set to true during (or before) solving.
-   * Interruption is only supported if SolverTypeSupportsInterruption() returns
-   * true for the requested solver. Passing a non-null interruption with any
-   * other solver type immediately returns an MPSOLVER_INCOMPATIBLE_OPTIONS
-   * error.
-   *
-   * Note(user): This attempts to first use `DirectlySolveProto()` (if
-   * implemented). Consequently, this most likely does *not* override any of
-   * the default parameters of the underlying solver. This behavior *differs*
-   * from `MPSolver::Solve()` which by default sets the feasibility tolerance
-   * and the gap limit (as of 2020/02/11, to 1e-7 and 0.0001, respectively).
-   */
-  static void SolveWithProto(const MPModelRequest& model_request,
-                             MPSolutionResponse* response,
-                             // `interrupt` is non-const because the internal
-                             // solver may set it to true itself, in some cases.
-                             std::atomic<bool>* interrupt = nullptr);
-
   static bool SolverTypeSupportsInterruption(
       const MPModelRequest::SolverType solver) {
     // Interruption requires that MPSolver::InterruptSolve is supported for the

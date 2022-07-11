@@ -46,7 +46,7 @@
 #include "ortools/linear_solver/linear_solver.pb.h"
 #include "ortools/linear_solver/model_exporter.h"
 #include "ortools/linear_solver/model_validator.h"
-#include "ortools/port/file.h"
+//#include "ortools/port/file.h"
 #include "ortools/util/fp_utils.h"
 #include "ortools/util/time_limit.h"
 
@@ -369,7 +369,7 @@ extern MPSolverInterface* BuildGLPKInterface(bool mip, MPSolver* const solver);
 #endif
 // extern MPSolverInterface* BuildBopInterface(MPSolver* const solver);
 extern MPSolverInterface* BuildGLOPInterface(MPSolver* const solver);
-extern MPSolverInterface* BuildPdlpInterface(MPSolver* const solver);
+// extern MPSolverInterface* BuildPdlpInterface(MPSolver* const solver);
 // extern MPSolverInterface* BuildSatInterface(MPSolver* const solver);
 #if defined(USE_SCIP)
 extern MPSolverInterface* BuildSCIPInterface(MPSolver* const solver);
@@ -394,7 +394,8 @@ MPSolverInterface* BuildSolverInterface(MPSolver* const solver) {
     case MPSolver::GLOP_LINEAR_PROGRAMMING:
       return BuildGLOPInterface(solver);
     case MPSolver::PDLP_LINEAR_PROGRAMMING:
-      return BuildPdlpInterface(solver);
+      LOG(ERROR) << "PDLP_LINEAR_PROGRAMMING removed from repo.";
+      return nullptr;
     case MPSolver::SAT_INTEGER_PROGRAMMING:
       LOG(ERROR) << "SAT_INTEGER_PROGRAMMING removed from repo.";
       return nullptr;
@@ -862,190 +863,6 @@ void AppendStatusStr(const std::string& msg, MPSolutionResponse* response) {
                    (response->status_str().empty() ? "" : "\n"), msg));
 }
 }  // namespace
-
-// static
-void MPSolver::SolveWithProto(const MPModelRequest& model_request,
-                              MPSolutionResponse* response,
-                              std::atomic<bool>* interrupt) {
-  CHECK(response != nullptr);
-
-  if (interrupt != nullptr &&
-      !SolverTypeSupportsInterruption(model_request.solver_type())) {
-    response->set_status(MPSOLVER_INCOMPATIBLE_OPTIONS);
-    response->set_status_str(
-        "Called MPSolver::SolveWithProto with an underlying solver that "
-        "doesn't support interruption.");
-    return;
-  }
-
-  MPSolver solver(model_request.model().name(),
-                  static_cast<MPSolver::OptimizationProblemType>(
-                      model_request.solver_type()));
-  if (model_request.enable_internal_solver_output()) {
-    solver.EnableOutput();
-  }
-
-  // If interruption support is not required, we don't need access to the
-  // underlying solver and can solve it directly if the interface supports it.
-  auto optional_response =
-      solver.interface_->DirectlySolveProto(model_request, interrupt);
-  if (optional_response) {
-    *response = std::move(optional_response).value();
-    return;
-  }
-
-  const absl::optional<LazyMutableCopy<MPModelProto>> optional_model =
-      ExtractValidMPModelOrPopulateResponseStatus(model_request, response);
-  if (!optional_model) {
-    LOG_IF(WARNING, model_request.enable_internal_solver_output())
-        << "Failed to extract a valid model from protocol buffer. Status: "
-        << ProtoEnumToString<MPSolverResponseStatus>(response->status()) << " ("
-        << response->status() << "): " << response->status_str();
-    return;
-  }
-  std::string error_message;
-  response->set_status(solver.LoadModelFromProtoInternal(
-      optional_model->get(), /*clear_names=*/true,
-      /*check_model_validity=*/false, &error_message));
-  // Even though we don't re-check model validity here, there can be some
-  // problems found by LoadModelFromProto, eg. unsupported features.
-  if (response->status() != MPSOLVER_MODEL_IS_VALID) {
-    response->set_status_str(error_message);
-    LOG_IF(WARNING, model_request.enable_internal_solver_output())
-        << "LoadModelFromProtoInternal() failed even though the model was "
-        << "valid! Status: "
-        << ProtoEnumToString<MPSolverResponseStatus>(response->status()) << " ("
-        << response->status() << "); Error: " << error_message;
-    return;
-  }
-  if (model_request.has_solver_time_limit_seconds()) {
-    solver.SetTimeLimit(
-        absl::Seconds(model_request.solver_time_limit_seconds()));
-  }
-  std::string warning_message;
-  if (model_request.has_solver_specific_parameters()) {
-    if (!solver.SetSolverSpecificParametersAsString(
-            model_request.solver_specific_parameters())) {
-      if (model_request.ignore_solver_specific_parameters_failure()) {
-        // We'll add a warning message in status_str after the solve.
-        warning_message =
-            "Warning: the solver specific parameters were not successfully "
-            "applied";
-      } else {
-        response->set_status(MPSOLVER_MODEL_INVALID_SOLVER_PARAMETERS);
-        return;
-      }
-    }
-  }
-
-  if (interrupt == nullptr) {
-    // If we don't need interruption support, we can save some overhead by
-    // running the solve in the current thread.
-    solver.Solve();
-    solver.FillSolutionResponseProto(response);
-  } else {
-    const absl::Time start_time = absl::Now();
-    absl::Time interrupt_time;
-    bool interrupted_by_user = false;
-    {
-      absl::Notification solve_finished;
-      auto polling_func = [&interrupt, &solve_finished, &solver,
-                           &interrupted_by_user, &interrupt_time,
-                           &model_request]() {
-        constexpr absl::Duration kPollDelay = absl::Microseconds(100);
-        constexpr absl::Duration kMaxInterruptionDelay = absl::Seconds(10);
-
-        while (!interrupt->load()) {
-          if (solve_finished.HasBeenNotified()) return;
-          absl::SleepFor(kPollDelay);
-        }
-
-        // If we get here, we received an interruption notification before the
-        // solve finished "naturally".
-        solver.InterruptSolve();
-        interrupt_time = absl::Now();
-        interrupted_by_user = true;
-
-        // SUBTLE: our call to InterruptSolve() can be ignored by the
-        // underlying solver for several reasons:
-        // 1) The solver thread doesn't poll its 'interrupted' bit often
-        //    enough and takes too long to realize that it should return, or
-        //    its mere return + FillSolutionResponse() takes too long.
-        // 2) The user interrupted the solve so early that Solve() hadn't
-        //    really started yet when we called InterruptSolve().
-        // In case 1), we should just wait a little longer. In case 2), we
-        // should call InterruptSolve() again, maybe several times. To both
-        // accommodate cases where the solver takes really a long time to
-        // react to the interruption, while returning as quickly as possible,
-        // we poll the solve_finished notification with increasing durations
-        // and call InterruptSolve again, each time.
-        for (absl::Duration poll_delay = kPollDelay;
-             absl::Now() <= interrupt_time + kMaxInterruptionDelay;
-             poll_delay *= 2) {
-          if (solve_finished.WaitForNotificationWithTimeout(poll_delay)) {
-            return;
-          } else {
-            solver.InterruptSolve();
-          }
-        }
-
-        LOG(DFATAL)
-            << "MPSolver::InterruptSolve() seems to be ignored by the "
-               "underlying solver, despite repeated calls over at least "
-            << absl::FormatDuration(kMaxInterruptionDelay)
-            << ". Solver type used: "
-            << MPModelRequest_SolverType_Name(model_request.solver_type());
-
-        // Note that in opt builds, the polling thread terminates here with an
-        // error message, but we let Solve() finish, ignoring the user
-        // interruption request.
-      };
-
-      // The choice to do polling rather than solving in the second thread is
-      // not arbitrary, as we want to maintain any custom thread options set by
-      // the user. They shouldn't matter for polling, but for solving we might
-      // e.g. use a larger stack.
-      ThreadPool thread_pool("SolverThread", /*num_threads=*/1);
-      thread_pool.StartWorkers();
-      thread_pool.Schedule(polling_func);
-
-      // Make sure the interruption notification didn't arrive while waiting to
-      // be scheduled.
-      if (!interrupt->load()) {
-        solver.Solve();
-        solver.FillSolutionResponseProto(response);
-      } else {  // *interrupt == true
-        response->set_status(MPSOLVER_CANCELLED_BY_USER);
-        response->set_status_str(
-            "Solve not started, because the user set the atomic<bool> in "
-            "MPSolver::SolveWithProto() to true before solving could "
-            "start.");
-      }
-      solve_finished.Notify();
-
-      // We block until the thread finishes when thread_pool goes out of scope.
-    }
-
-    if (interrupted_by_user) {
-      // Despite the interruption, the solver might still have found a useful
-      // result. If so, don't overwrite the status.
-      if (InCategory(response->status(), MPSOLVER_NOT_SOLVED)) {
-        response->set_status(MPSOLVER_CANCELLED_BY_USER);
-      }
-      AppendStatusStr(
-          absl::StrFormat(
-              "User interrupted MPSolver::SolveWithProto() by setting the "
-              "atomic<bool> to true at %s (%s after solving started.)",
-              absl::FormatTime(interrupt_time),
-              absl::FormatDuration(interrupt_time - start_time)),
-          response);
-    }
-  }
-
-  if (!warning_message.empty()) {
-    AppendStatusStr(warning_message, response);
-  }
-}
 
 void MPSolver::ExportModelToProto(MPModelProto* output_model) const {
   DCHECK(output_model != nullptr);
