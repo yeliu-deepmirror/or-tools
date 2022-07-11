@@ -367,10 +367,10 @@ extern MPSolverInterface* BuildCBCInterface(MPSolver* const solver);
 #if defined(USE_GLPK)
 extern MPSolverInterface* BuildGLPKInterface(bool mip, MPSolver* const solver);
 #endif
-extern MPSolverInterface* BuildBopInterface(MPSolver* const solver);
+// extern MPSolverInterface* BuildBopInterface(MPSolver* const solver);
 extern MPSolverInterface* BuildGLOPInterface(MPSolver* const solver);
 extern MPSolverInterface* BuildPdlpInterface(MPSolver* const solver);
-extern MPSolverInterface* BuildSatInterface(MPSolver* const solver);
+// extern MPSolverInterface* BuildSatInterface(MPSolver* const solver);
 #if defined(USE_SCIP)
 extern MPSolverInterface* BuildSCIPInterface(MPSolver* const solver);
 #endif
@@ -389,13 +389,15 @@ MPSolverInterface* BuildSolverInterface(MPSolver* const solver) {
   DCHECK(solver != nullptr);
   switch (solver->ProblemType()) {
     case MPSolver::BOP_INTEGER_PROGRAMMING:
-      return BuildBopInterface(solver);
+      LOG(ERROR) << "BOP_INTEGER_PROGRAMMING removed from repo.";
+      return nullptr;
     case MPSolver::GLOP_LINEAR_PROGRAMMING:
       return BuildGLOPInterface(solver);
     case MPSolver::PDLP_LINEAR_PROGRAMMING:
       return BuildPdlpInterface(solver);
     case MPSolver::SAT_INTEGER_PROGRAMMING:
-      return BuildSatInterface(solver);
+      LOG(ERROR) << "SAT_INTEGER_PROGRAMMING removed from repo.";
+      return nullptr;
 #if defined(USE_GLPK)
     case MPSolver::GLPK_LINEAR_PROGRAMMING:
       return BuildGLPKInterface(false, solver);
