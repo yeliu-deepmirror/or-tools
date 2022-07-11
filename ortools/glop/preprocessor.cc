@@ -16,7 +16,6 @@
 #include <cstdint>
 #include <limits>
 
-#include "absl/strings/str_format.h"
 #include "ortools/base/iterator_adaptors.h"
 #include "ortools/base/strong_vector.h"
 #include "ortools/glop/revised_simplex.h"
@@ -34,7 +33,7 @@ using ::util::Reverse;
 namespace {
 // Returns an interval as an human readable string for debugging.
 std::string IntervalString(Fractional lb, Fractional ub) {
-  return absl::StrFormat("[%g, %g]", lb, ub);
+  return fmt::format("[%g, %g]", lb, ub);
 }
 
 #if defined(_MSC_VER)
@@ -155,7 +154,7 @@ void MainLpPreprocessor::RunAndPushIfRelevant(
     const EntryIndex new_num_entries = lp->num_entries();
     const double preprocess_time = time_limit->GetElapsedTime() - start_time;
     SOLVER_LOG(logger_,
-               absl::StrFormat(
+               fmt::format(
                    "%-45s: %d(%d) rows, %d(%d) columns, %d(%d) entries. (%fs)",
                    name, lp->num_constraints().value(),
                    (lp->num_constraints() - initial_num_rows_).value(),

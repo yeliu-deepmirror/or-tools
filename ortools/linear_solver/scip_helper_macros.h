@@ -27,7 +27,7 @@ inline absl::Status ScipCodeToUtilStatus(/*SCIP_Retcode*/ int retcode,
                                          const char* scip_statement) {
   if (retcode == /*SCIP_OKAY*/ 1) return absl::OkStatus();
   return absl::InvalidArgumentError(
-      absl::StrFormat("SCIP error code %d (file '%s', line %d) on '%s'",
+      fmt::format("SCIP error code %d (file '%s', line %d) on '%s'",
                       retcode, source_file, source_line, scip_statement));
 }
 }  // namespace internal

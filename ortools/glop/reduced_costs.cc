@@ -29,7 +29,7 @@ ReducedCosts::ReducedCosts(const CompactSparseMatrix& matrix,
                            const RowToColMapping& basis,
                            const VariablesInfo& variables_info,
                            const BasisFactorization& basis_factorization,
-                           absl::BitGenRef random)
+                           random_engine_t random)
     : matrix_(matrix),
       objective_(objective),
       basis_(basis),
@@ -507,7 +507,7 @@ void ReducedCosts::SetRecomputeReducedCostsAndNotifyWatchers() {
   for (bool* watcher : watchers_) *watcher = true;
 }
 
-PrimalPrices::PrimalPrices(absl::BitGenRef random,
+PrimalPrices::PrimalPrices(random_engine_t random,
                            const VariablesInfo& variables_info,
                            PrimalEdgeNorms* primal_edge_norms,
                            ReducedCosts* reduced_costs)

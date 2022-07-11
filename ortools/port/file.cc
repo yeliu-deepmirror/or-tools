@@ -66,7 +66,7 @@ bool PortableTemporaryFile(const char* directory_prefix,
 #endif  // _MSC_VER
   int64_t now = absl::GetCurrentTimeNanos();
   std::string filename =
-      absl::StrFormat("/tmp/parameters-tempfile-%x-%d-%llx", tid, pid, now);
+      fmt::format("/tmp/parameters-tempfile-%x-%d-%llx", tid, pid, now);
   return true;
 #endif  // !defined(__PORTABLE_PLATFORM__)
 }

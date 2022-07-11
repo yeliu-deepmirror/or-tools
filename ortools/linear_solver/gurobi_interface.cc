@@ -145,7 +145,7 @@ class GurobiInterface : public MPSolverInterface {
   std::string SolverVersion() const override {
     int major, minor, technical;
     GRBversion(&major, &minor, &technical);
-    return absl::StrFormat("Gurobi library version %d.%d.%d\n", major, minor,
+    return fmt::format("Gurobi library version %d.%d.%d\n", major, minor,
                            technical);
   }
 
@@ -1205,7 +1205,7 @@ MPSolver::ResultStatus GurobiInterface::Solve(const MPSolverParameters& param) {
   ExtractModel();
   // Sync solver.
   CheckedGurobiCall(GRBupdatemodel(model_));
-  VLOG(1) << absl::StrFormat("Model built in %s.",
+  VLOG(1) << fmt::format("Model built in %s.",
                              absl::FormatDuration(timer.GetDuration()));
 
   // Set solution hints if any.
@@ -1270,13 +1270,13 @@ MPSolver::ResultStatus GurobiInterface::Solve(const MPSolverParameters& param) {
   if (status) {
     VLOG(1) << "Failed to optimize MIP." << GRBgeterrormsg(env_);
   } else {
-    VLOG(1) << absl::StrFormat("Solved in %s.",
+    VLOG(1) << fmt::format("Solved in %s.",
                                absl::FormatDuration(timer.GetDuration()));
   }
 
   // Get the status.
   const int optimization_status = GetIntAttr(GRB_INT_ATTR_STATUS);
-  VLOG(1) << absl::StrFormat("Solution status %d.\n", optimization_status);
+  VLOG(1) << fmt::format("Solution status %d.\n", optimization_status);
   const int solution_count = SolutionCount();
 
   switch (optimization_status) {

@@ -3,8 +3,6 @@ load("@bazel_skylib//rules:copy_file.bzl", "copy_file")
 
 package(default_visibility = ["//visibility:public"])
 
-exports_files(["model_exporter_swig_helper.h"])
-
 proto_library(
     name = "linear_solver_proto",
     srcs = ["linear_solver.proto"],
@@ -31,7 +29,6 @@ cc_library(
         "linear_expr.cc",
         "linear_solver_callback.cc",
         "linear_solver.cc",
-        "model_validator.cc",
         "scip_callback.cc",
         "scip_interface.cc",
     ],
@@ -41,7 +38,6 @@ cc_library(
         "linear_expr.h",
         "linear_solver.h",
         "linear_solver_callback.h",
-        "model_validator.h",
         "scip_callback.h",
         "scip_helper_macros.h",
     ],
@@ -52,7 +48,6 @@ cc_library(
     deps = [
         ":linear_solver_cc_proto",
         "//ortools/gscip:scip_with_glop",
-        ":model_exporter",
         "@com_google_absl//absl/status",
         "@com_google_absl//absl/status:statusor",
         "@com_google_absl//absl/strings",
@@ -72,8 +67,6 @@ cc_library(
         "//ortools/glop:parameters_cc_proto",
         "//ortools/gscip:legacy_scip_params",
         "//ortools/gurobi:environment",
-        "//ortools/port:file",
-        "//ortools/port:proto_utils",
         "//ortools/util:fp_utils",
         "//ortools/util:lazy_mutable_copy",
     ],
@@ -94,25 +87,6 @@ cc_library(
     deps = [
         "//ortools/base:status_macros",
         "@com_google_absl//absl/status",
-        "@com_google_absl//absl/strings:str_format",
-    ],
-)
-
-# Model exporter that can write MPS and LP file formats from an MPModelProto.
-cc_library(
-    name = "model_exporter",
-    srcs = ["model_exporter.cc"],
-    hdrs = ["model_exporter.h"],
-    deps = [
-        ":linear_solver_cc_proto",
-        "//ortools/base",
-        "//ortools/base:hash",
-        "//ortools/base:map_util",
-        "//ortools/util:fp_utils",
-        "@com_google_absl//absl/container:flat_hash_set",
-        "@com_google_absl//absl/status",
-        "@com_google_absl//absl/status:statusor",
-        "@com_google_absl//absl/strings",
         "@com_google_absl//absl/strings:str_format",
     ],
 )

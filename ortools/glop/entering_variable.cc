@@ -23,10 +23,9 @@ namespace operations_research {
 namespace glop {
 
 EnteringVariable::EnteringVariable(const VariablesInfo& variables_info,
-                                   absl::BitGenRef random,
                                    ReducedCosts* reduced_costs)
     : variables_info_(variables_info),
-      random_(random),
+      random_(2022),
       reduced_costs_(reduced_costs),
       parameters_() {}
 

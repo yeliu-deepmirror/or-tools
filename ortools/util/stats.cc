@@ -14,29 +14,28 @@
 #include "ortools/util/stats.h"
 
 #include <cmath>
-
 #include "ortools/base/stl_util.h"
-#include "ortools/port/sysinfo.h"
-#include "ortools/port/utf8.h"
 
 namespace operations_research {
 
-std::string MemoryUsage() {
-  const int64_t mem = operations_research::sysinfo::MemoryUsageProcess();
-  static const int64_t kDisplayThreshold = 2;
-  static const int64_t kKiloByte = 1024;
-  static const int64_t kMegaByte = kKiloByte * kKiloByte;
-  static const int64_t kGigaByte = kMegaByte * kKiloByte;
-  if (mem > kDisplayThreshold * kGigaByte) {
-    return fmt::format("%.2lf GB", mem * 1.0 / kGigaByte);
-  } else if (mem > kDisplayThreshold * kMegaByte) {
-    return fmt::format("%.2lf MB", mem * 1.0 / kMegaByte);
-  } else if (mem > kDisplayThreshold * kKiloByte) {
-    return fmt::format("%2lf KB", mem * 1.0 / kKiloByte);
-  } else {
-    return fmt::format("%d", mem);
+namespace utf8 {
+
+// Returns the number of characters of a UTF8-encoded string.
+inline int UTF8StrLen(const std::string& utf8_str) {
+  if (utf8_str.empty()) return 0;
+  const char* c = utf8_str.c_str();
+  int count = 0;
+  while (*c != '\0') {
+    ++count;
+    // See http://en.wikipedia.org/wiki/UTF-8#Description .
+    const unsigned char x = *c;
+    c += x < 0xC0 ? 1 : x < 0xE0 ? 2 : x < 0xF0 ? 3 : 4;
   }
+  return count;
 }
+
+}  // namespace utf8
+
 
 Stat::Stat(const std::string& name, StatsGroup* group) : name_(name) {
   group->Register(this);

@@ -44,8 +44,8 @@
 #include "ortools/base/stl_util.h"
 #include "ortools/base/threadpool.h"
 #include "ortools/linear_solver/linear_solver.pb.h"
-#include "ortools/linear_solver/model_exporter.h"
-#include "ortools/linear_solver/model_validator.h"
+// #include "ortools/linear_solver/model_exporter.h"
+// #include "ortools/linear_solver/model_validator.h"
 //#include "ortools/port/file.h"
 #include "ortools/util/fp_utils.h"
 #include "ortools/util/time_limit.h"
@@ -647,209 +647,6 @@ MPConstraint* MPSolver::LookupConstraintOrNull(
   return constraints_[it->second];
 }
 
-// ----- Methods using protocol buffers -----
-
-MPSolverResponseStatus MPSolver::LoadModelFromProto(
-    const MPModelProto& input_model, std::string* error_message) {
-  Clear();
-
-  // The variable and constraint names are dropped, because we allow
-  // duplicate names in the proto (they're not considered as 'ids'),
-  // unlike the MPSolver C++ API which crashes if there are duplicate names.
-  // Clearing the names makes the MPSolver generate unique names.
-  return LoadModelFromProtoInternal(input_model, /*clear_names=*/true,
-                                    /*check_model_validity=*/true,
-                                    error_message);
-}
-
-MPSolverResponseStatus MPSolver::LoadModelFromProtoWithUniqueNamesOrDie(
-    const MPModelProto& input_model, std::string* error_message) {
-  Clear();
-
-  // Force variable and constraint name indexing (which CHECKs name uniqueness).
-  GenerateVariableNameIndex();
-  GenerateConstraintNameIndex();
-
-  return LoadModelFromProtoInternal(input_model, /*clear_names=*/false,
-                                    /*check_model_validity=*/true,
-                                    error_message);
-}
-
-MPSolverResponseStatus MPSolver::LoadModelFromProtoInternal(
-    const MPModelProto& input_model, bool clear_names,
-    bool check_model_validity, std::string* error_message) {
-  CHECK(error_message != nullptr);
-  if (check_model_validity) {
-    const std::string error = FindErrorInMPModelProto(input_model);
-    if (!error.empty()) {
-      *error_message = error;
-      LOG_IF(INFO, OutputIsEnabled())
-          << "Invalid model given to LoadModelFromProto(): " << error;
-      if (absl::GetFlag(FLAGS_mpsolver_bypass_model_validation)) {
-        LOG_IF(INFO, OutputIsEnabled())
-            << "Ignoring the model error(s) because of"
-            << " --mpsolver_bypass_model_validation.";
-      } else {
-        return absl::StrContains(error, "Infeasible") ? MPSOLVER_INFEASIBLE
-                                                      : MPSOLVER_MODEL_INVALID;
-      }
-    }
-  }
-
-  if (input_model.has_quadratic_objective()) {
-    *error_message =
-        "Optimizing a quadratic objective is only supported through direct "
-        "proto solves. Please use MPSolver::SolveWithProto, or the solver's "
-        "direct proto solve function.";
-    return MPSOLVER_MODEL_INVALID;
-  }
-
-  MPObjective* const objective = MutableObjective();
-  // Passing empty names makes the MPSolver generate unique names.
-  const std::string empty;
-  for (int i = 0; i < input_model.variable_size(); ++i) {
-    const MPVariableProto& var_proto = input_model.variable(i);
-    MPVariable* variable =
-        MakeNumVar(var_proto.lower_bound(), var_proto.upper_bound(),
-                   clear_names ? empty : var_proto.name());
-    variable->SetInteger(var_proto.is_integer());
-    if (var_proto.branching_priority() != 0) {
-      variable->SetBranchingPriority(var_proto.branching_priority());
-    }
-    objective->SetCoefficient(variable, var_proto.objective_coefficient());
-  }
-
-  for (const MPConstraintProto& ct_proto : input_model.constraint()) {
-    if (ct_proto.lower_bound() == -infinity() &&
-        ct_proto.upper_bound() == infinity()) {
-      continue;
-    }
-
-    MPConstraint* const ct =
-        MakeRowConstraint(ct_proto.lower_bound(), ct_proto.upper_bound(),
-                          clear_names ? empty : ct_proto.name());
-    ct->set_is_lazy(ct_proto.is_lazy());
-    for (int j = 0; j < ct_proto.var_index_size(); ++j) {
-      ct->SetCoefficient(variables_[ct_proto.var_index(j)],
-                         ct_proto.coefficient(j));
-    }
-  }
-
-  for (const MPGeneralConstraintProto& general_constraint :
-       input_model.general_constraint()) {
-    switch (general_constraint.general_constraint_case()) {
-      case MPGeneralConstraintProto::kIndicatorConstraint: {
-        const auto& proto =
-            general_constraint.indicator_constraint().constraint();
-        if (proto.lower_bound() == -infinity() &&
-            proto.upper_bound() == infinity()) {
-          continue;
-        }
-
-        const int constraint_index = NumConstraints();
-        MPConstraint* const constraint = new MPConstraint(
-            constraint_index, proto.lower_bound(), proto.upper_bound(),
-            clear_names ? "" : proto.name(), interface_.get());
-        if (constraint_name_to_index_) {
-          gtl::InsertOrDie(&*constraint_name_to_index_, constraint->name(),
-                           constraint_index);
-        }
-        constraints_.push_back(constraint);
-        constraint_is_extracted_.push_back(false);
-
-        constraint->set_is_lazy(proto.is_lazy());
-        for (int j = 0; j < proto.var_index_size(); ++j) {
-          constraint->SetCoefficient(variables_[proto.var_index(j)],
-                                     proto.coefficient(j));
-        }
-
-        MPVariable* const variable =
-            variables_[general_constraint.indicator_constraint().var_index()];
-        constraint->indicator_variable_ = variable;
-        constraint->indicator_value_ =
-            general_constraint.indicator_constraint().var_value();
-
-        if (!interface_->AddIndicatorConstraint(constraint)) {
-          *error_message = "Solver doesn't support indicator constraints";
-          return MPSOLVER_MODEL_INVALID;
-        }
-        break;
-      }
-      default:
-        *error_message = absl::StrFormat(
-            "Optimizing general constraints of type %i is only supported "
-            "through direct proto solves. Please use MPSolver::SolveWithProto, "
-            "or the solver's direct proto solve function.",
-            general_constraint.general_constraint_case());
-        return MPSOLVER_MODEL_INVALID;
-    }
-  }
-
-  objective->SetOptimizationDirection(input_model.maximize());
-  if (input_model.has_objective_offset()) {
-    objective->SetOffset(input_model.objective_offset());
-  }
-
-  // Stores any hints about where to start the solve.
-  solution_hint_.clear();
-  for (int i = 0; i < input_model.solution_hint().var_index_size(); ++i) {
-    solution_hint_.push_back(
-        std::make_pair(variables_[input_model.solution_hint().var_index(i)],
-                       input_model.solution_hint().var_value(i)));
-  }
-  return MPSOLVER_MODEL_IS_VALID;
-}
-
-namespace {
-MPSolverResponseStatus ResultStatusToMPSolverResponseStatus(
-    MPSolver::ResultStatus status) {
-  switch (status) {
-    case MPSolver::OPTIMAL:
-      return MPSOLVER_OPTIMAL;
-    case MPSolver::FEASIBLE:
-      return MPSOLVER_FEASIBLE;
-    case MPSolver::INFEASIBLE:
-      return MPSOLVER_INFEASIBLE;
-    case MPSolver::UNBOUNDED:
-      return MPSOLVER_UNBOUNDED;
-    case MPSolver::ABNORMAL:
-      return MPSOLVER_ABNORMAL;
-    case MPSolver::MODEL_INVALID:
-      return MPSOLVER_MODEL_INVALID;
-    case MPSolver::NOT_SOLVED:
-      return MPSOLVER_NOT_SOLVED;
-  }
-  return MPSOLVER_UNKNOWN_STATUS;
-}
-}  // namespace
-
-void MPSolver::FillSolutionResponseProto(MPSolutionResponse* response) const {
-  CHECK(response != nullptr);
-  response->Clear();
-  response->set_status(
-      ResultStatusToMPSolverResponseStatus(interface_->result_status_));
-  if (interface_->result_status_ == MPSolver::OPTIMAL ||
-      interface_->result_status_ == MPSolver::FEASIBLE) {
-    response->set_objective_value(Objective().Value());
-    for (int i = 0; i < variables_.size(); ++i) {
-      response->add_variable_value(variables_[i]->solution_value());
-    }
-
-    if (interface_->IsMIP()) {
-      response->set_best_objective_bound(interface_->best_objective_bound());
-    } else {
-      // Dual values have no meaning in MIP.
-      for (int j = 0; j < constraints_.size(); ++j) {
-        response->add_dual_value(constraints_[j]->dual_value());
-      }
-      // Reduced cost have no meaning in MIP.
-      for (int i = 0; i < variables_.size(); ++i) {
-        response->add_reduced_cost(variables_[i]->reduced_cost());
-      }
-    }
-  }
-}
-
 namespace {
 bool InCategory(int status, int category) {
   if (category == MPSOLVER_OPTIMAL) return status == MPSOLVER_OPTIMAL;
@@ -1111,7 +908,7 @@ void MPSolver::MakeVarArray(int nb, double lb, double ub, bool integer,
       vars->push_back(MakeVar(lb, ub, integer, name));
     } else {
       std::string vname =
-          absl::StrFormat("%s%0*d", name.c_str(), num_digits, i);
+          fmt::format("%s%0*d", name.c_str(), num_digits, i);
       vars->push_back(MakeVar(lb, ub, integer, vname));
     }
   }
@@ -1262,22 +1059,22 @@ std::string PrettyPrintVar(const MPVariable& var) {
     if (lb > ub) {
       return prefix + "∅";
     } else if (lb == ub) {
-      return absl::StrFormat("%s{ %d }", prefix.c_str(), lb);
+      return fmt::format("%s{ %d }", prefix.c_str(), lb);
     } else {
-      return absl::StrFormat("%s{ %d, %d }", prefix.c_str(), lb, ub);
+      return fmt::format("%s{ %d, %d }", prefix.c_str(), lb, ub);
     }
   }
   // Special case: single (non-infinite) real value.
   if (var.lb() == var.ub()) {
-    return absl::StrFormat("%s{ %f }", prefix.c_str(), var.lb());
+    return fmt::format("%s{ %f }", prefix.c_str(), var.lb());
   }
   return prefix + (var.integer() ? "Integer" : "Real") + " in " +
          (var.lb() <= -MPSolver::infinity()
               ? std::string("]-∞")
-              : absl::StrFormat("[%f", var.lb())) +
+              : fmt::format("[%f", var.lb())) +
          ", " +
          (var.ub() >= MPSolver::infinity() ? std::string("+∞[")
-                                           : absl::StrFormat("%f]", var.ub()));
+                                           : fmt::format("%f]", var.ub()));
 }
 
 std::string PrettyPrintConstraint(const MPConstraint& constraint) {
@@ -1294,16 +1091,16 @@ std::string PrettyPrintConstraint(const MPConstraint& constraint) {
   prefix += "<linear expr>";
   // Equality.
   if (constraint.lb() == constraint.ub()) {
-    return absl::StrFormat("%s = %f", prefix.c_str(), constraint.lb());
+    return fmt::format("%s = %f", prefix.c_str(), constraint.lb());
   }
   // Inequalities.
   if (constraint.lb() <= -MPSolver::infinity()) {
-    return absl::StrFormat("%s ≤ %f", prefix.c_str(), constraint.ub());
+    return fmt::format("%s ≤ %f", prefix.c_str(), constraint.ub());
   }
   if (constraint.ub() >= MPSolver::infinity()) {
-    return absl::StrFormat("%s ≥ %f", prefix.c_str(), constraint.lb());
+    return fmt::format("%s ≥ %f", prefix.c_str(), constraint.lb());
   }
-  return absl::StrFormat("%s ∈ [%f, %f]", prefix.c_str(), constraint.lb(),
+  return fmt::format("%s ∈ [%f, %f]", prefix.c_str(), constraint.lb(),
                          constraint.ub());
 }
 }  // namespace
@@ -1507,30 +1304,6 @@ bool MPSolver::OwnsVariable(const MPVariable* var) const {
     return variables_[var->index()] == var;
   }
   return false;
-}
-
-bool MPSolver::ExportModelAsLpFormat(bool obfuscate,
-                                     std::string* model_str) const {
-  MPModelProto proto;
-  ExportModelToProto(&proto);
-  MPModelExportOptions options;
-  options.obfuscate = obfuscate;
-  const auto status_or =
-      operations_research::ExportModelAsLpFormat(proto, options);
-  *model_str = status_or.value_or("");
-  return status_or.ok();
-}
-
-bool MPSolver::ExportModelAsMpsFormat(bool fixed_format, bool obfuscate,
-                                      std::string* model_str) const {
-  MPModelProto proto;
-  ExportModelToProto(&proto);
-  MPModelExportOptions options;
-  options.obfuscate = obfuscate;
-  const auto status_or =
-      operations_research::ExportModelAsMpsFormat(proto, options);
-  *model_str = status_or.value_or("");
-  return status_or.ok();
 }
 
 void MPSolver::SetHint(std::vector<std::pair<const MPVariable*, double>> hint) {
@@ -1784,7 +1557,7 @@ void MPSolverInterface::SetIntegerParamToUnsupportedValue(
 
 absl::Status MPSolverInterface::SetNumThreads(int num_threads) {
   return absl::UnimplementedError(
-      absl::StrFormat("SetNumThreads() not supported by %s.", SolverVersion()));
+      fmt::format("SetNumThreads() not supported by %s.", SolverVersion()));
 }
 
 bool MPSolverInterface::SetSolverSpecificParametersAsString(

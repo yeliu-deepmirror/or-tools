@@ -477,8 +477,12 @@ class CompactSparseMatrixView {
  public:
   CompactSparseMatrixView(const CompactSparseMatrix* compact_matrix,
                           const RowToColMapping* basis)
-      : compact_matrix_(*compact_matrix),
-        columns_(basis->data(), basis->size().value()) {}
+      : compact_matrix_(*compact_matrix) {
+    // columns_ = absl::Span(basis->data(), basis->size().value())
+    for (size_t i = 0; i < basis->size(); i++) {
+      columns_.emplace_back((*basis)[i]);
+    }
+  }
   CompactSparseMatrixView(const CompactSparseMatrix* compact_matrix,
                           const std::vector<ColIndex>* columns)
       : compact_matrix_(*compact_matrix), columns_(*columns) {}
@@ -498,7 +502,7 @@ class CompactSparseMatrixView {
   // We require that the underlying CompactSparseMatrix and RowToColMapping
   // continue to own the (potentially large) data accessed via this view.
   const CompactSparseMatrix& compact_matrix_;
-  const absl::Span<const ColIndex> columns_;
+  std::vector<ColIndex> columns_;
 };
 
 // Specialization of a CompactSparseMatrix used for triangular matrices.

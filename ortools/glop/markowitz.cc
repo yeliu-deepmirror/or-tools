@@ -16,7 +16,6 @@
 #include <cstdint>
 #include <limits>
 
-#include "absl/strings/str_format.h"
 #include "ortools/lp_data/lp_types.h"
 #include "ortools/lp_data/lp_utils.h"
 #include "ortools/lp_data/sparse.h"
@@ -82,7 +81,7 @@ Status Markowitz::ComputeRowAndColumnPermutation(
     // report the singularity of the matrix.
     if (pivot_row == kInvalidRow || pivot_col == kInvalidCol ||
         std::abs(pivot_coefficient) <= singularity_threshold) {
-      const std::string error_message = absl::StrFormat(
+      const std::string error_message = fmt::format(
           "The matrix is singular! pivot = %E", pivot_coefficient);
       VLOG(1) << "ERROR_LU: " << error_message;
       return Status(Status::ERROR_LU, error_message);

@@ -17,9 +17,6 @@
 #include <stack>
 #include <vector>
 
-#include "absl/memory/memory.h"
-#include "absl/strings/match.h"
-#include "absl/strings/str_format.h"
 #include "ortools/base/commandlineflags.h"
 #include "ortools/base/integral_types.h"
 #include "ortools/base/timer.h"
@@ -30,13 +27,6 @@
 #include "ortools/lp_data/proto_utils.h"
 #include "ortools/util/fp_utils.h"
 
-// TODO(user): abstract this in some way to the port directory.
-#ifndef __PORTABLE_PLATFORM__
-#include "ortools/util/file_util.h"
-#endif
-
-ABSL_FLAG(bool, lp_dump_to_proto_file, false,
-          "Tells whether do dump the problem to a protobuf file.");
 ABSL_FLAG(bool, lp_dump_compressed_file, true,
           "Whether the proto dump file is compressed.");
 ABSL_FLAG(bool, lp_dump_binary_file, false,
@@ -57,47 +47,6 @@ ABSL_FLAG(std::string, glop_params, "",
 
 namespace operations_research {
 namespace glop {
-namespace {
-
-// Writes a LinearProgram to a file if FLAGS_lp_dump_to_proto_file is true. The
-// integer num is appended to the base name of the file. When this function is
-// called from LPSolver::Solve(), num is usually the number of times Solve() was
-// called. For a LinearProgram whose name is "LinPro", and num = 48, the default
-// output file will be /tmp/LinPro-000048.pb.gz.
-//
-// Warning: is a no-op on portable platforms (android, ios, etc).
-void DumpLinearProgramIfRequiredByFlags(const LinearProgram& linear_program,
-                                        int num) {
-  if (!absl::GetFlag(FLAGS_lp_dump_to_proto_file)) return;
-#ifdef __PORTABLE_PLATFORM__
-  LOG(WARNING) << "DumpLinearProgramIfRequiredByFlags(linear_program, num) "
-                  "requested for linear_program.name()='"
-               << linear_program.name() << "', num=" << num
-               << " but is not implemented for this platform.";
-#else
-  std::string filename = absl::GetFlag(FLAGS_lp_dump_file_basename);
-  if (filename.empty()) {
-    if (linear_program.name().empty()) {
-      filename = "linear_program_dump";
-    } else {
-      filename = linear_program.name();
-    }
-  }
-  const int file_num = absl::GetFlag(FLAGS_lp_dump_file_number) >= 0
-                           ? absl::GetFlag(FLAGS_lp_dump_file_number)
-                           : num;
-  absl::StrAppendFormat(&filename, "-%06d.pb", file_num);
-  const std::string filespec =
-      absl::StrCat(absl::GetFlag(FLAGS_lp_dump_dir), "/", filename);
-  MPModelProto proto;
-  LinearProgramToMPModelProto(linear_program, &proto);
-  if (!file::WriteProtoToFile(proto, filespec)) {
-    LOG(DFATAL) << "Could not write " << filespec;
-  }
-#endif
-}
-
-}  // anonymous namespace
 
 // --------------------------------------------------------
 // LPSolver
@@ -107,14 +56,6 @@ LPSolver::LPSolver() : num_solves_(0) {}
 
 void LPSolver::SetParameters(const GlopParameters& parameters) {
   parameters_ = parameters;
-#ifndef __PORTABLE_PLATFORM__
-  if (!absl::GetFlag(FLAGS_glop_params).empty()) {
-    GlopParameters flag_params;
-    CHECK(google::protobuf::TextFormat::ParseFromString(
-        absl::GetFlag(FLAGS_glop_params), &flag_params));
-    parameters_.MergeFrom(flag_params);
-  }
-#endif
 }
 
 const GlopParameters& LPSolver::GetParameters() const { return parameters_; }
@@ -137,7 +78,6 @@ ProblemStatus LPSolver::SolveWithTimeLimit(const LinearProgram& lp,
   }
   ++num_solves_;
   num_revised_simplex_iterations_ = 0;
-  DumpLinearProgramIfRequiredByFlags(lp, num_solves_);
 
   // Display a warning if running in non-opt, unless we're inside a unit test.
   DLOG(WARNING)
@@ -265,7 +205,7 @@ void LPSolver::SetInitialBasis(
     }
   }
   if (revised_simplex_ == nullptr) {
-    revised_simplex_ = absl::make_unique<RevisedSimplex>();
+    revised_simplex_ = std::make_unique<RevisedSimplex>();
     revised_simplex_->SetLogger(&logger_);
   }
   revised_simplex_->LoadStateForNextSolve(state);
@@ -317,10 +257,10 @@ ProblemStatus LPSolver::LoadAndVerifySolution(const LinearProgram& lp,
   const Fractional primal_objective_value = ComputeObjective(lp);
   const Fractional dual_objective_value = ComputeDualObjective(lp);
   SOLVER_LOG(&logger_, "Primal objective (before moving primal/dual values) = ",
-             absl::StrFormat(
+             fmt::format(
                  "%.15E", ProblemObjectiveValue(lp, primal_objective_value)));
   SOLVER_LOG(&logger_, "Dual objective (before moving primal/dual values) = ",
-             absl::StrFormat("%.15E",
+             fmt::format("%.15E",
                              ProblemObjectiveValue(lp, dual_objective_value)));
 
   // Eventually move the primal/dual values inside their bounds.
@@ -333,7 +273,7 @@ ProblemStatus LPSolver::LoadAndVerifySolution(const LinearProgram& lp,
   // The reported objective to the user.
   problem_objective_value_ = ProblemObjectiveValue(lp, ComputeObjective(lp));
   SOLVER_LOG(&logger_, "Primal objective (after moving primal/dual values) = ",
-             absl::StrFormat("%.15E", problem_objective_value_));
+             fmt::format("%.15E", problem_objective_value_));
 
   ComputeReducedCosts(lp);
   ComputeConstraintActivities(lp);
@@ -572,7 +512,7 @@ void LPSolver::RunRevisedSimplexIfNeeded(ProblemSolution* solution,
   current_linear_program_.ClearTransposeMatrix();
   if (solution->status != ProblemStatus::INIT) return;
   if (revised_simplex_ == nullptr) {
-    revised_simplex_ = absl::make_unique<RevisedSimplex>();
+    revised_simplex_ = std::make_unique<RevisedSimplex>();
     revised_simplex_->SetLogger(&logger_);
   }
   revised_simplex_->SetParameters(parameters_);

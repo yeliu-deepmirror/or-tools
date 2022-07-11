@@ -22,8 +22,6 @@
 #include <utility>
 #include <vector>
 
-#include "absl/strings/str_cat.h"
-#include "absl/strings/str_format.h"
 #include "ortools/base/commandlineflags.h"
 #include "ortools/base/integral_types.h"
 #include "ortools/base/logging.h"
@@ -31,20 +29,11 @@
 #include "ortools/glop/initial_basis.h"
 #include "ortools/glop/parameters.pb.h"
 #include "ortools/lp_data/lp_data.h"
-#include "ortools/lp_data/lp_print_utils.h"
 #include "ortools/lp_data/lp_types.h"
 #include "ortools/lp_data/lp_utils.h"
 #include "ortools/lp_data/matrix_utils.h"
 #include "ortools/lp_data/permutation.h"
 #include "ortools/util/fp_utils.h"
-
-ABSL_FLAG(bool, simplex_display_numbers_as_fractions, false,
-          "Display numbers as fractions.");
-ABSL_FLAG(bool, simplex_stop_after_first_basis, false,
-          "Stop after first basis has been computed.");
-ABSL_FLAG(bool, simplex_stop_after_feasibility, false,
-          "Stop after first phase has been completed.");
-ABSL_FLAG(bool, simplex_display_stats, false, "Display algorithm statistics.");
 
 namespace operations_research {
 namespace glop {
@@ -99,7 +88,7 @@ RevisedSimplex::RevisedSimplex()
                   basis_factorization_),
       reduced_costs_(compact_matrix_, objective_, basis_, variables_info_,
                      basis_factorization_, random_),
-      entering_variable_(variables_info_, random_, &reduced_costs_),
+      entering_variable_(variables_info_, &reduced_costs_),
       primal_prices_(random_, variables_info_, &primal_edge_norms_,
                      &reduced_costs_),
       iteration_stats_(),
@@ -175,10 +164,10 @@ Status RevisedSimplex::Solve(const LinearProgram& lp, TimeLimit* time_limit) {
     ComputeNumberOfEmptyColumns();
     DisplayProblem();
   }
-  if (absl::GetFlag(FLAGS_simplex_stop_after_first_basis)) {
-    DisplayAllStats();
-    return Status::OK();
-  }
+  // if (FLAGS_simplex_stop_after_first_basis) {
+  //   DisplayAllStats();
+  //   return Status::OK();
+  // }
 
   const bool use_dual = parameters_.use_dual_simplex();
 
@@ -313,7 +302,6 @@ Status RevisedSimplex::Solve(const LinearProgram& lp, TimeLimit* time_limit) {
        (num_iterations_ == 0 ||
         num_iterations_ < parameters_.max_number_of_iterations()) &&
        !time_limit->LimitReached() &&
-       !absl::GetFlag(FLAGS_simplex_stop_after_feasibility) &&
        (problem_status_ == ProblemStatus::PRIMAL_FEASIBLE ||
         problem_status_ == ProblemStatus::DUAL_FEASIBLE);
        ++num_optims) {
@@ -673,7 +661,7 @@ const BasisFactorization& RevisedSimplex::GetBasisFactorization() const {
 }
 
 std::string RevisedSimplex::GetPrettySolverStats() const {
-  return absl::StrFormat(
+  return fmt::format(
       "Problem status                               : %s\n"
       "Solving time                                 : %-6.4g\n"
       "Number of iterations                         : %u\n"
@@ -684,8 +672,7 @@ std::string RevisedSimplex::GetPrettySolverStats() const {
       "Stop after first basis                       : %d\n",
       GetProblemStatusString(problem_status_), total_time_, num_iterations_,
       feasibility_time_, num_feasibility_iterations_, optimization_time_,
-      num_optimization_iterations_,
-      absl::GetFlag(FLAGS_simplex_stop_after_first_basis));
+      num_optimization_iterations_, false);
 }
 
 double RevisedSimplex::DeterministicTime() const {
@@ -702,11 +689,11 @@ void RevisedSimplex::SetVariableNames() {
   variable_name_.resize(num_cols_, "");
   for (ColIndex col(0); col < first_slack_col_; ++col) {
     const ColIndex var_index = col + 1;
-    variable_name_[col] = absl::StrFormat("x%d", ColToIntIndex(var_index));
+    variable_name_[col] = fmt::format("x%d", ColToIntIndex(var_index));
   }
   for (ColIndex col(first_slack_col_); col < num_cols_; ++col) {
     const ColIndex var_index = col - first_slack_col_ + 1;
-    variable_name_[col] = absl::StrFormat("s%d", ColToIntIndex(var_index));
+    variable_name_[col] = fmt::format("s%d", ColToIntIndex(var_index));
   }
 }
 
@@ -1250,8 +1237,7 @@ Status RevisedSimplex::InitializeFirstBasis(const RowToColMapping& basis) {
       basis_factorization_.ComputeInfinityNormConditionNumberUpperBound();
   if (condition_number_ub > parameters_.initial_condition_number_threshold()) {
     const std::string error_message =
-        absl::StrCat("The matrix condition number upper bound is too high: ",
-                     condition_number_ub);
+        "The matrix condition number upper bound is too high: " + std::to_string(condition_number_ub);
     SOLVER_LOG(logger_, error_message);
     return Status(Status::ERROR_LU, error_message);
   }
@@ -3451,12 +3437,7 @@ std::string RevisedSimplex::StatString() {
   return result;
 }
 
-void RevisedSimplex::DisplayAllStats() {
-  if (absl::GetFlag(FLAGS_simplex_display_stats)) {
-    absl::FPrintF(stderr, "%s", StatString());
-    absl::FPrintF(stderr, "%s", GetPrettySolverStats());
-  }
-}
+void RevisedSimplex::DisplayAllStats() {}
 
 Fractional RevisedSimplex::ComputeObjectiveValue() const {
   SCOPED_TIME_STAT(&function_stats_);
@@ -3515,7 +3496,7 @@ void RevisedSimplex::DisplayIterationInfo(bool primal) {
       }
 
       SOLVER_LOG(logger_, first_word, "feasibility phase, iteration # ", iter,
-                 ", ", name, " = ", absl::StrFormat("%.15E", objective));
+                 ", ", name, " = ", fmt::format("%.15E", objective));
       break;
     }
     case Phase::OPTIMIZATION: {
@@ -3527,7 +3508,7 @@ void RevisedSimplex::DisplayIterationInfo(bool primal) {
       // are the same.
       const Fractional objective = ComputeInitialProblemObjectiveValue();
       SOLVER_LOG(logger_, first_word, "optimization phase, iteration # ", iter,
-                 ", objective = ", absl::StrFormat("%.15E", objective));
+                 ", objective = ", fmt::format("%.15E", objective));
       break;
     }
     case Phase::PUSH: {
@@ -3554,89 +3535,13 @@ void RevisedSimplex::DisplayErrors() {
              reduced_costs_.ComputeMaximumDualResidual());
 }
 
-namespace {
-
-std::string StringifyMonomialWithFlags(const Fractional a,
-                                       const std::string& x) {
-  return StringifyMonomial(
-      a, x, absl::GetFlag(FLAGS_simplex_display_numbers_as_fractions));
-}
-
-// Returns a string representing the rational approximation of x or a decimal
-// approximation of x according to
-// absl::GetFlag(FLAGS_simplex_display_numbers_as_fractions).
-std::string StringifyWithFlags(const Fractional x) {
-  return Stringify(x,
-                   absl::GetFlag(FLAGS_simplex_display_numbers_as_fractions));
-}
-
-}  // namespace
-
 std::string RevisedSimplex::SimpleVariableInfo(ColIndex col) const {
-  std::string output;
-  VariableType variable_type = variables_info_.GetTypeRow()[col];
-  VariableStatus variable_status = variables_info_.GetStatusRow()[col];
-  const DenseRow& lower_bounds = variables_info_.GetVariableLowerBounds();
-  const DenseRow& upper_bounds = variables_info_.GetVariableUpperBounds();
-  absl::StrAppendFormat(&output, "%d (%s) = %s, %s, %s, [%s,%s]", col.value(),
-                        variable_name_[col],
-                        StringifyWithFlags(variable_values_.Get(col)),
-                        GetVariableStatusString(variable_status),
-                        GetVariableTypeString(variable_type),
-                        StringifyWithFlags(lower_bounds[col]),
-                        StringifyWithFlags(upper_bounds[col]));
-  return output;
+  return "";
 }
 
-void RevisedSimplex::DisplayInfoOnVariables() const {
-  if (VLOG_IS_ON(3)) {
-    for (ColIndex col(0); col < num_cols_; ++col) {
-      const Fractional variable_value = variable_values_.Get(col);
-      const Fractional objective_coefficient = objective_[col];
-      const Fractional objective_contribution =
-          objective_coefficient * variable_value;
-      VLOG(3) << SimpleVariableInfo(col) << ". " << variable_name_[col] << " = "
-              << StringifyWithFlags(variable_value) << " * "
-              << StringifyWithFlags(objective_coefficient)
-              << "(obj) = " << StringifyWithFlags(objective_contribution);
-    }
-    VLOG(3) << "------";
-  }
-}
+void RevisedSimplex::DisplayInfoOnVariables() const {}
 
-void RevisedSimplex::DisplayVariableBounds() {
-  if (VLOG_IS_ON(3)) {
-    const VariableTypeRow& variable_type = variables_info_.GetTypeRow();
-    const DenseRow& lower_bounds = variables_info_.GetVariableLowerBounds();
-    const DenseRow& upper_bounds = variables_info_.GetVariableUpperBounds();
-    for (ColIndex col(0); col < num_cols_; ++col) {
-      switch (variable_type[col]) {
-        case VariableType::UNCONSTRAINED:
-          break;
-        case VariableType::LOWER_BOUNDED:
-          VLOG(3) << variable_name_[col]
-                  << " >= " << StringifyWithFlags(lower_bounds[col]) << ";";
-          break;
-        case VariableType::UPPER_BOUNDED:
-          VLOG(3) << variable_name_[col]
-                  << " <= " << StringifyWithFlags(upper_bounds[col]) << ";";
-          break;
-        case VariableType::UPPER_AND_LOWER_BOUNDED:
-          VLOG(3) << StringifyWithFlags(lower_bounds[col])
-                  << " <= " << variable_name_[col]
-                  << " <= " << StringifyWithFlags(upper_bounds[col]) << ";";
-          break;
-        case VariableType::FIXED_VARIABLE:
-          VLOG(3) << variable_name_[col] << " = "
-                  << StringifyWithFlags(lower_bounds[col]) << ";";
-          break;
-        default:  // This should never happen.
-          LOG(DFATAL) << "Column " << col << " has no meaningful status.";
-          break;
-      }
-    }
-  }
-}
+void RevisedSimplex::DisplayVariableBounds() {}
 
 absl::StrongVector<RowIndex, SparseRow> RevisedSimplex::ComputeDictionary(
     const DenseRow* column_scales) {
@@ -3670,71 +3575,9 @@ void RevisedSimplex::ComputeBasicVariablesForState(
   }
 }
 
-void RevisedSimplex::DisplayRevisedSimplexDebugInfo() {
-  if (VLOG_IS_ON(3)) {
-    // This function has a complexity in O(num_non_zeros_in_matrix).
-    DisplayInfoOnVariables();
+void RevisedSimplex::DisplayRevisedSimplexDebugInfo() {}
 
-    std::string output = "z = " + StringifyWithFlags(ComputeObjectiveValue());
-    const DenseRow& reduced_costs = reduced_costs_.GetReducedCosts();
-    for (const ColIndex col : variables_info_.GetNotBasicBitRow()) {
-      absl::StrAppend(&output, StringifyMonomialWithFlags(reduced_costs[col],
-                                                          variable_name_[col]));
-    }
-    VLOG(3) << output << ";";
-
-    const RevisedSimplexDictionary dictionary(nullptr, this);
-    RowIndex r(0);
-    for (const SparseRow& row : dictionary) {
-      output.clear();
-      ColIndex basic_col = basis_[r];
-      absl::StrAppend(&output, variable_name_[basic_col], " = ",
-                      StringifyWithFlags(variable_values_.Get(basic_col)));
-      for (const SparseRowEntry e : row) {
-        if (e.col() != basic_col) {
-          absl::StrAppend(&output,
-                          StringifyMonomialWithFlags(e.coefficient(),
-                                                     variable_name_[e.col()]));
-        }
-      }
-      VLOG(3) << output << ";";
-    }
-    VLOG(3) << "------";
-    DisplayVariableBounds();
-    ++r;
-  }
-}
-
-void RevisedSimplex::DisplayProblem() const {
-  // This function has a complexity in O(num_rows * num_cols *
-  // num_non_zeros_in_row).
-  if (VLOG_IS_ON(3)) {
-    DisplayInfoOnVariables();
-    std::string output = "min: ";
-    bool has_objective = false;
-    for (ColIndex col(0); col < num_cols_; ++col) {
-      const Fractional coeff = objective_[col];
-      has_objective |= (coeff != 0.0);
-      absl::StrAppend(&output,
-                      StringifyMonomialWithFlags(coeff, variable_name_[col]));
-    }
-    if (!has_objective) {
-      absl::StrAppend(&output, " 0");
-    }
-    VLOG(3) << output << ";";
-    for (RowIndex row(0); row < num_rows_; ++row) {
-      output = "";
-      for (ColIndex col(0); col < num_cols_; ++col) {
-        absl::StrAppend(&output,
-                        StringifyMonomialWithFlags(
-                            compact_matrix_.column(col).LookUpCoefficient(row),
-                            variable_name_[col]));
-      }
-      VLOG(3) << output << " = 0;";
-    }
-    VLOG(3) << "------";
-  }
-}
+void RevisedSimplex::DisplayProblem() const {}
 
 void RevisedSimplex::AdvanceDeterministicTime(TimeLimit* time_limit) {
   DCHECK(time_limit != nullptr);

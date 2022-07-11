@@ -115,37 +115,6 @@ cc_library(
 )
 
 cc_library(
-    name = "recordio",
-    srcs = [
-        "recordio.cc",
-    ],
-    hdrs = [
-        "recordio.h",
-    ],
-    deps = [
-        ":base",
-        ":file",
-        "@com_google_absl//absl/status:statusor",
-        "@com_google_absl//absl/strings",
-        "@com_google_protobuf//:protobuf",
-        "@zlib",
-    ],
-)
-
-cc_library(
-    name = "protoutil",
-    hdrs = [
-        "protoutil.h",
-    ],
-    deps = [
-        ":timer",
-        "@com_google_absl//absl/status",
-        "@com_google_absl//absl/status:statusor",
-        "@com_google_protobuf//:protobuf",
-    ],
-)
-
-cc_library(
     name = "hash",
     hdrs = [
         "hash.h",
@@ -216,13 +185,6 @@ cc_library(
         ":base",
         "@com_google_absl//absl/status",
         "@com_google_absl//absl/strings",
-    ],
-)
-
-cc_library(
-    name = "protobuf_util",
-    hdrs = [
-        "protobuf_util.h",
     ],
 )
 
@@ -324,16 +286,6 @@ cc_library(
 )
 
 cc_library(
-    name = "linked_hash_map",
-    hdrs = ["linked_hash_map.h"],
-    deps = [
-        ":base",
-        "@com_google_absl//absl/container:common",
-        "@com_google_absl//absl/container:flat_hash_map",
-    ],
-)
-
-cc_library(
     name = "threadpool",
     srcs = [
         "threadpool.cc",
@@ -352,13 +304,4 @@ cc_library(
     hdrs = ["dynamic_library.h"],
     linkopts = ["-Wl,--no-as-needed -ldl"],
     deps = [":base"],
-)
-
-cc_library(
-    name = "gzipstring",
-    hdrs = ["gzipstring.h"],
-    deps = [
-        ":base",
-        "@zlib",
-    ],
 )

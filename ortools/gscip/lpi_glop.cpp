@@ -34,10 +34,8 @@
 #include "ortools/base/version.h"
 #include "ortools/glop/lp_solver.h"
 #include "ortools/glop/revised_simplex.h"
-#include "ortools/lp_data/lp_print_utils.h"
 #include "ortools/lp_data/lp_data_utils.h"
 #include "ortools/lp_data/proto_utils.h"
-#include "ortools/util/file_util.h"
 #include "ortools/util/stats.h"
 #include "ortools/util/time_limit.h"
 
@@ -3167,21 +3165,21 @@ SCIP_RETCODE SCIPlpiReadLP(
    const char*           fname               /**< file name */
    )
 {
-   assert( lpi != NULL );
-   assert( lpi->linear_program != NULL );
-   assert( fname != NULL );
+   // assert( lpi != NULL );
+   // assert( lpi->linear_program != NULL );
+   // assert( fname != NULL );
+   //
+   // const std::string filespec(fname);
+   // MPModelProto proto;
+   // if ( ! file::ReadFileToProto(filespec, &proto) )
+   // {
+   //    SCIPerrorMessage("Could not read <%s>\n", fname);
+   //    return SCIP_READERROR;
+   // }
+   // lpi->linear_program->Clear();
+   // MPModelProtoToLinearProgram(proto, lpi->linear_program);
 
-   const std::string filespec(fname);
-   MPModelProto proto;
-   if ( ! file::ReadFileToProto(filespec, &proto) )
-   {
-      SCIPerrorMessage("Could not read <%s>\n", fname);
-      return SCIP_READERROR;
-   }
-   lpi->linear_program->Clear();
-   MPModelProtoToLinearProgram(proto, lpi->linear_program);
-
-   return SCIP_OKAY;
+   return SCIP_READERROR;
 }
 
 /** writes LP to a file */
@@ -3190,18 +3188,18 @@ SCIP_RETCODE SCIPlpiWriteLP(
    const char*           fname               /**< file name */
    )
 {
-   assert( lpi != NULL );
-   assert( lpi->linear_program != NULL );
-   assert( fname != NULL );
-
-   MPModelProto proto;
-   LinearProgramToMPModelProto(*lpi->linear_program, &proto);
-   const std::string filespec(fname);
-   if ( ! file::WriteProtoToFile(proto, filespec) )
-   {
-      SCIPerrorMessage("Could not write <%s>\n", fname);
-      return SCIP_READERROR;
-   }
+   // assert( lpi != NULL );
+   // assert( lpi->linear_program != NULL );
+   // assert( fname != NULL );
+   //
+   // MPModelProto proto;
+   // LinearProgramToMPModelProto(*lpi->linear_program, &proto);
+   // const std::string filespec(fname);
+   // if ( ! file::WriteProtoToFile(proto, filespec) )
+   // {
+   //    SCIPerrorMessage("Could not write <%s>\n", fname);
+   //    return SCIP_READERROR;
+   // }
 
    return SCIP_OKAY;
 }

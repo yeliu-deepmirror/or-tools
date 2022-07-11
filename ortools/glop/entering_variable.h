@@ -16,7 +16,6 @@
 
 #include <cstdint>
 
-#include "absl/random/bit_gen_ref.h"
 #include "ortools/glop/basis_representation.h"
 #include "ortools/glop/parameters.pb.h"
 #include "ortools/glop/primal_edge_norms.h"
@@ -44,7 +43,7 @@ namespace glop {
 class EnteringVariable {
  public:
   // Takes references to the linear program data we need.
-  EnteringVariable(const VariablesInfo& variables_info, absl::BitGenRef random,
+  EnteringVariable(const VariablesInfo& variables_info,
                    ReducedCosts* reduced_costs);
 
   // Dual optimization phase (i.e. phase II) ratio test.
@@ -82,7 +81,7 @@ class EnteringVariable {
   // Problem data that should be updated from outside.
   const VariablesInfo& variables_info_;
 
-  absl::BitGenRef random_;
+  std::mt19937 random_;
   ReducedCosts* reduced_costs_;
 
   // Internal data.

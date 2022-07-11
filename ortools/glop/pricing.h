@@ -14,11 +14,10 @@
 #ifndef OR_TOOLS_GLOP_PRICING_H_
 #define OR_TOOLS_GLOP_PRICING_H_
 
-#include "absl/random/bit_gen_ref.h"
-#include "absl/random/random.h"
 #include "ortools/lp_data/lp_types.h"
 #include "ortools/util/bitset.h"
 #include "ortools/util/stats.h"
+#include "ortools/util/random_engine.h"
 
 namespace operations_research {
 namespace glop {
@@ -56,7 +55,7 @@ template <typename Index>
 class DynamicMaximum {
  public:
   // To simplify the APIs, we take a random number generator at construction.
-  explicit DynamicMaximum(absl::BitGenRef random) : random_(random) {}
+  explicit DynamicMaximum(random_engine_t random) : random_(random) {}
 
   // Prepares the class to hold up to n candidates with indices in [0, n).
   // Initially no indices is a candidate.
@@ -101,7 +100,7 @@ class DynamicMaximum {
   Index RandomizeIfManyChoices(Index best);
 
   // For tie-breaking.
-  absl::BitGenRef random_;
+  random_engine_t random_;
   std::vector<Index> equivalent_choices_;
 
   // Set of candidates and their value.
@@ -298,7 +297,8 @@ inline void DynamicMaximum<Index>::UpdateTopK(Index position,
   // constructed, we will reuse it as much as possible, so it will be biased
   // towards elements already inside.
   if (value == tops_[0].value) {
-    if (absl::Bernoulli(random_, 0.5)) {
+    std::bernoulli_distribution distribution(0.5);
+    if (distribution(random_)) {
       tops_[0].index = position;
     }
     return;

@@ -392,7 +392,7 @@ class LinearSumAssignment {
       refinements_ += that.refinements_;
     }
     std::string StatsString() const {
-      return absl::StrFormat(
+      return fmt::format(
           "%d refinements; %d relabelings; "
           "%d double pushes; %d pushes",
           refinements_, relabelings_, double_pushes_, pushes_);

@@ -517,27 +517,6 @@ class MPSolver {
    */
   bool InterruptSolve();
 
-  /**
-   * Loads model from protocol buffer.
-   *
-   * Returns MPSOLVER_MODEL_IS_VALID if the model is valid, and another status
-   * otherwise (currently only MPSOLVER_MODEL_INVALID and MPSOLVER_INFEASIBLE).
-   * If the model isn't valid, populates "error_message".
-   */
-  MPSolverResponseStatus LoadModelFromProto(const MPModelProto& input_model,
-                                            std::string* error_message);
-  /**
-   * Loads model from protocol buffer.
-   *
-   * The same as above, except that the loading keeps original variable and
-   * constraint names. Caller should make sure that all variable names and
-   * constraint names are unique, respectively.
-   */
-  MPSolverResponseStatus LoadModelFromProtoWithUniqueNamesOrDie(
-      const MPModelProto& input_model, std::string* error_message);
-
-  /// Encodes the current solution in a solution response protocol buffer.
-  void FillSolutionResponseProto(MPSolutionResponse* response) const;
 
   static bool SolverTypeSupportsInterruption(
       const MPModelRequest::SolverType solver) {
@@ -597,16 +576,6 @@ class MPSolver {
    * returns an error if any of the variables have NaN value.
    */
   absl::Status ClampSolutionWithinBounds();
-
-  /**
-   * Shortcuts to the homonymous MPModelProtoExporter methods, via exporting to
-   * a MPModelProto with ExportModelToProto() (see above).
-   *
-   * Produces empty std::string on portable platforms (e.g. android, ios).
-   */
-  bool ExportModelAsLpFormat(bool obfuscate, std::string* model_str) const;
-  bool ExportModelAsMpsFormat(bool fixed_format, bool obfuscate,
-                              std::string* model_str) const;
 
   /**
    *  Sets the number of threads to use by the underlying solver.
@@ -1169,7 +1138,7 @@ class MPVariable {
         lb_(lb),
         ub_(ub),
         integer_(integer),
-        name_(name.empty() ? absl::StrFormat("auto_v_%09d", index) : name),
+        name_(name.empty() ? fmt::format("auto_v_%09d", index) : name),
         solution_value_(0.0),
         reduced_cost_(0.0),
         interface_(interface_in) {}
@@ -1311,7 +1280,7 @@ class MPConstraint {
         index_(index),
         lb_(lb),
         ub_(ub),
-        name_(name.empty() ? absl::StrFormat("auto_c_%09d", index) : name),
+        name_(name.empty() ? fmt::format("auto_c_%09d", index) : name),
         is_lazy_(false),
         indicator_variable_(nullptr),
         dual_value_(0.0),

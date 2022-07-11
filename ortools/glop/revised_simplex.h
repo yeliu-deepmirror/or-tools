@@ -95,7 +95,6 @@
 #include <string>
 #include <vector>
 
-#include "absl/random/bit_gen_ref.h"
 #include "ortools/base/integral_types.h"
 #include "ortools/base/macros.h"
 #include "ortools/glop/basis_representation.h"
@@ -110,7 +109,6 @@
 #include "ortools/glop/variable_values.h"
 #include "ortools/glop/variables_info.h"
 #include "ortools/lp_data/lp_data.h"
-#include "ortools/lp_data/lp_print_utils.h"
 #include "ortools/lp_data/lp_types.h"
 #include "ortools/lp_data/scattered_vector.h"
 #include "ortools/lp_data/sparse_row.h"
@@ -703,10 +701,7 @@ class RevisedSimplex {
   // non-deterministic behavior and avoid client depending on a golden optimal
   // solution which prevent us from easily changing the solver.
   random_engine_t deterministic_random_;
-#ifndef NDEBUG
-  absl::BitGen absl_random_;
-#endif
-  absl::BitGenRef random_;
+  random_engine_t random_;
 
   // Helpers for logging the solve progress.
   SolverLogger default_logger_;

@@ -104,7 +104,7 @@ class SCIPInterface : public MPSolverInterface {
   void ExtractObjective() override;
 
   std::string SolverVersion() const override {
-    return absl::StrFormat("SCIP %d.%d.%d [LP solver: %s]", SCIPmajorVersion(),
+    return fmt::format("SCIP %d.%d.%d [LP solver: %s]", SCIPmajorVersion(),
                            SCIPminorVersion(), SCIPtechVersion(),
                            SCIPlpiGetSolverName());
   }
@@ -702,7 +702,7 @@ MPSolver::ResultStatus SCIPInterface::Solve(const MPSolverParameters& param) {
   }
 
   ExtractModel();
-  VLOG(1) << absl::StrFormat("Model built in %s.",
+  VLOG(1) << fmt::format("Model built in %s.",
                              absl::FormatDuration(timer.GetDuration()));
   if (scip_constraint_handler_ != nullptr) {
     // When the value of `callback_` is changed, `callback_reset_` is set and
@@ -792,7 +792,7 @@ MPSolver::ResultStatus SCIPInterface::Solve(const MPSolverParameters& param) {
   RETURN_ABNORMAL_IF_SCIP_ERROR(solver_->GetNumThreads() > 1
                                     ? SCIPsolveConcurrent(scip_)
                                     : SCIPsolve(scip_));
-  VLOG(1) << absl::StrFormat("Solved in %s.",
+  VLOG(1) << fmt::format("Solved in %s.",
                              absl::FormatDuration(timer.GetDuration()));
   current_solution_index_ = 0;
   // Get the results.
@@ -987,7 +987,7 @@ void SCIPInterface::SetUnsupportedIntegerParam(
     MPSolverParameters::IntegerParam param) {
   MPSolverInterface::SetUnsupportedIntegerParam(param);
   if (status_.ok()) {
-    status_ = absl::InvalidArgumentError(absl::StrFormat(
+    status_ = absl::InvalidArgumentError(fmt::format(
         "Tried to set unsupported integer parameter %d", param));
   }
 }
@@ -996,7 +996,7 @@ void SCIPInterface::SetIntegerParamToUnsupportedValue(
     MPSolverParameters::IntegerParam param, int value) {
   MPSolverInterface::SetIntegerParamToUnsupportedValue(param, value);
   if (status_.ok()) {
-    status_ = absl::InvalidArgumentError(absl::StrFormat(
+    status_ = absl::InvalidArgumentError(fmt::format(
         "Tried to set integer parameter %d to unsupported value %d", param,
         value));
   }
@@ -1004,7 +1004,7 @@ void SCIPInterface::SetIntegerParamToUnsupportedValue(
 
 absl::Status SCIPInterface::SetNumThreads(int num_threads) {
   if (SetSolverSpecificParametersAsString(
-          absl::StrFormat("parallel/maxnthreads = %d\n", num_threads))) {
+          fmt::format("parallel/maxnthreads = %d\n", num_threads))) {
     return absl::OkStatus();
   }
   return absl::InternalError(
