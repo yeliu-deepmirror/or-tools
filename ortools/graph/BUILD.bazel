@@ -51,85 +51,6 @@ cc_library(
     ],
 )
 
-#cc_library(
-#    name = "digraph",
-#    srcs = ["digraph.cc"],
-#    hdrs = ["digraph.h"],
-#    deps = [
-#        "//ortools/base",
-#        "//ortools/base:intops",
-#        "//ortools/base:strong_vector",
-#    ],
-#)
-
-#proto_library(
-#    name = "paths_proto",
-#    srcs = ["paths.proto"],
-#)
-
-#cc_proto_library(
-#    name = "paths_cc_proto",
-#    deps = [":paths_proto"],
-#)
-
-cc_library(
-    name = "shortestpaths",
-    srcs = [
-        "astar.cc",
-        "bellman_ford.cc",
-        "dijkstra.cc",
-        "shortestpaths.cc",
-    ],
-    hdrs = ["shortestpaths.h"],
-    deps = [
-        ":graph",
-        #        ":paths_cc_proto",
-        "//ortools/base",
-        "//ortools/base:adjustable_priority_queue",
-        "//ortools/base:file",
-        "//ortools/base:hash",
-        "//ortools/base:intops",
-        #        "//ortools/base:strong_bitmap",
-        "//ortools/base:strong_vector",
-        "//ortools/base:recordio",
-        "@com_google_absl//absl/container:flat_hash_map",
-        "@com_google_absl//absl/container:flat_hash_set",
-        "@com_google_absl//absl/strings",
-        #        "//ortools/thread",
-        #        "//ortools/util/coding:prefixvarint",
-    ],
-)
-
-#cc_library(
-#    name = "arc_dijkstra",
-#    hdrs = ["arc_dijkstra.h"],
-#    deps = [
-#        "//ortools/base",
-#        "//ortools/base:iterator_adaptors",
-#    ],
-#)
-
-#cc_library(
-#    name = "bounded_dijkstra",
-#    hdrs = ["bounded_dijkstra.h"],
-#    deps = [
-#        "//ortools/base",
-#        "//ortools/base:iterator_adaptors",
-#        "//ortools/thread",
-#    ],
-#)
-
-#cc_library(
-#    name = "bidirectional_dijkstra",
-#    hdrs = ["bidirectional_dijkstra.h"],
-#    deps = [
-#        "//ortools/base",
-#        "//ortools/base:iterator_adaptors",
-#        "@com_google_absl//absl/strings",
-#        "//ortools/thread",
-#    ],
-#)
-
 cc_library(
     name = "cliques",
     srcs = ["cliques.cc"],
@@ -210,23 +131,6 @@ cc_library(
         "//ortools/util:zvector",
     ],
 )
-
-#cc_library(
-#    name = "shortest_paths",
-#    srcs = ["shortest_paths.cc"],
-#    hdrs = ["shortest_paths.h"],
-#    deps = [
-#        ":ebert_graph",
-#        ":graph",
-#        "//ortools/base",
-#        "//ortools/base:adjustable_priority_queue",
-#        "//ortools/base:file",
-#        "//ortools/base:map_util",
-#        "//ortools/base:stl_util",
-#        "//ortools/thread",
-#        "//ortools/util:zvector",
-#    ],
-#)
 
 cc_library(
     name = "perfect_matching",
@@ -353,20 +257,3 @@ cc_library(
         "@com_google_absl//absl/container:flat_hash_map",
     ],
 )
-
-#cc_library(
-#    name = "biconnected",
-#    srcs = ["biconnected.cc"],
-#    hdrs = ["biconnected.h"],
-#    deps = [
-#        ":ebert_graph",
-#        "//ortools/base",
-#        "//ortools/util:packed_array",
-#    ],
-#)
-
-#cc_library(
-#    name = "hopcroft_karp",
-#    srcs = ["hopcroft_karp.c"],
-#    hdrs = ["hopcroft_karp.h"],
-#)

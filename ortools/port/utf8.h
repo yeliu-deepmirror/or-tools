@@ -16,9 +16,23 @@
 
 #include <string>
 
-#ifndef __PORTABLE_PLATFORM__
-#include "ortools/base/encodingutils.h"
-#endif
+namespace EncodingUtils {
+
+// Returns the number of characters of a UTF8-encoded string.
+inline int UTF8StrLen(const std::string& utf8_str) {
+  if (utf8_str.empty()) return 0;
+  const char* c = utf8_str.c_str();
+  int count = 0;
+  while (*c != '\0') {
+    ++count;
+    // See http://en.wikipedia.org/wiki/UTF-8#Description .
+    const unsigned char x = *c;
+    c += x < 0xC0 ? 1 : x < 0xE0 ? 2 : x < 0xF0 ? 3 : 4;
+  }
+  return count;
+}
+
+}  // namespace EncodingUtils
 
 namespace operations_research {
 namespace utf8 {

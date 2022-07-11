@@ -501,7 +501,7 @@ void FindCpModelSymmetries(
   std::vector<int> factorized_automorphism_group_size;
   std::unique_ptr<TimeLimit> time_limit =
       TimeLimit::FromDeterministicTime(deterministic_limit);
-  const absl::Status status = symmetry_finder.FindSymmetries(
+  const auto status = symmetry_finder.FindSymmetries(
       &equivalence_classes, generators, &factorized_automorphism_group_size,
       time_limit.get());
 

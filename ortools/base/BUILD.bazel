@@ -1,35 +1,10 @@
 package(default_visibility = ["//visibility:public"])
 
-config_setting(
-    name = "on_linux",
-    constraint_values = [
-        "@platforms//os:linux",
-    ],
-)
-
-config_setting(
-    name = "on_macos",
-    constraint_values = [
-        "@platforms//os:macos",
-    ],
-)
-
-config_setting(
-    name = "on_windows",
-    constraint_values = [
-        "@platforms//os:windows",
-    ],
-)
-
 cc_library(
     name = "base",
     srcs = [
         "commandlineflags.cc",
-        #"logging.cc",
-        #"logging_utilities.cc",
-        #"raw_logging.cc",
         "version.cc",
-        #"vlog_is_on.cc",
     ],
     hdrs = [
         "basictypes.h",
@@ -39,11 +14,7 @@ cc_library(
         "log_severity.h",
         "logging.h",
         "logging_export.h",
-        #"logging_flags.h",
-        #"logging_utilities.h",
         "macros.h",
-        #"raw_logging.h",
-        #"stl_logging.h",
         "version.h",
         "vlog_is_on.h",
     ],
@@ -52,12 +23,6 @@ cc_library(
         "-DOR_TOOLS_MINOR=0",
         "-DOR_TOOLS_PATCH=0",
     ],
-    defines = select({
-        "on_linux": [],
-        "on_macos": [],
-        "on_windows": ["OR_TOOLS_EXPORTS"],  # For logging_export.h
-        "//conditions:default": [],
-    }),
     deps = [
         "@com_github_glog//:glog",
         "@com_google_absl//absl/base",
@@ -72,21 +37,10 @@ cc_library(
         "@com_google_absl//absl/flags:flag",
         "@com_google_absl//absl/flags:parse",
         "@com_google_absl//absl/synchronization",
+        "@fmt",
     ],
 )
 
-cc_library(
-    name = "case",
-    srcs = [
-        "case.cc",
-    ],
-    hdrs = [
-        "case.h",
-    ],
-    deps = [
-        ":base",
-    ],
-)
 
 cc_library(
     name = "container_logging",
@@ -118,16 +72,6 @@ cc_library(
         ":status_builder",
         "@com_google_absl//absl/status",
         "@com_google_absl//absl/status:statusor",
-    ],
-)
-
-cc_library(
-    name = "encodingutils",
-    hdrs = [
-        "encodingutils.h",
-    ],
-    deps = [
-        ":base",
     ],
 )
 
@@ -406,12 +350,7 @@ cc_library(
 cc_library(
     name = "dynamic_library",
     hdrs = ["dynamic_library.h"],
-    linkopts = select({
-        "on_linux": ["-Wl,--no-as-needed -ldl"],
-        "on_macos": [],
-        "on_windows": [],
-        "//conditions:default": [],
-    }),
+    linkopts = ["-Wl,--no-as-needed -ldl"],
     deps = [":base"],
 )
 

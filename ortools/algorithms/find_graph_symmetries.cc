@@ -22,14 +22,6 @@
 #include <utility>
 #include <vector>
 
-#include "absl/algorithm/container.h"
-#include "absl/container/flat_hash_set.h"
-#include "absl/memory/memory.h"
-#include "absl/status/status.h"
-#include "absl/strings/str_format.h"
-#include "absl/strings/str_join.h"
-#include "absl/time/clock.h"
-#include "absl/time/time.h"
 #include "ortools/algorithms/dense_doubly_linked_list.h"
 #include "ortools/algorithms/dynamic_partition.h"
 #include "ortools/algorithms/dynamic_permutation.h"
@@ -38,17 +30,18 @@
 #include "ortools/graph/iterators.h"
 #include "ortools/graph/util.h"
 
-ABSL_FLAG(bool, minimize_permutation_support_size, false,
-          "Tweak the algorithm to try and minimize the support size"
-          " of the generators produced. This may negatively impact the"
-          " performance, but works great on the sat_holeXXX benchmarks"
-          " to reduce the support size.");
-
 namespace operations_research {
 
 using util::GraphIsSymmetric;
 
 namespace {
+
+  // "Tweak the algorithm to try and minimize the support size"
+  // " of the generators produced. This may negatively impact the"
+  // " performance, but works great on the sat_holeXXX benchmarks"
+  // " to reduce the support size."
+constexpr bool kMinizepermutationsupportsize = false;
+
 // Some routines used below.
 void SwapFrontAndBack(std::vector<int>* v) {
   DCHECK(!v->empty());
@@ -145,10 +138,10 @@ GraphSymmetryFinder::GraphSymmetryFinder(const Graph& graph, bool is_undirected)
     }
     // The last pass shifted reverse_adj_list_index, so it's now as we want it:
     // [0, in_degree(node0), in_degree(node0) + in_degree(node1), ...]
-    if (DEBUG_MODE) {
-      DCHECK_EQ(graph.num_arcs(), reverse_adj_list_index_[graph.num_nodes()]);
-      for (const int i : flattened_reverse_adj_lists_) DCHECK_NE(i, -1);
-    }
+    // if (DEBUG_MODE) {
+    //   DCHECK_EQ(graph.num_arcs(), reverse_adj_list_index_[graph.num_nodes()]);
+    //   for (const int i : flattened_reverse_adj_lists_) DCHECK_NE(i, -1);
+    // }
   }
 }
 
@@ -362,25 +355,10 @@ void GetAllOtherRepresentativesInSamePartAs(
   // comparing its output to the brute-force, O(Part size) version.
   // This also (partly) verifies that
   // "representatives_sorted_by_index_in_partition" is what it claims it is.
-  if (DEBUG_MODE) {
-    std::vector<int> expected_output;
-    for (const int e : partition.ElementsInPart(part_index)) {
-      if (node_equivalence_classes->GetRoot(e) != representative_node) {
-        expected_output.push_back(e);
-      }
-    }
-    node_equivalence_classes->KeepOnlyOneNodePerPart(&expected_output);
-    for (int& x : expected_output) x = node_equivalence_classes->GetRoot(x);
-    std::sort(expected_output.begin(), expected_output.end());
-    std::vector<int> sorted_output = *pruned_other_nodes;
-    std::sort(sorted_output.begin(), sorted_output.end());
-    DCHECK_EQ(absl::StrJoin(expected_output, " "),
-              absl::StrJoin(sorted_output, " "));
-  }
 }
 }  // namespace
 
-absl::Status GraphSymmetryFinder::FindSymmetries(
+OrToolsStatus GraphSymmetryFinder::FindSymmetries(
     std::vector<int>* node_equivalence_classes_io,
     std::vector<std::unique_ptr<SparsePermutation>>* generators,
     std::vector<int>* factorized_automorphism_group_size,
@@ -391,8 +369,7 @@ absl::Status GraphSymmetryFinder::FindSymmetries(
   generators->clear();
   factorized_automorphism_group_size->clear();
   if (node_equivalence_classes_io->size() != NumNodes()) {
-    return absl::Status(absl::StatusCode::kInvalidArgument,
-                        "Invalid 'node_equivalence_classes_io'.");
+    return OrToolsStatus::Error("Invalid 'node_equivalence_classes_io'.");
   }
   DynamicPartition base_partition(*node_equivalence_classes_io);
   // Break all inherent asymmetries in the graph.
@@ -402,12 +379,8 @@ absl::Status GraphSymmetryFinder::FindSymmetries(
                                           &base_partition);
   }
   if (time_limit_->LimitReached()) {
-    return absl::Status(absl::StatusCode::kDeadlineExceeded,
-                        "During the initial refinement.");
+    return OrToolsStatus::Error("kDeadlineExceeded: During the initial refinement.");
   }
-  VLOG(4) << "Base partition: "
-          << base_partition.DebugString(DynamicPartition::SORT_BY_PART);
-
   MergingPartition node_equivalence_classes(NumNodes());
   std::vector<std::vector<int>> permutations_displacing_node(NumNodes());
   std::vector<int> potential_root_image_nodes;
@@ -454,12 +427,8 @@ absl::Status GraphSymmetryFinder::FindSymmetries(
     invariant_dive_stack.push_back(
         InvariantDiveState(invariant_node, base_partition.NumParts()));
     DistinguishNodeInPartition(invariant_node, &base_partition, nullptr);
-    VLOG(4) << "Invariant dive: invariant node = " << invariant_node
-            << "; partition after: "
-            << base_partition.DebugString(DynamicPartition::SORT_BY_PART);
     if (time_limit_->LimitReached()) {
-      return absl::Status(absl::StatusCode::kDeadlineExceeded,
-                          "During the invariant dive.");
+      return OrToolsStatus::Error("DeadlineExceeded During the invariant dive.");
     }
   }
   DenseDoublyLinkedList representatives_sorted_by_index_in_partition(
@@ -480,9 +449,6 @@ absl::Status GraphSymmetryFinder::FindSymmetries(
     invariant_dive_stack.pop_back();
     base_partition.UndoRefineUntilNumPartsEqual(base_num_parts);
     image_partition.UndoRefineUntilNumPartsEqual(base_num_parts);
-    VLOG(4) << "Backtracking invariant dive: root node = " << root_node
-            << "; partition: "
-            << base_partition.DebugString(DynamicPartition::SORT_BY_PART);
 
     // Now we'll try to map "root_node" to all image nodes that seem compatible
     // and that aren't "root_node" itself.
@@ -515,11 +481,7 @@ absl::Status GraphSymmetryFinder::FindSymmetries(
     // we only care about finding a single compatible permutation, if it exists.
     while (!potential_root_image_nodes.empty()) {
       if (time_limit_->LimitReached()) break;
-      VLOG(4) << "Potential (pruned) images of root node " << root_node
-              << " left: [" << absl::StrJoin(potential_root_image_nodes, " ")
-              << "].";
       const int root_image_node = potential_root_image_nodes.back();
-      VLOG(4) << "Trying image of root node: " << root_image_node;
 
       std::unique_ptr<SparsePermutation> permutation =
           FindOneSuitablePermutation(root_node, root_image_node,
@@ -568,10 +530,9 @@ absl::Status GraphSymmetryFinder::FindSymmetries(
   IF_STATS_ENABLED(stats_.SetPrintOrder(StatsGroup::SORT_BY_NAME));
   IF_STATS_ENABLED(LOG(INFO) << "Statistics: " << stats_.StatString());
   if (time_limit_->LimitReached()) {
-    return absl::Status(absl::StatusCode::kDeadlineExceeded,
-                        "Some automorphisms were found, but probably not all.");
+    return OrToolsStatus::Error("DeadlineExceeded : Some automorphisms were found, but probably not all.");
   }
-  return ::absl::OkStatus();
+  return OrToolsStatus::OK();
 }
 
 namespace {
@@ -594,9 +555,8 @@ inline void GetBestMapping(const DynamicPartition& base_partition,
   //
   // Variant 2) gives the best results on most benchmarks, in terms of speed,
   // but 3) yields much smaller supports for the sat_holeXXX benchmarks, as
-  // long as it's combined with the other tweak enabled by
-  // FLAGS_minimize_permutation_support_size.
-  if (absl::GetFlag(FLAGS_minimize_permutation_support_size)) {
+  // long as it's combined with the other tweak enabled by kMinizepermutationsupportsize
+  if (kMinizepermutationsupportsize) {
     // Variant 3).
     for (const int node : base_partition.ElementsInPart(part_index)) {
       if (image_partition.PartOf(node) == part_index) {
@@ -631,9 +591,6 @@ GraphSymmetryFinder::FindOneSuitablePermutation(
     const std::vector<std::vector<int>>& permutations_displacing_node) {
   // DCHECKs() and statistics.
   ScopedTimeDistributionUpdater search_time_updater(&stats_.search_time);
-  DCHECK_EQ("", tmp_dynamic_permutation_.DebugString());
-  DCHECK_EQ(base_partition->DebugString(DynamicPartition::SORT_BY_PART),
-            image_partition->DebugString(DynamicPartition::SORT_BY_PART));
   DCHECK(search_states_.empty());
 
   // These will be used during the search. See their usage.
@@ -685,9 +642,6 @@ GraphSymmetryFinder::FindOneSuitablePermutation(
       DistinguishNodeInPartition(image_node, image_partition,
                                  &image_singletons);
     }
-    VLOG(4) << ss.DebugString();
-    VLOG(4) << base_partition->DebugString(DynamicPartition::SORT_BY_PART);
-    VLOG(4) << image_partition->DebugString(DynamicPartition::SORT_BY_PART);
 
     // Run some diagnoses on the two partitions. There are many outcomes, so
     // it's a bit complicated:
@@ -750,7 +704,6 @@ GraphSymmetryFinder::FindOneSuitablePermutation(
         // must restore the partitions to their original state.
         std::unique_ptr<SparsePermutation> sparse_permutation(
             tmp_dynamic_permutation_.CreateSparsePermutation());
-        VLOG(4) << "Automorphism found: " << sparse_permutation->DebugString();
         const int base_num_parts =
             search_states_[0].num_parts_before_trying_to_map_base_node;
         base_partition->UndoRefineUntilNumPartsEqual(base_num_parts);
@@ -891,7 +844,6 @@ void GraphSymmetryFinder::PruneOrbitsUnderPermutationsCompatibleWithPartition(
     const DynamicPartition& partition,
     const std::vector<std::unique_ptr<SparsePermutation>>& permutations,
     const std::vector<int>& permutation_indices, std::vector<int>* nodes) {
-  VLOG(4) << "    Pruning [" << absl::StrJoin(*nodes, ", ") << "]";
   // TODO(user): apply a smarter test to decide whether to do the pruning
   // or not: we can accurately estimate the cost of pruning (iterate through
   // all generators found so far) and its estimated benefit (the cost of
@@ -959,7 +911,6 @@ void GraphSymmetryFinder::PruneOrbitsUnderPermutationsCompatibleWithPartition(
     tmp_partition_.ResetNode(node);
   }
   tmp_nodes_on_support.clear();
-  VLOG(4) << "    Pruned: [" << absl::StrJoin(*nodes, ", ") << "]";
 }
 
 bool GraphSymmetryFinder::ConfirmFullMatchOrFindNextMappingDecision(
@@ -973,7 +924,7 @@ bool GraphSymmetryFinder::ConfirmFullMatchOrFindNextMappingDecision(
 
   // The following clause should be true most of the times, except in some
   // specific use cases.
-  if (!absl::GetFlag(FLAGS_minimize_permutation_support_size)) {
+  if (!kMinizepermutationsupportsize) {
     // First, we try to map the loose ends of the current permutations: these
     // loose ends can't be mapped to themselves, so we'll have to map them to
     // something anyway.
@@ -1035,25 +986,11 @@ bool GraphSymmetryFinder::ConfirmFullMatchOrFindNextMappingDecision(
 
   // We didn't find an unequal part. DCHECK that our "incremental" check was
   // actually correct and that all non-singleton parts are indeed equal.
-  if (DEBUG_MODE) {
-    for (int p = 0; p < base_partition.NumParts(); ++p) {
-      if (base_partition.SizeOfPart(p) != 1) {
-        CHECK_EQ(base_partition.FprintOfPart(p),
-                 image_partition.FprintOfPart(p));
-      }
-    }
-  }
   return true;
 }
 
 std::string GraphSymmetryFinder::SearchState::DebugString() const {
-  return absl::StrFormat(
-      "SearchState{ base_node=%d, first_image_node=%d,"
-      " remaining_pruned_image_nodes=[%s],"
-      " num_parts_before_trying_to_map_base_node=%d }",
-      base_node, first_image_node,
-      absl::StrJoin(remaining_pruned_image_nodes, " "),
-      num_parts_before_trying_to_map_base_node);
+  return "empty";
 }
 
 }  // namespace operations_research

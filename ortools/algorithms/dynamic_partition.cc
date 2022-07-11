@@ -16,8 +16,7 @@
 #include <algorithm>
 #include <cstdint>
 
-#include "absl/strings/str_format.h"
-#include "absl/strings/str_join.h"
+#include "fmt/format.h"
 #include "ortools/base/murmur.h"
 
 namespace operations_research {
@@ -184,7 +183,7 @@ void DynamicPartition::UndoRefineUntilNumPartsEqual(int original_num_parts) {
 
 std::string DynamicPartition::DebugString(DebugStringSorting sorting) const {
   if (sorting != SORT_LEXICOGRAPHICALLY && sorting != SORT_BY_PART) {
-    return absl::StrFormat("Unsupported sorting: %d", sorting);
+    return fmt::format("Unsupported sorting: %d", sorting);
   }
   std::vector<std::vector<int>> parts;
   for (int i = 0; i < NumParts(); ++i) {
@@ -198,7 +197,7 @@ std::string DynamicPartition::DebugString(DebugStringSorting sorting) const {
   std::string out;
   for (const std::vector<int>& part : parts) {
     if (!out.empty()) out += " | ";
-    out += absl::StrJoin(part, " ");
+    out += StringJoin(part);
   }
   return out;
 }
@@ -287,7 +286,7 @@ std::string MergingPartition::DebugString() {
   std::string out;
   for (const std::vector<int>& part : sorted_parts) {
     if (!out.empty()) out += " | ";
-    out += absl::StrJoin(part, " ");
+    out += StringJoin(part);
   }
   return out;
 }
