@@ -19,13 +19,6 @@ git_repository(
     remote = "https://github.com/bazelbuild/platforms.git",
 )
 
-# Bazel Python rules.
-git_repository(
-    name = "rules_python",
-    tag = "0.6.0",
-    remote = "https://github.com/bazelbuild/rules_python.git",
-)
-
 # Abseil-cpp
 git_repository(
     name = "com_google_absl",
@@ -46,14 +39,6 @@ http_archive(
 load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
 protobuf_deps()
 
-# ZLIB
-new_git_repository(
-    name = "zlib",
-    build_file = "@com_google_protobuf//:third_party/zlib.BUILD",
-    tag = "v1.2.11",
-    remote = "https://github.com/madler/zlib.git",
-)
-
 git_repository(
     name = "com_google_re2",
     patches = ["//bazel:re2.patch"],
@@ -66,13 +51,6 @@ http_archive(
     sha256 = "9dc9157a9a1551ec7a7e43daea9a694a0bb5fb8bec81235d8a1e6ef64c716dcb",
     strip_prefix = "googletest-release-1.10.0",
     url = "https://github.com/google/googletest/archive/release-1.10.0.tar.gz",
-)
-
-http_archive(
-    name = "glpk",
-    build_file = "//bazel:glpk.BUILD",
-    sha256 = "4a1013eebb50f728fc601bdd833b0b2870333c3b3e5a816eeba921d95bec6f15",
-    url = "http://ftp.gnu.org/gnu/glpk/glpk-5.0.tar.gz",
 )
 
 http_archive(
@@ -129,6 +107,23 @@ cc_library(
     includes = ['.'],
     hdrs = glob(['Eigen/**']),
     visibility = ['//visibility:public'],
+)
+"""
+)
+
+http_archive(
+    name = "fmt",
+    sha256 = "5cae7072042b3043e12d53d50ef404bbb76949dad1de368d7f993a15c8c05ecc",
+    strip_prefix = "fmt-7.1.3",
+    url = "https://github.com/fmtlib/fmt/archive/7.1.3.tar.gz",
+    build_file_content =
+"""
+package(default_visibility = ["//visibility:public"])
+cc_library(
+    name = "fmt",
+    srcs = glob(["src/*.cc"]),
+    hdrs = glob(["include/fmt/*.h"]),
+    strip_include_prefix = "include",
 )
 """
 )

@@ -5,6 +5,7 @@ dependencies/
 include/
 share/
 
+.or-tools_bash_history
 or-tools*.tar.gz
 or-tools*.zip
 *.snk

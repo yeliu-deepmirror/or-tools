@@ -6,11 +6,6 @@ package(default_visibility = ["//visibility:public"])
 exports_files(["model_exporter_swig_helper.h"])
 
 config_setting(
-    name = "with_glpk",
-    values = {"define": "USE_GLPK="},
-)
-
-config_setting(
     name = "with_cplex",
     values = {"define": "USE_CPLEX="},
 )
@@ -80,9 +75,6 @@ cc_library(
     }) + select({
         ":with_xpress": ["xpress_interface.cc"],
         "//conditions:default": [],
-    }) + select({
-        ":with_glpk": ["glpk_interface.cc"],
-        "//conditions:default": [],
     }),
     hdrs = [
         "glop_interface.cc",
@@ -107,7 +99,6 @@ cc_library(
         ":linear_solver_cc_proto",
         ":scip_with_glop",
         ":model_exporter",
-        "@zlib//:zlib",
         "@com_google_absl//absl/status",
         "@com_google_absl//absl/status:statusor",
         "@com_google_absl//absl/strings",
@@ -137,10 +128,7 @@ cc_library(
         "//ortools/sat:lp_utils",
         "//ortools/util:fp_utils",
         "//ortools/util:lazy_mutable_copy",
-    ] + select({
-        ":with_glpk": ["@glpk//:glpk"],
-        "//conditions:default": [],
-    }),
+    ],
 )
 
 cc_binary(
