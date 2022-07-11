@@ -5,26 +5,6 @@ package(default_visibility = ["//visibility:public"])
 
 exports_files(["model_exporter_swig_helper.h"])
 
-config_setting(
-    name = "with_cplex",
-    values = {"define": "USE_CPLEX="},
-)
-
-config_setting(
-    name = "with_xpress",
-    values = {"define": "USE_XPRESS="},
-)
-
-config_setting(
-    name = "with_cbc",
-    values = {"define": "USE_CBC="},
-)
-
-config_setting(
-    name = "with_clp",
-    values = {"define": "USE_CLP="},
-)
-
 proto_library(
     name = "linear_solver_proto",
     srcs = ["linear_solver.proto"],
@@ -63,19 +43,7 @@ cc_library(
         "scip_callback.cc",
         "scip_interface.cc",
         "scip_proto_solver.cc",
-    ] + select({
-        ":with_cbc": ["cbc_interface.cc"],
-        "//conditions:default": [],
-    }) + select({
-        ":with_clp": ["clp_interface.cc"],
-        "//conditions:default": [],
-    }) + select({
-        ":with_cplex": ["cplex_interface.cc"],
-        "//conditions:default": [],
-    }) + select({
-        ":with_xpress": ["xpress_interface.cc"],
-        "//conditions:default": [],
-    }),
+    ],
     hdrs = [
         "glop_interface.cc",
         "glop_utils.h",
