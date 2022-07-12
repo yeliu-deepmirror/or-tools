@@ -13,29 +13,18 @@
 
 #include "ortools/gurobi/environment.h"
 
-#include <mutex>
 #include <string>
 
-#include "absl/status/status.h"
-#include "absl/strings/match.h"
-#include "absl/strings/str_cat.h"
-#include "absl/strings/str_format.h"
-#include "absl/strings/str_join.h"
-#include "absl/synchronization/mutex.h"
-#include "ortools/base/file.h"
 #include "ortools/base/logging.h"
-#include "ortools/base/status_macros.h"
 
 namespace operations_research {
 
 bool GurobiIsCorrectlyInstalled() {
-  absl::StatusOr<GRBenv*> status = GetGurobiEnv();
-  if (!status.ok() || status.value() == nullptr) {
+  GRBenv* status = GetGurobiEnv();
+  if (status == nullptr) {
     return false;
   }
-
-  GRBfreeenv(status.value());
-
+  GRBfreeenv(status);
   return true;
 }
 
@@ -669,62 +658,35 @@ std::vector<std::string> GurobiDynamicLibraryPotentialPaths() {
   if (gurobi_home_from_env != nullptr) {
     for (const std::string& version : kGurobiVersions) {
       const std::string lib = version.substr(0, 2);
-#if defined(_MSC_VER)  // Windows
       potential_paths.push_back(
-          absl::StrCat(gurobi_home_from_env, "\\bin\\gurobi", lib, ".dll"));
-#elif defined(__APPLE__)  // OS X
+          std::string(gurobi_home_from_env) + "/lib/libgurobi" + lib + ".so");
       potential_paths.push_back(
-          absl::StrCat(gurobi_home_from_env, "/lib/libgurobi", lib, ".dylib"));
-#elif defined(__GNUC__)   // Linux
-      potential_paths.push_back(
-          absl::StrCat(gurobi_home_from_env, "/lib/libgurobi", lib, ".so"));
-      potential_paths.push_back(
-          absl::StrCat(gurobi_home_from_env, "/lib64/libgurobi", lib, ".so"));
-#else
-      LOG(ERROR) << "OS Not recognized by gurobi/environment.cc."
-                 << " You won't be able to use Gurobi.";
-#endif
+          std::string(gurobi_home_from_env) + "/lib64/libgurobi" + lib + ".so");
     }
   }
 
   // Search for canonical places.
   for (const std::string& version : kGurobiVersions) {
     const std::string lib = version.substr(0, 2);
-#if defined(_MSC_VER)  // Windows
-    potential_paths.push_back(absl::StrCat("C:\\Program Files\\gurobi", version,
-                                           "\\win64\\bin\\gurobi", lib,
-                                           ".dll"));
-#elif defined(__APPLE__)  // OS X
-    potential_paths.push_back(absl::StrCat(
-        "/Library/gurobi", version, "/mac64/lib/libgurobi", lib, ".dylib"));
-    potential_paths.push_back(absl::StrCat("/Library/gurobi", version,
-                                           "/macos_universal2/lib/libgurobi",
-                                           lib, ".dylib"));
-#elif defined(__GNUC__)   // Linux
-    potential_paths.push_back(absl::StrCat(
-        "/opt/gurobi", version, "/linux64/lib/libgurobi", lib, ".so"));
-    potential_paths.push_back(absl::StrCat(
-        "/opt/gurobi", version, "/linux64/lib64/libgurobi", lib, ".so"));
     potential_paths.push_back(
-        absl::StrCat("/opt/gurobi/linux64/lib/libgurobi", lib, ".so"));
+        "/opt/gurobi" + version + "/linux64/lib/libgurobi" + lib + ".so");
     potential_paths.push_back(
-        absl::StrCat("/opt/gurobi/linux64/lib64/libgurobi", lib, ".so"));
-#else
-    LOG(ERROR) << "OS Not recognized by gurobi/environment.cc."
-               << " You won't be able to use Gurobi.";
-#endif
+        "/opt/gurobi" + version + "/linux64/lib64/libgurobi" + lib + ".so");
+    potential_paths.push_back(
+        "/opt/gurobi/linux64/lib/libgurobi" + lib + ".so");
+    potential_paths.push_back(
+        "/opt/gurobi/linux64/lib64/libgurobi" + lib + ".so");
   }
   return potential_paths;
 }
 
-absl::Status LoadGurobiDynamicLibrary(
+OrToolsStatus LoadGurobiDynamicLibrary(
     std::vector<std::string> potential_paths) {
   static std::once_flag gurobi_loading_done;
-  static absl::Status gurobi_load_status;
+  static OrToolsStatus gurobi_load_status = OrToolsStatus::Error("empty");
   static DynamicLibrary gurobi_library;
-  static absl::Mutex mutex;
-
-  absl::MutexLock lock(&mutex);
+  static std::mutex mutex;
+  std::lock_guard<std::mutex> lock(mutex);
 
   std::call_once(gurobi_loading_done, [&potential_paths]() {
     const std::vector<std::string> canonical_paths =
@@ -740,28 +702,24 @@ absl::Status LoadGurobiDynamicLibrary(
 
     if (gurobi_library.LibraryIsLoaded()) {
       LoadGurobiFunctions(&gurobi_library);
-      gurobi_load_status = absl::OkStatus();
+      gurobi_load_status = OrToolsStatus::OK();
     } else {
-      gurobi_load_status = absl::NotFoundError(absl::StrCat(
-          "Could not find the Gurobi shared library. Looked in: [",
-          absl::StrJoin(potential_paths, "', '"),
-          "]. If you know where it"
-          " is, pass the full path to 'LoadGurobiDynamicLibrary()'."));
+      gurobi_load_status = OrToolsStatus::Error(
+          "Could not find the Gurobi shared library If you know where it is, pass the full path to 'LoadGurobiDynamicLibrary()'.");
     }
   });
   return gurobi_load_status;
 }
 
-absl::StatusOr<GRBenv*> GetGurobiEnv() {
-  RETURN_IF_ERROR(LoadGurobiDynamicLibrary({}));
-
+GRBenv* GetGurobiEnv() {
   GRBenv* env = nullptr;
-
+  if (!LoadGurobiDynamicLibrary({}).ok()) {
+    return env;
+  }
   if (GRBloadenv(&env, nullptr) != 0 || env == nullptr) {
-    return absl::FailedPreconditionError(
-        absl::StrCat("Found the Gurobi shared library, but could not create "
-                     "Gurobi environment: is Gurobi licensed on this machine?",
-                     GRBgeterrormsg(env)));
+    LOG(ERROR) << "Found the Gurobi shared library, but could not create "
+               << "Gurobi environment: is Gurobi licensed on this machine?"
+               << GRBgeterrormsg(env);
   }
   return env;
 }

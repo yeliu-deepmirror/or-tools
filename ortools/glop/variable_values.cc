@@ -77,7 +77,8 @@ void VariableValues::ResetAllNonBasicVariableValues(
   for (ColIndex col(0); col < num_cols; ++col) {
     switch (statuses[col]) {
       case VariableStatus::FIXED_VALUE:
-        ABSL_FALLTHROUGH_INTENDED;
+        // ABSL_FALLTHROUGH_INTENDED;
+        break;
       case VariableStatus::AT_LOWER_BOUND:
         variable_values_[col] = lower_bounds[col];
         break;

@@ -15,7 +15,6 @@
 
 #include <algorithm>
 
-#include "absl/strings/str_format.h"
 #include "ortools/base/logging.h"
 #include "ortools/lp_data/lp_types.h"
 #include "ortools/lp_data/permutation.h"
@@ -403,7 +402,7 @@ std::string SparseMatrix::Dump() const {
   for (RowIndex row(0); row < num_rows_; ++row) {
     result.append("{ ");
     for (ColIndex col(0); col < num_cols; ++col) {
-      absl::StrAppendFormat(&result, "%g ", ToDouble(LookUpValue(row, col)));
+      result += fmt::format("%g ", ToDouble(LookUpValue(row, col)));
     }
     result.append("}\n");
   }

@@ -76,7 +76,6 @@
 #include <cstdint>
 #include <queue>
 
-#include "absl/container/inlined_vector.h"
 #include "ortools/base/logging.h"
 #include "ortools/base/strong_vector.h"
 #include "ortools/glop/parameters.pb.h"
@@ -165,7 +164,7 @@ class MatrixNonZeroPattern {
   // Returns the set of non-zeros of the given row (unsorted).
   // Call RemoveDeletedColumnsFromRow(row) to clean the row first.
   // This is only valid for the row indices still in the residual matrix.
-  const absl::InlinedVector<ColIndex, 6>& RowNonZero(RowIndex row) const {
+  const std::vector<ColIndex>& RowNonZero(RowIndex row) const {
     return row_non_zero_[row];
   }
 
@@ -188,7 +187,7 @@ class MatrixNonZeroPattern {
   //
   // TODO(user): We could be even more efficient since a size of int32_t is
   // enough for us and we could store in common the inlined/not-inlined size.
-  absl::StrongVector<RowIndex, absl::InlinedVector<ColIndex, 6>> row_non_zero_;
+  absl::StrongVector<RowIndex, std::vector<ColIndex>> row_non_zero_;
   StrictITIVector<RowIndex, int32_t> row_degree_;
   StrictITIVector<ColIndex, int32_t> col_degree_;
   DenseBooleanRow deleted_columns_;
@@ -281,7 +280,7 @@ class Markowitz {
   // of the matrix. Moreover, by adding singleton columns with a one at the rows
   // such that 'row_perm[row] == kInvalidRow', then the matrix will be
   // non-singular.
-  ABSL_MUST_USE_RESULT Status
+  Status
   ComputeLU(const CompactSparseMatrixView& basis_matrix,
             RowPermutation* row_perm, ColumnPermutation* col_perm,
             TriangularMatrix* lower, TriangularMatrix* upper);
@@ -296,7 +295,7 @@ class Markowitz {
   // This function also works with a non-square matrix. It will return a set of
   // independent columns of maximum size. If all the given columns are
   // independent, the returned Status will be OK.
-  ABSL_MUST_USE_RESULT Status ComputeRowAndColumnPermutation(
+  Status ComputeRowAndColumnPermutation(
       const CompactSparseMatrixView& basis_matrix, RowPermutation* row_perm,
       ColumnPermutation* col_perm);
 

@@ -66,9 +66,9 @@ class SolverLogger {
   std::vector<std::function<void(const std::string& message)>> info_callbacks_;
 };
 
-#define SOLVER_LOG(logger, ...)     \
-  if ((logger)->LoggingIsEnabled()) \
-  (logger)->LogInfo(__FILE__, __LINE__, absl::StrCat(__VA_ARGS__))
+// #define SOLVER_LOG(logger, ...)     \
+//   if ((logger)->LoggingIsEnabled()) \
+//   (logger)->LogInfo(__FILE__, __LINE__, absl::StrCat(__VA_ARGS__))
 
 }  // namespace operations_research
 

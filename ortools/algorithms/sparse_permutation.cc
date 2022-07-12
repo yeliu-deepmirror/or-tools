@@ -12,10 +12,7 @@
 // limitations under the License.
 
 #include "ortools/algorithms/sparse_permutation.h"
-
 #include <algorithm>
-
-#include "absl/strings/str_join.h"
 #include "ortools/base/logging.h"
 
 namespace operations_research {
@@ -71,7 +68,7 @@ std::string SparsePermutation::DebugString() const {
   for (const std::vector<int>& cycle : cycles) {
     if (!out.empty()) out += " ";
     out += "(";
-    out += absl::StrJoin(cycle, " ");
+    out += StringJoin(cycle);
     out += ")";
   }
   return out;

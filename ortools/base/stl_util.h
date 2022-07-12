@@ -30,8 +30,6 @@
 #include <type_traits>
 #include <vector>
 
-#include "absl/meta/type_traits.h"
-#include "absl/strings/internal/resize_uninitialized.h"
 #include "ortools/base/integral_types.h"
 #include "ortools/base/macros.h"
 
@@ -193,54 +191,6 @@ inline void STLClearHashIfBig(T* obj, size_t limit) {
 // string.
 inline void STLStringReserveIfNeeded(std::string* s, size_t min_capacity) {
   if (min_capacity > s->capacity()) s->reserve(min_capacity);
-}
-
-// Like str->resize(new_size), except any new characters added to "*str" as a
-// result of resizing may be left uninitialized, rather than being filled with
-// '0' bytes. Typically used when code is then going to overwrite the backing
-// store of the string with known data.
-template <typename T, typename Traits, typename Alloc>
-inline void STLStringResizeUninitialized(std::basic_string<T, Traits, Alloc>* s,
-                                         size_t new_size) {
-  absl::strings_internal::STLStringResizeUninitialized(s, new_size);
-}
-
-// Returns true if the string implementation supports a resize where
-// the new characters added to the string are left untouched.
-//
-// (A better name might be "STLStringSupportsUninitializedResize", alluding to
-// the previous function.)
-template <typename T, typename Traits, typename Alloc>
-inline bool STLStringSupportsNontrashingResize(
-    const std::basic_string<T, Traits, Alloc>& s) {
-  return absl::strings_internal::STLStringSupportsNontrashingResize(&s);
-}
-
-// Assigns the n bytes starting at ptr to the given string. This is intended to
-// be faster than string::assign() in SOME cases, however, it's actually slower
-// in some cases as well.
-//
-// Just use string::assign directly unless you have benchmarks showing that this
-// function makes your code faster. (Even then, a future version of
-// string::assign() may be faster than this.)
-inline void STLAssignToString(std::string* str, const char* ptr, size_t n) {
-  STLStringResizeUninitialized(str, n);
-  if (n == 0) return;
-  memcpy(&*str->begin(), ptr, n);
-}
-
-// Appends the n bytes starting at ptr to the given string. This is intended to
-// be faster than string::append() in SOME cases, however, it's actually slower
-// in some cases as well.
-//
-// Just use string::append directly unless you have benchmarks showing that this
-// function makes your code faster. (Even then, a future version of
-// string::append() may be faster than this.)
-inline void STLAppendToString(std::string* str, const char* ptr, size_t n) {
-  if (n == 0) return;
-  size_t old_size = str->size();
-  STLStringResizeUninitialized(str, old_size + n);
-  memcpy(&*str->begin() + old_size, ptr, n);
 }
 
 // Returns a mutable char* pointing to a string's internal buffer, which may not
@@ -530,7 +480,7 @@ class STLValueDeleter {
 //   // v[1] is now nullptr and the Foo it previously pointed to is now
 //   // stored in "safe"
 template <typename T>
-ABSL_MUST_USE_RESULT T* release_ptr(T** ptr) {
+T* release_ptr(T** ptr) {
   assert(ptr);
   T* tmp = *ptr;
   *ptr = nullptr;
@@ -558,15 +508,6 @@ struct TransparentLess {
 // If the container is iterable in reverse, then order might actually matter.
 template <typename, typename = void, typename = void>
 struct Unordered : std::false_type {};
-
-template <typename T>
-struct Unordered<T, absl::void_t<typename T::hasher>> : std::true_type {};
-
-template <typename T>
-struct Unordered<T, absl::void_t<typename T::hasher>,
-                 absl::void_t<typename T::reverse_iterator>> : std::false_type {
-};
-
 }  // namespace stl_util_internal
 
 // STLSetDifference:

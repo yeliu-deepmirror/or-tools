@@ -19,8 +19,8 @@
 #include <cstdint>
 #include <string>
 #include <vector>
+#include <map>
 
-#include "absl/container/flat_hash_map.h"
 #include "ortools/base/integral_types.h"
 
 namespace operations_research {
@@ -126,7 +126,7 @@ class MPCallbackContext {
   //
   // Call only when the event is kMipNode.
   virtual double SuggestSolution(
-      const absl::flat_hash_map<const MPVariable*, double>& solution) = 0;
+      const std::map<const MPVariable*, double>& solution) = 0;
 
   // Returns the number of nodes explored so far in the branch and bound tree,
   // which 0 at the root node and > 0 otherwise.

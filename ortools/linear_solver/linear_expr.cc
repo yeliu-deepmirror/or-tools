@@ -14,8 +14,6 @@
 #include "ortools/linear_solver/linear_expr.h"
 
 #include <limits>
-
-#include "absl/strings/str_join.h"
 #include "ortools/base/logging.h"
 #include "ortools/linear_solver/linear_solver.h"
 
@@ -86,30 +84,30 @@ void AppendTerm(const double coef, const std::string& var_name,
                 const bool is_first, std::string* s) {
   if (is_first) {
     if (coef == 1.0) {
-      absl::StrAppend(s, var_name);
+      *s += var_name;
     } else if (coef == -1.0) {
-      absl::StrAppend(s, "-", var_name);
+      *s += "-" + var_name;
     } else {
-      absl::StrAppend(s, coef, "*", var_name);
+      *s += std::to_string(coef) + "*" + var_name;
     }
   } else {
     const std::string op = coef < 0 ? "-" : "+";
     const double abs_coef = std::abs(coef);
     if (abs_coef == 1.0) {
-      absl::StrAppend(s, " ", op, " ", var_name);
+      *s += " " + op + " " + var_name;
     } else {
-      absl::StrAppend(s, " ", op, " ", abs_coef, "*", var_name);
+      *s += " " + op + " " + std::to_string(abs_coef) + "*" + var_name;
     }
   }
 }
 
 void AppendOffset(const double offset, const bool is_first, std::string* s) {
   if (is_first) {
-    absl::StrAppend(s, offset);
+    *s += std::to_string(offset);
   } else {
     if (offset != 0.0) {
       const std::string op = offset < 0 ? "-" : "+";
-      absl::StrAppend(s, " ", op, " ", std::abs(offset));
+      *s += " " + op + " " + std::to_string(std::abs(offset));
     }
   }
 }

@@ -206,7 +206,7 @@
 #include <vector>
 
 #include "absl/strings/str_format.h"
-#include "ortools/base/commandlineflags.h"
+// #include "ortools/base/commandlineflags.h"
 #include "ortools/base/integral_types.h"
 #include "ortools/base/logging.h"
 #include "ortools/base/macros.h"
@@ -392,7 +392,7 @@ class LinearSumAssignment {
       refinements_ += that.refinements_;
     }
     std::string StatsString() const {
-      return absl::StrFormat(
+      return fmt::format(
           "%d refinements; %d relabelings; "
           "%d double pushes; %d pushes",
           refinements_, relabelings_, double_pushes_, pushes_);

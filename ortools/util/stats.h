@@ -72,18 +72,14 @@
 #include <string>
 
 #ifdef HAS_PERF_SUBSYSTEM
-#include "absl/strings/str_replace.h"
 #include "exegesis/exegesis/itineraries/perf_subsystem.h"
 #include "ortools/util/time_limit.h"
 #endif  // HAS_PERF_SUBSYSTEM
 
 #include "ortools/base/macros.h"
-#include "ortools/base/timer.h"
+#include "ortools/base/logging.h"
 
 namespace operations_research {
-
-// Returns the current thread's total memory usage in an human-readable string.
-std::string MemoryUsage();
 
 // Forward declaration.
 class StatsGroup;
@@ -221,10 +217,10 @@ class DistributionStat : public Stat {
 class TimeDistribution : public DistributionStat {
  public:
   explicit TimeDistribution(const std::string& name)
-      : DistributionStat(name), timer_() {}
+      : DistributionStat(name) {}
   TimeDistribution() : TimeDistribution("") {}
   TimeDistribution(const std::string& name, StatsGroup* group)
-      : DistributionStat(name, group), timer_() {}
+      : DistributionStat(name, group) {}
   std::string ValueAsString() const override;
 
   // Time distributions have a high priority to be displayed first.
@@ -242,21 +238,18 @@ class TimeDistribution : public DistributionStat {
   void AddTimeInCycles(double cycles);
 
   // Starts the timer in preparation of a StopTimerAndAddElapsedTime().
-  inline void StartTimer() { timer_.Restart(); }
+  inline void StartTimer() { }
 
   // Adds the elapsed time since the last StartTimer() to the distribution and
   // returns this time in CPU cycles.
   inline double StopTimerAndAddElapsedTime() {
-    const double cycles = static_cast<double>(timer_.GetCycles());
-    AddToDistribution(cycles);
-    return cycles;
+    return 0;
   }
 
  private:
   // Converts and prints a number of cycles in an human readable way using the
   // proper time unit depending on the value (ns, us, ms, s, m or h).
   static std::string PrintCyclesAsTime(double cycles);
-  CycleTimer timer_;
 };
 
 // Statistic on the distribution of a sequence of ratios, displayed as %.

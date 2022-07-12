@@ -95,7 +95,6 @@
 #include <string>
 #include <vector>
 
-#include "absl/random/bit_gen_ref.h"
 #include "ortools/base/integral_types.h"
 #include "ortools/base/macros.h"
 #include "ortools/glop/basis_representation.h"
@@ -110,7 +109,6 @@
 #include "ortools/glop/variable_values.h"
 #include "ortools/glop/variables_info.h"
 #include "ortools/lp_data/lp_data.h"
-#include "ortools/lp_data/lp_print_utils.h"
 #include "ortools/lp_data/lp_types.h"
 #include "ortools/lp_data/scattered_vector.h"
 #include "ortools/lp_data/sparse_row.h"
@@ -145,7 +143,7 @@ class RevisedSimplex {
   // and try to use the previously computed solution as a warm-start. To disable
   // this behavior or give explicit warm-start data, use one of the State*()
   // functions below.
-  ABSL_MUST_USE_RESULT Status Solve(const LinearProgram& lp,
+  Status Solve(const LinearProgram& lp,
                                     TimeLimit* time_limit);
 
   // Do not use the current solution as a warm-start for the next Solve(). The
@@ -241,18 +239,8 @@ class RevisedSimplex {
   struct IterationStats : public StatsGroup {
     IterationStats()
         : StatsGroup("IterationStats"),
-          total("total", this),
-          normal("normal", this),
-          bound_flip("bound_flip", this),
-          refactorize("refactorize", this),
-          degenerate("degenerate", this),
           num_dual_flips("num_dual_flips", this),
           degenerate_run_size("degenerate_run_size", this) {}
-    TimeDistribution total;
-    TimeDistribution normal;
-    TimeDistribution bound_flip;
-    TimeDistribution refactorize;
-    TimeDistribution degenerate;
     IntegerDistribution num_dual_flips;
     IntegerDistribution degenerate_run_size;
   };
@@ -392,15 +380,15 @@ class RevisedSimplex {
 
   // Initializes the starting basis. In most cases it starts by the all slack
   // basis and tries to apply some heuristics to replace fixed variables.
-  ABSL_MUST_USE_RESULT Status CreateInitialBasis();
+  Status CreateInitialBasis();
 
   // Sets the initial basis to the given columns, try to factorize it and
   // recompute the basic variable values.
-  ABSL_MUST_USE_RESULT Status
+  Status
   InitializeFirstBasis(const RowToColMapping& initial_basis);
 
   // Entry point for the solver initialization.
-  ABSL_MUST_USE_RESULT Status Initialize(const LinearProgram& lp);
+  Status Initialize(const LinearProgram& lp);
 
   // Saves the current variable statuses in solution_state_.
   void SaveState();
@@ -497,7 +485,7 @@ class RevisedSimplex {
   //   along this dual edge.
   // - target_bound: the bound at which the leaving variable should go when
   //   leaving the basis.
-  ABSL_MUST_USE_RESULT Status DualChooseLeavingVariableRow(
+  Status DualChooseLeavingVariableRow(
       RowIndex* leaving_row, Fractional* cost_variation,
       Fractional* target_bound);
 
@@ -526,7 +514,7 @@ class RevisedSimplex {
   // Dual Phase-1 Algorithm for the Simplex Method", Computational Optimization
   // and Applications, October 2003, Volume 26, Issue 1, pp 63-81.
   // http://rd.springer.com/article/10.1023%2FA%3A1025102305440
-  ABSL_MUST_USE_RESULT Status DualPhaseIChooseLeavingVariableRow(
+  Status DualPhaseIChooseLeavingVariableRow(
       RowIndex* leaving_row, Fractional* cost_variation,
       Fractional* target_bound);
 
@@ -559,7 +547,7 @@ class RevisedSimplex {
   // Updates the system state according to the given basis pivot.
   // Returns an error if the update could not be done because of some precision
   // issue.
-  ABSL_MUST_USE_RESULT Status UpdateAndPivot(ColIndex entering_col,
+  Status UpdateAndPivot(ColIndex entering_col,
                                              RowIndex leaving_row,
                                              Fractional target_bound);
 
@@ -576,10 +564,10 @@ class RevisedSimplex {
   Status RefactorizeBasisIfNeeded(bool* refactorize);
 
   // Main iteration loop of the primal simplex.
-  ABSL_MUST_USE_RESULT Status PrimalMinimize(TimeLimit* time_limit);
+  Status PrimalMinimize(TimeLimit* time_limit);
 
   // Main iteration loop of the dual simplex.
-  ABSL_MUST_USE_RESULT Status DualMinimize(bool feasibility_phase,
+  Status DualMinimize(bool feasibility_phase,
                                            TimeLimit* time_limit);
 
   // Pushes all super-basic variables to bounds (if applicable) or to zero (if
@@ -587,7 +575,7 @@ class RevisedSimplex {
   // solution given a (near) optimal solution. Assumes that Minimize() or
   // DualMinimize() has already run, i.e., that we are at an optimal solution
   // within numerical tolerances.
-  ABSL_MUST_USE_RESULT Status PrimalPush(TimeLimit* time_limit);
+  Status PrimalPush(TimeLimit* time_limit);
 
   // Experimental. This is useful in a MIP context. It performs a few degenerate
   // pivot to try to mimize the fractionality of the optimal basis.
@@ -597,7 +585,7 @@ class RevisedSimplex {
   //
   // I could only find slides for the reference of this "LP Solution Polishing
   // to improve MIP Performance", Matthias Miltenberger, Zuse Institute Berlin.
-  ABSL_MUST_USE_RESULT Status Polish(TimeLimit* time_limit);
+  Status Polish(TimeLimit* time_limit);
 
   // Utility functions to return the current ColIndex of the slack column with
   // given number. Note that currently, such columns are always present in the
@@ -703,10 +691,7 @@ class RevisedSimplex {
   // non-deterministic behavior and avoid client depending on a golden optimal
   // solution which prevent us from easily changing the solver.
   random_engine_t deterministic_random_;
-#ifndef NDEBUG
-  absl::BitGen absl_random_;
-#endif
-  absl::BitGenRef random_;
+  random_engine_t random_;
 
   // Helpers for logging the solve progress.
   SolverLogger default_logger_;

@@ -14,9 +14,8 @@
 #ifndef OR_TOOLS_GUROBI_ENVIRONMENT_H_
 #define OR_TOOLS_GUROBI_ENVIRONMENT_H_
 
-#include "absl/status/status.h"
-#include "absl/status/statusor.h"
-#include "ortools/base/commandlineflags.h"
+#include <mutex>
+// #include "ortools/base/commandlineflags.h"
 #include "ortools/base/dynamic_library.h"
 #include "ortools/base/logging.h"
 
@@ -38,7 +37,7 @@ typedef struct _GRBsvec {
 
 namespace operations_research {
 
-absl::StatusOr<GRBenv*> GetGurobiEnv();
+GRBenv* GetGurobiEnv();
 
 // This returns true if the Gurobi shared library is properly loaded (otherwise,
 // tries to find it and load it) and if a Gurobi license can be obtained (it
@@ -51,7 +50,7 @@ bool GurobiIsCorrectlyInstalled();
 // Successive calls are no-op.
 //
 // Note that it does not check if a token license can be grabbed.
-absl::Status LoadGurobiDynamicLibrary(std::vector<std::string> potential_paths);
+OrToolsStatus LoadGurobiDynamicLibrary(std::vector<std::string> potential_paths);
 
 // The list of #define and extern std::function<> below is generated directly
 // from gurobi_c.h via parse_header.py

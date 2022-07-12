@@ -14,8 +14,6 @@
 #include "ortools/util/logging.h"
 
 #include <iostream>
-
-#include "absl/strings/str_cat.h"
 #include "ortools/base/logging.h"
 
 namespace operations_research {

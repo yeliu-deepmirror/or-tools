@@ -26,7 +26,6 @@
 #include <string>
 #include <vector>
 
-#include "absl/memory/memory.h"
 #include "ortools/linear_solver/linear_expr.h"
 #include "ortools/linear_solver/linear_solver.h"
 #include "scip/scip_sol.h"

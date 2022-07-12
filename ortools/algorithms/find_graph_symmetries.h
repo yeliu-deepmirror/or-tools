@@ -27,9 +27,6 @@
 #include <memory>
 #include <vector>
 
-#include "absl/numeric/int128.h"
-#include "absl/status/status.h"
-#include "absl/time/time.h"
 #include "ortools/algorithms/dynamic_partition.h"
 #include "ortools/algorithms/dynamic_permutation.h"
 #include "ortools/graph/graph.h"
@@ -102,7 +99,7 @@ class GraphSymmetryFinder {
   // - "factorized_automorphism_group_size" will also be incomplete, and
   //   partially valid: its last element may be undervalued. But all prior
   //   elements are valid factors of the automorphism group size.
-  absl::Status FindSymmetries(
+  OrToolsStatus FindSymmetries(
       std::vector<int>* node_equivalence_classes_io,
       std::vector<std::unique_ptr<SparsePermutation> >* generators,
       std::vector<int>* factorized_automorphism_group_size,

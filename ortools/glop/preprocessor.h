@@ -22,6 +22,7 @@
 #define OR_TOOLS_GLOP_PREPROCESSOR_H_
 
 #include <memory>
+#include <iomanip>
 
 #include "ortools/base/strong_vector.h"
 #include "ortools/glop/parameters.pb.h"
@@ -161,7 +162,7 @@ class ColumnsSaver {
 
  private:
   SparseColumn empty_column_;
-  absl::flat_hash_map<ColIndex, int> saved_columns_index_;
+  std::map<ColIndex, int> saved_columns_index_;
 
   // TODO(user): We could optimize further since all these are read only, we
   // could use a CompactSparseMatrix instead.

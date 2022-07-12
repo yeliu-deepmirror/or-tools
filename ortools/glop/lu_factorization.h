@@ -52,7 +52,7 @@ class LuFactorization {
   // it being confused by this revert to identity factorization behavior. The
   // reason behind it is that this way, calling any public function of this
   // class will never cause a crash of the program.
-  ABSL_MUST_USE_RESULT Status
+  Status
   ComputeFactorization(const CompactSparseMatrixView& compact_matrix);
 
   // Given a set of columns, find a maximum linearly independent subset that can

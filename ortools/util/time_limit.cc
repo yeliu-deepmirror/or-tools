@@ -13,15 +13,6 @@
 
 #include "ortools/util/time_limit.h"
 
-#include "absl/strings/str_cat.h"
-
-ABSL_FLAG(bool, time_limit_use_usertime, false,
-          "If true, rely on the user time in the TimeLimit class. This is "
-          "only recommended for benchmarking on a non-isolated environment.");
-
-ABSL_FLAG(bool, time_limit_use_instruction_count, false,
-          "If true, measures the number of instructions executed");
-
 namespace operations_research {
 
 // static constants.
@@ -29,18 +20,11 @@ const double TimeLimit::kSafetyBufferSeconds = 1e-4;
 const int TimeLimit::kHistorySize = 100;
 
 std::string TimeLimit::DebugString() const {
-  std::string buffer = absl::StrCat(
-      "Time left: ", (GetTimeLeft()),
-      "\nDeterministic time left: ", (GetDeterministicTimeLeft()),
-      "\nElapsed time: ", (GetElapsedTime()),
-      "\nElapsed deterministic time: ", (GetElapsedDeterministicTime()));
-#ifndef NDEBUG
-  for (const auto& counter : deterministic_counters_) {
-    const std::string& counter_name = counter.first;
-    const double counter_value = counter.second;
-    absl::StrAppend(&buffer, "\n", counter_name, ": ", (counter_value));
-  }
-#endif
+  std::string buffer =
+      "Time left: " + std::to_string(GetTimeLeft()) +
+      "\nDeterministic time left: " + std::to_string(GetDeterministicTimeLeft()) +
+      "\nElapsed time: " + std::to_string(GetElapsedTime()) +
+      "\nElapsed deterministic time: " + std::to_string(GetElapsedDeterministicTime());
   return buffer;
 }
 

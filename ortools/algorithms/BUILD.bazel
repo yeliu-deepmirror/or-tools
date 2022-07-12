@@ -1,66 +1,6 @@
 package(default_visibility = ["//visibility:public"])
 
 cc_library(
-    name = "hungarian",
-    srcs = ["hungarian.cc"],
-    hdrs = ["hungarian.h"],
-    deps = [
-        "//ortools/base",
-        "//ortools/base:hash",
-        "@com_google_absl//absl/container:flat_hash_map",
-        "@com_google_absl//absl/strings:str_format",
-    ],
-)
-
-cc_test(
-    name = "hungarian_test",
-    size = "medium",
-    srcs = ["hungarian_test.cc"],
-    copts = ["-Iexternal/gtest/include"],
-    deps = [
-        ":hungarian",
-        "//ortools/base",
-        "//ortools/base:map_util",
-        "@com_google_absl//absl/strings",
-        "@com_google_googletest//:gtest_main",
-    ],
-)
-
-cc_library(
-    name = "knapsack_solver_base_lib",
-    hdrs = ["knapsack_solver.h"],
-    deps = [
-        ":knapsack_solver_for_interface_lib",
-        "//ortools/base",
-        "//ortools/util:time_limit",
-    ],
-)
-
-cc_library(
-    name = "knapsack_solver_lib",
-    hdrs = ["knapsack_solver.h"],
-    deps = [
-        ":knapsack_solver_for_interface_lib",
-        "//ortools/base",
-        "//ortools/linear_solver",
-        "//ortools/util:time_limit",
-    ],
-)
-
-cc_library(
-    name = "knapsack_solver_for_interface_lib",
-    srcs = ["knapsack_solver.cc"],
-    hdrs = ["knapsack_solver.h"],
-    deps = [
-        "//ortools/base",
-        "//ortools/base:stl_util",
-        "//ortools/linear_solver",
-        "//ortools/util:bitset",
-        "//ortools/util:time_limit",
-    ],
-)
-
-cc_library(
     name = "knapsack_solver_for_cuts",
     srcs = ["knapsack_solver_for_cuts.cc"],
     hdrs = ["knapsack_solver_for_cuts.h"],
@@ -89,8 +29,7 @@ cc_library(
     deps = [
         "//ortools/base",
         "//ortools/base:murmur",
-        "@com_google_absl//absl/strings",
-        "@com_google_absl//absl/strings:str_format",
+        "@fmt",
     ],
 )
 
@@ -100,7 +39,6 @@ cc_library(
     hdrs = ["sparse_permutation.h"],
     deps = [
         "//ortools/base",
-        "@com_google_absl//absl/strings",
     ],
 )
 
@@ -111,7 +49,6 @@ cc_library(
     deps = [
         ":sparse_permutation",
         "//ortools/base",
-        "@com_google_absl//absl/strings",
     ],
 )
 
@@ -130,7 +67,5 @@ cc_library(
         "//ortools/graph:util",
         "//ortools/util:stats",
         "//ortools/util:time_limit",
-        "@com_google_absl//absl/status",
-        "@com_google_absl//absl/strings",
     ],
 )

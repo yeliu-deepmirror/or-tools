@@ -151,8 +151,6 @@
 #include <ostream>  // NOLINT
 #include <type_traits>
 
-#include "absl/base/port.h"
-#include "absl/strings/string_view.h"
 #include "ortools/base/macros.h"
 
 namespace util_intops {
@@ -165,7 +163,7 @@ class StrongInt;
 // type is created per int_type_name.
 #define DEFINE_STRONG_INT_TYPE(int_type_name, value_type)                    \
   struct int_type_name##_tag_ {                                              \
-    static constexpr absl::string_view TypeName() { return #int_type_name; } \
+    static constexpr std::string_view TypeName() { return #int_type_name; } \
   };                                                                         \
   typedef ::util_intops::StrongInt<int_type_name##_tag_, value_type>         \
       int_type_name;
@@ -186,7 +184,7 @@ class StrongInt {
   typedef _ValueType ValueType;  // for non-member operators
   typedef StrongInt<StrongIntName, ValueType> ThisType;  // Syntactic sugar.
 
-  static constexpr absl::string_view TypeName() {
+  static constexpr std::string_view TypeName() {
     return StrongIntName::TypeName();
   }
 
@@ -275,7 +273,7 @@ class StrongInt {
 
   COMPILE_ASSERT(std::is_integral<ValueType>::value,
                  invalid_integer_type_for_id_type_);
-} ABSL_ATTRIBUTE_PACKED;
+};
 
 // -- NON-MEMBER STREAM OPERATORS ----------------------------------------------
 // We provide the << operator, primarily for logging purposes.  Currently, there

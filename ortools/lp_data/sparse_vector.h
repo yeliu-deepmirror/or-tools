@@ -35,7 +35,6 @@
 #include <memory>
 #include <string>
 
-#include "absl/strings/str_format.h"
 #include "ortools/base/integral_types.h"
 #include "ortools/base/logging.h"  // for CHECK*
 #include "ortools/graph/iterators.h"
@@ -1013,8 +1012,7 @@ std::string SparseVector<IndexType, IteratorType>::DebugString() const {
   std::string s;
   for (const EntryIndex i : AllEntryIndices()) {
     if (i != 0) s += ", ";
-    absl::StrAppendFormat(&s, "[%d]=%g", GetIndex(i).value(),
-                          GetCoefficient(i));
+    s += fmt::format("[%d]=%g", GetIndex(i).value(), GetCoefficient(i));
   }
   return s;
 }

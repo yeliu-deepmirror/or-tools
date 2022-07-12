@@ -30,8 +30,6 @@
 #include <string>  // for string
 #include <vector>  // for vector
 
-#include "absl/container/flat_hash_map.h"
-#include "absl/container/flat_hash_set.h"
 #include "ortools/base/hash.h"
 #include "ortools/base/logging.h"  // for CHECK*
 #include "ortools/base/macros.h"   // for DISALLOW_COPY_AND_ASSIGN, NULL
@@ -108,8 +106,8 @@ class LinearProgram {
   // FindOrCreate{Variable|Constraint}().
   // TODO(user): Add PopulateIdsFromNames() so names added via
   // Set{Variable|Constraint}Name() can be found.
-  void SetVariableName(ColIndex col, absl::string_view name);
-  void SetConstraintName(RowIndex row, absl::string_view name);
+  void SetVariableName(ColIndex col, std::string_view name);
+  void SetConstraintName(RowIndex row, std::string_view name);
 
   // Set the type of the variable.
   void SetVariableType(ColIndex col, VariableType type);
@@ -302,54 +300,6 @@ class LinearProgram {
   // Returns a stringified LinearProgram. We use the LP file format used by
   // lp_solve (see http://lpsolve.sourceforge.net/5.1/index.htm).
   std::string Dump() const;
-
-  // Returns a string that contains the provided solution of the LP in the
-  // format var1 = X, var2 = Y, var3 = Z, ...
-  std::string DumpSolution(const DenseRow& variable_values) const;
-
-  // Returns a comma-separated string of integers containing (in that order)
-  // num_constraints_, num_variables_in_file_, num_entries_,
-  // num_objective_non_zeros_, num_rhs_non_zeros_, num_less_than_constraints_,
-  // num_greater_than_constraints_, num_equal_constraints_,
-  // num_range_constraints_, num_non_negative_variables_, num_boxed_variables_,
-  // num_free_variables_, num_fixed_variables_, num_other_variables_
-  // Very useful for reporting in the way used in journal articles.
-  std::string GetProblemStats() const;
-
-  // Returns a string containing the same information as with GetProblemStats(),
-  // but in a much more human-readable form, for example:
-  //      Number of rows                               : 27
-  //      Number of variables in file                  : 32
-  //      Number of entries (non-zeros)                : 83
-  //      Number of entries in the objective           : 5
-  //      Number of entries in the right-hand side     : 7
-  //      Number of <= constraints                     : 19
-  //      Number of >= constraints                     : 0
-  //      Number of = constraints                      : 8
-  //      Number of range constraints                  : 0
-  //      Number of non-negative variables             : 32
-  //      Number of boxed variables                    : 0
-  //      Number of free variables                     : 0
-  //      Number of fixed variables                    : 0
-  //      Number of other variables                    : 0
-  std::string GetPrettyProblemStats() const;
-
-  // Returns a comma-separated string of numbers containing (in that order)
-  // fill rate, max number of entries (length) in a row, average row length,
-  // standard deviation of row length, max column length, average column length,
-  // standard deviation of column length
-  // Useful for profiling algorithms.
-  //
-  // TODO(user): Theses are statistics about the underlying matrix and should be
-  // moved to SparseMatrix.
-  std::string GetNonZeroStats() const;
-
-  // Returns a string containing the same information as with GetNonZeroStats(),
-  // but in a much more human-readable form, for example:
-  //      Fill rate                                    : 9.61%
-  //      Entries in row (Max / average / std, dev.)   : 9 / 3.07 / 1.94
-  //      Entries in column (Max / average / std, dev.): 4 / 2.59 / 0.96
-  std::string GetPrettyNonZeroStats() const;
 
   // Adds slack variables to the problem for all rows which don't have slack
   // variables. The new slack variables have bounds set to opposite of the
@@ -562,14 +512,6 @@ class LinearProgram {
   // binary_variables_list_, and non_binary_variables_list_.
   void UpdateAllIntegerVariableLists() const;
 
-  // A helper function to format problem statistics. Used by GetProblemStats()
-  // and GetPrettyProblemStats().
-  std::string ProblemStatFormatter(const absl::string_view format) const;
-
-  // A helper function to format non-zero statistics. Used by GetNonZeroStats()
-  // and GetPrettyNonZeroStats().
-  std::string NonZeroStatFormatter(const absl::string_view format) const;
-
   // Resizes all row vectors to include index 'row'.
   void ResizeRowsIfNeeded(RowIndex row);
 
@@ -612,10 +554,10 @@ class LinearProgram {
   mutable std::vector<ColIndex> non_binary_variables_list_;
 
   // Map used to find the index of a variable based on its id.
-  absl::flat_hash_map<std::string, ColIndex> variable_table_;
+  std::map<std::string, ColIndex> variable_table_;
 
   // Map used to find the index of a constraint based on its id.
-  absl::flat_hash_map<std::string, RowIndex> constraint_table_;
+  std::map<std::string, RowIndex> constraint_table_;
 
   // Offset of the objective, i.e. value of the objective when all variables
   // are set to zero.

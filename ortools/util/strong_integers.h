@@ -58,8 +58,6 @@
 #include <ostream>  // NOLINT
 #include <type_traits>
 
-#include "absl/base/port.h"
-#include "absl/strings/string_view.h"
 #include "ortools/base/logging.h"
 #include "ortools/base/macros.h"
 
@@ -71,7 +69,7 @@ namespace operations_research {
 // that a new type is created per index_type_name.
 #define DEFINE_STRONG_INDEX_TYPE(index_type_name)                              \
   struct index_type_name##_index_tag_ {                                        \
-    static constexpr absl::string_view TypeName() { return #index_type_name; } \
+    static constexpr std::string_view TypeName() { return #index_type_name; } \
   };                                                                           \
   typedef ::operations_research::StrongIndex<index_type_name##_index_tag_>     \
       index_type_name;
@@ -82,7 +80,7 @@ namespace operations_research {
 // ensure that a new type is created per integer_type_name.
 #define DEFINE_STRONG_INT64_TYPE(integer_type_name)                            \
   struct integer_type_name##_integer_tag_ {                                    \
-    static constexpr absl::string_view TypeName() {                            \
+    static constexpr std::string_view TypeName() {                            \
       return #integer_type_name;                                               \
     }                                                                          \
   };                                                                           \
@@ -140,11 +138,11 @@ class StrongIndex {
   typedef int ValueType;                          // Needed for StrongVector.
   typedef StrongIndex<StrongIndexName> ThisType;  // Syntactic sugar.
 
-  static constexpr absl::string_view TypeName() {
+  static constexpr std::string_view TypeName() {
     return StrongIndexName::TypeName();
   }
 
-  struct ABSL_DEPRECATED("Use absl::Hash instead") Hasher {
+  struct Hasher {
     size_t operator()(const StrongIndex& x) const {
       return static_cast<size_t>(x.value());
     }
@@ -197,11 +195,11 @@ class StrongInt64 {
   typedef int64_t ValueType;                        // Needed for StrongVector.
   typedef StrongInt64<StrongIntegerName> ThisType;  // Syntactic sugar.
 
-  static constexpr absl::string_view TypeName() {
+  static constexpr std::string_view TypeName() {
     return StrongIntegerName::TypeName();
   }
 
-  struct ABSL_DEPRECATED("Use absl::Hash instead") Hasher {
+  struct Hasher {
     size_t operator()(const StrongInt64& x) const {
       return static_cast<size_t>(x.value());
     }

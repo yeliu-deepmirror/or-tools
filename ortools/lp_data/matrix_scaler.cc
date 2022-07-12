@@ -17,7 +17,6 @@
 #include <cmath>
 #include <vector>
 
-#include "absl/strings/str_format.h"
 #include "ortools/base/logging.h"
 #include "ortools/base/strong_vector.h"
 #include "ortools/glop/revised_simplex.h"
@@ -72,7 +71,7 @@ std::string SparseMatrixScaler::DebugInformationString() const {
   Fractional min_magnitude;
   matrix_->ComputeMinAndMaxMagnitudes(&min_magnitude, &max_magnitude);
   const Fractional dynamic_range = max_magnitude / min_magnitude;
-  std::string output = absl::StrFormat(
+  std::string output = fmt::format(
       "Min magnitude = %g, max magnitude = %g\n"
       "Dynamic range = %g\n"
       "Variance = %g\n"
@@ -358,9 +357,9 @@ void SparseMatrixScaler::Unscale() {
 Status SparseMatrixScaler::LPScale() {
   DCHECK(matrix_ != nullptr);
 
-  auto linear_program = absl::make_unique<LinearProgram>();
+  auto linear_program = std::make_unique<LinearProgram>();
   GlopParameters params;
-  auto simplex = absl::make_unique<RevisedSimplex>();
+  auto simplex = std::make_unique<RevisedSimplex>();
   simplex->SetParameters(params);
 
   // Begin linear program construction.
