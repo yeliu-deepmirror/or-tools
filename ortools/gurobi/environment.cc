@@ -15,9 +15,7 @@
 
 #include <string>
 
-#include "ortools/base/file.h"
 #include "ortools/base/logging.h"
-#include "ortools/base/status_macros.h"
 
 namespace operations_research {
 

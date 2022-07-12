@@ -171,8 +171,8 @@ double DistributionStat::StdDeviation() const {
 }
 
 double TimeDistribution::CyclesToSeconds(double cycles) {
-  const double seconds_per_cycles = CycleTimerBase::CyclesToSeconds(1);
-  return cycles * seconds_per_cycles;
+  // const double seconds_per_cycles = CycleTimerBase::CyclesToSeconds(1);
+  return 0;
 }
 
 std::string TimeDistribution::PrintCyclesAsTime(double cycles) {
@@ -189,9 +189,9 @@ std::string TimeDistribution::PrintCyclesAsTime(double cycles) {
 }
 
 void TimeDistribution::AddTimeInSec(double seconds) {
-  DCHECK_GE(seconds, 0.0);
-  const double cycles_per_seconds = 1.0 / CycleTimerBase::CyclesToSeconds(1);
-  AddToDistribution(seconds * cycles_per_seconds);
+  // DCHECK_GE(seconds, 0.0);
+  // const double cycles_per_seconds = 1.0 / CycleTimerBase::CyclesToSeconds(1);
+  // AddToDistribution(seconds * cycles_per_seconds);
 }
 
 void TimeDistribution::AddTimeInCycles(double cycles) {

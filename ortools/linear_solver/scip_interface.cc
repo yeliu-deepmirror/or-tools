@@ -23,12 +23,10 @@
 #include <vector>
 
 #include "ortools/base/cleanup.h"
-#include "ortools/base/commandlineflags.h"
 #include "ortools/base/hash.h"
 #include "ortools/base/integral_types.h"
 #include "ortools/base/logging.h"
-#include "ortools/base/status_macros.h"
-#include "ortools/base/timer.h"
+// #include "ortools/base/status_macros.h"
 #include "ortools/gscip/legacy_scip_params.h"
 #include "ortools/linear_solver/linear_solver.h"
 #include "ortools/linear_solver/linear_solver.pb.h"
@@ -680,9 +678,6 @@ MPSolver::ResultStatus SCIPInterface::Solve(const MPSolverParameters& param) {
   // often numeric), and rely on the user enabling output to see more details.
   RETURN_ABNORMAL_IF_BAD_STATUS;
 
-  WallTimer timer;
-  timer.Start();
-
   // Note that SCIP does not provide any incrementality.
   // TODO(user): Is that still true now (2018) ?
   if (param.GetIntegerParam(MPSolverParameters::INCREMENTALITY) ==
@@ -790,7 +785,6 @@ MPSolver::ResultStatus SCIPInterface::Solve(const MPSolverParameters& param) {
   }
 
   // Solve.
-  timer.Restart();
   RETURN_ABNORMAL_IF_SCIP_ERROR(solver_->GetNumThreads() > 1
                                     ? SCIPsolveConcurrent(scip_)
                                     : SCIPsolve(scip_));

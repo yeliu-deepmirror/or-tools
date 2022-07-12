@@ -52,13 +52,10 @@
 #include <utility>
 #include <vector>
 
-#include "ortools/base/commandlineflags.h"
 #include "ortools/base/integral_types.h"
 #include "ortools/base/logging.h"
 #include "ortools/base/map_util.h"
-#include "ortools/base/timer.h"
 #include "ortools/gurobi/environment.h"
-//#include "ortools/linear_solver/gurobi_proto_solver.h"
 #include "ortools/linear_solver/linear_solver.h"
 #include "ortools/linear_solver/linear_solver_callback.h"
 #include "ortools/util/time_limit.h"
@@ -1139,9 +1136,6 @@ bool GurobiInterface::ModelIsNonincremental() const {
 }
 
 MPSolver::ResultStatus GurobiInterface::Solve(const MPSolverParameters& param) {
-  WallTimer timer;
-  timer.Start();
-
   if (param.GetIntegerParam(MPSolverParameters::INCREMENTALITY) ==
           MPSolverParameters::INCREMENTALITY_OFF ||
       ModelIsNonincremental() || had_nonincremental_change_) {
@@ -1212,7 +1206,6 @@ MPSolver::ResultStatus GurobiInterface::Solve(const MPSolverParameters& param) {
       GRBgetenv(model_), GRB_INT_PAR_LAZYCONSTRAINTS, gurobi_lazy_constraint));
 
   // Solve
-  timer.Restart();
   const int status = GRBoptimize(model_);
 
   // Get the status.

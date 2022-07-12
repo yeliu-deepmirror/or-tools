@@ -25,7 +25,6 @@
 #include "ortools/linear_solver/linear_solver.h"
 #include "ortools/lp_data/lp_data.h"
 #include "ortools/lp_data/lp_types.h"
-#include "ortools/port/proto_utils.h"
 #include "ortools/util/time_limit.h"
 
 namespace operations_research {
@@ -413,7 +412,7 @@ bool GLOPInterface::SetSolverSpecificParametersAsString(
   // parsing data from text format is not supported there. To allow solver
   // specific parameters from string on Android, we first need to switch to
   // non-lite version of protocol buffers.
-  if (ProtobufTextFormatMergeFromString(parameters, &parameters_)) {
+  if (google::protobuf::TextFormat::MergeFromString(parameters, &parameters_)) {
     lp_solver_.SetParameters(parameters_);
     return true;
   }

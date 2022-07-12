@@ -3,20 +3,14 @@ package(default_visibility = ["//visibility:public"])
 cc_library(
     name = "base",
     srcs = [
-        "commandlineflags.cc",
         "version.cc",
     ],
     hdrs = [
         "basictypes.h",
-        "commandlineflags.h",
-        "init_google.h",
         "integral_types.h",
-        "log_severity.h",
         "logging.h",
-        "logging_export.h",
         "macros.h",
         "version.h",
-        "vlog_is_on.h",
     ],
     copts = [
         "-DOR_TOOLS_MAJOR=9999",
@@ -25,30 +19,7 @@ cc_library(
     ],
     deps = [
         "@com_github_glog//:glog",
-        "@com_google_absl//absl/base",
-        "@com_google_absl//absl/container:flat_hash_map",
-        "@com_google_absl//absl/container:flat_hash_set",
-        "@com_google_absl//absl/container:node_hash_map",
-        "@com_google_absl//absl/container:node_hash_set",
-        "@com_google_absl//absl/debugging:failure_signal_handler",
-        "@com_google_absl//absl/debugging:stacktrace",
-        "@com_google_absl//absl/debugging:symbolize",
-        "@com_google_absl//absl/flags:commandlineflag",
-        "@com_google_absl//absl/flags:flag",
-        "@com_google_absl//absl/flags:parse",
-        "@com_google_absl//absl/synchronization",
         "@fmt",
-    ],
-)
-
-
-cc_library(
-    name = "container_logging",
-    hdrs = [
-        "container_logging.h",
-    ],
-    deps = [
-        ":base",
     ],
 )
 
@@ -63,26 +34,6 @@ cc_library(
 )
 
 cc_library(
-    name = "status_macros",
-    hdrs = [
-        "status_macros.h",
-    ],
-    deps = [
-        ":base",
-        ":status_builder",
-        "@com_google_absl//absl/status",
-        "@com_google_absl//absl/status:statusor",
-    ],
-)
-
-cc_library(
-    name = "ptr_util",
-    hdrs = [
-        "ptr_util.h",
-    ],
-)
-
-cc_library(
     name = "sysinfo",
     srcs = [
         "sysinfo.cc",
@@ -92,25 +43,6 @@ cc_library(
     ],
     deps = [
         ":base",
-        "@com_google_absl//absl/strings",
-    ],
-)
-
-cc_library(
-    name = "file",
-    srcs = [
-        "file.cc",
-    ],
-    hdrs = [
-        "file.h",
-        "helpers.h",
-    ],
-    deps = [
-        ":base",
-        ":status_macros",
-        "@com_google_absl//absl/status",
-        "@com_google_absl//absl/strings",
-        "@com_google_protobuf//:protobuf",
     ],
 )
 
@@ -122,8 +54,6 @@ cc_library(
     ],
     deps = [
         ":base",
-        "@com_google_absl//absl/strings",
-        #"@com_google_protobuf//:protobuf",
     ],
 )
 
@@ -145,46 +75,12 @@ cc_library(
 )
 
 cc_library(
-    name = "murmur",
-    hdrs = [
-        "murmur.h",
-    ],
-    deps = [
-        ":base",
-        ":hash",
-        "@com_google_absl//absl/strings",
-    ],
-)
-
-cc_library(
     name = "map_util",
     hdrs = [
         "map_util.h",
     ],
     deps = [
         ":base",
-    ],
-)
-
-cc_library(
-    name = "small_map",
-    hdrs = [
-        "small_map.h",
-    ],
-    deps = [
-        ":base",
-    ],
-)
-
-cc_library(
-    name = "status_builder",
-    hdrs = [
-        "status_builder.h",
-    ],
-    deps = [
-        ":base",
-        "@com_google_absl//absl/status",
-        "@com_google_absl//absl/strings",
     ],
 )
 
@@ -219,20 +115,6 @@ cc_library(
 )
 
 cc_library(
-    name = "timer",
-    srcs = [
-        "timer.cc",
-    ],
-    hdrs = [
-        "timer.h",
-    ],
-    deps = [
-        ":base",
-        "@com_google_absl//absl/time",
-    ],
-)
-
-cc_library(
     name = "int_type",
     hdrs = ["int_type.h"],
     deps = [":base"],
@@ -242,14 +124,6 @@ cc_library(
     name = "intops",
     hdrs = ["strong_int.h"],
     deps = [":int_type"],
-)
-
-cc_library(
-    name = "source_location",
-    hdrs = ["source_location.h"],
-    deps = [
-        "@com_google_absl//absl/base:config",
-    ],
 )
 
 cc_library(
@@ -282,20 +156,6 @@ cc_library(
     ],
     deps = [
         ":base",
-    ],
-)
-
-cc_library(
-    name = "threadpool",
-    srcs = [
-        "threadpool.cc",
-    ],
-    hdrs = [
-        "threadpool.h",
-    ],
-    deps = [
-        ":base",
-        "@com_google_absl//absl/synchronization",
     ],
 )
 

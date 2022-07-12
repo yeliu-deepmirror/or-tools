@@ -13,7 +13,7 @@
 
 #include "ortools/glop/primal_edge_norms.h"
 
-#include "ortools/base/timer.h"
+// #include "ortools/base/timer.h"
 #include "ortools/lp_data/lp_utils.h"
 
 namespace operations_research {

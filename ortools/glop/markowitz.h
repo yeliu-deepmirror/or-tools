@@ -280,7 +280,7 @@ class Markowitz {
   // of the matrix. Moreover, by adding singleton columns with a one at the rows
   // such that 'row_perm[row] == kInvalidRow', then the matrix will be
   // non-singular.
-  ABSL_MUST_USE_RESULT Status
+  Status
   ComputeLU(const CompactSparseMatrixView& basis_matrix,
             RowPermutation* row_perm, ColumnPermutation* col_perm,
             TriangularMatrix* lower, TriangularMatrix* upper);
@@ -295,7 +295,7 @@ class Markowitz {
   // This function also works with a non-square matrix. It will return a set of
   // independent columns of maximum size. If all the given columns are
   // independent, the returned Status will be OK.
-  ABSL_MUST_USE_RESULT Status ComputeRowAndColumnPermutation(
+  Status ComputeRowAndColumnPermutation(
       const CompactSparseMatrixView& basis_matrix, RowPermutation* row_perm,
       ColumnPermutation* col_perm);
 

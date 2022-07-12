@@ -65,9 +65,9 @@ bool MainLpPreprocessor::Run(LinearProgram* lp) {
 
   default_logger_.EnableLogging(parameters_.log_search_progress());
   default_logger_.SetLogToStdOut(parameters_.log_to_stdout());
-
-  SOLVER_LOG(logger_, "");
-  SOLVER_LOG(logger_, "Starting presolve...");
+  //
+  // SOLVER_LOG(logger_, "");
+  // SOLVER_LOG(logger_, "Starting presolve...");
 
   initial_num_rows_ = lp->num_constraints();
   initial_num_cols_ = lp->num_variables();
@@ -94,7 +94,7 @@ bool MainLpPreprocessor::Run(LinearProgram* lp) {
       // which has exactly the same meaning for these particular preprocessors.
       if (preprocessors_.size() == old_stack_size) {
         // We use i here because the last pass did nothing.
-        SOLVER_LOG(logger_, "Reached fixed point after presolve pass #", i);
+        // SOLVER_LOG(logger_, "Reached fixed point after presolve pass #", i);
         break;
       }
     }
@@ -153,19 +153,19 @@ void MainLpPreprocessor::RunAndPushIfRelevant(
   if (preprocessor->Run(lp)) {
     const EntryIndex new_num_entries = lp->num_entries();
     const double preprocess_time = time_limit->GetElapsedTime() - start_time;
-    SOLVER_LOG(logger_,
-               fmt::format(
-                   "%-45s: %d(%d) rows, %d(%d) columns, %d(%d) entries. (%fs)",
-                   name, lp->num_constraints().value(),
-                   (lp->num_constraints() - initial_num_rows_).value(),
-                   lp->num_variables().value(),
-                   (lp->num_variables() - initial_num_cols_).value(),
-                   // static_cast<int64_t> is needed because the Android port
-                   // uses int32_t.
-                   static_cast<int64_t>(new_num_entries.value()),
-                   static_cast<int64_t>(new_num_entries.value() -
-                                        initial_num_entries_.value()),
-                   preprocess_time));
+    // SOLVER_LOG(logger_,
+    //            fmt::format(
+    //                "%-45s: %d(%d) rows, %d(%d) columns, %d(%d) entries. (%fs)",
+    //                name, lp->num_constraints().value(),
+    //                (lp->num_constraints() - initial_num_rows_).value(),
+    //                lp->num_variables().value(),
+    //                (lp->num_variables() - initial_num_cols_).value(),
+    //                // static_cast<int64_t> is needed because the Android port
+    //                // uses int32_t.
+    //                static_cast<int64_t>(new_num_entries.value()),
+    //                static_cast<int64_t>(new_num_entries.value() -
+    //                                     initial_num_entries_.value()),
+    //                preprocess_time));
     status_ = preprocessor->status();
     preprocessors_.push_back(std::move(preprocessor));
     return;
@@ -174,8 +174,8 @@ void MainLpPreprocessor::RunAndPushIfRelevant(
     // can detect an issue with the problem.
     status_ = preprocessor->status();
     if (status_ != ProblemStatus::INIT) {
-      SOLVER_LOG(logger_, name, " detected that the problem is ",
-                 GetProblemStatusString(status_));
+      // SOLVER_LOG(logger_, name, " detected that the problem is ",
+      //            GetProblemStatusString(status_));
     }
   }
 }
@@ -3323,7 +3323,7 @@ void DoubletonEqualityRowPreprocessor::RecoverSolution(
       // When the modified variable is either basic or free, we keep it as is,
       // and simply make the deleted one basic.
       case VariableStatus::FREE:
-        ABSL_FALLTHROUGH_INTENDED;
+        // ABSL_FALLTHROUGH_INTENDED;
       case VariableStatus::BASIC:
         // Several code paths set the deleted column as basic. The code that
         // sets its value in that case is below, after the switch() block.
@@ -3331,7 +3331,7 @@ void DoubletonEqualityRowPreprocessor::RecoverSolution(
         new_basic_columns[r.col[DELETED]] = true;
         break;
       case VariableStatus::AT_LOWER_BOUND:
-        ABSL_FALLTHROUGH_INTENDED;
+        // ABSL_FALLTHROUGH_INTENDED;
       case VariableStatus::AT_UPPER_BOUND: {
         // The bound was induced by a bound of one of the two original
         // variables. Put that original variable at its bound, and make
@@ -3813,7 +3813,7 @@ void ShiftVariableBoundsPreprocessor::RecoverSolution(
     } else {
       switch (solution->variable_statuses[col]) {
         case VariableStatus::FIXED_VALUE:
-          ABSL_FALLTHROUGH_INTENDED;
+          // ABSL_FALLTHROUGH_INTENDED;
         case VariableStatus::AT_LOWER_BOUND:
           solution->primal_values[col] = variable_initial_lbs_[col];
           break;
@@ -3878,7 +3878,7 @@ void ScalingPreprocessor::RecoverSolution(ProblemSolution* solution) const {
   for (ColIndex col(0); col < num_cols; ++col) {
     switch (solution->variable_statuses[col]) {
       case VariableStatus::AT_UPPER_BOUND:
-        ABSL_FALLTHROUGH_INTENDED;
+        // ABSL_FALLTHROUGH_INTENDED;
       case VariableStatus::FIXED_VALUE:
         solution->primal_values[col] = variable_upper_bounds_[col];
         break;
@@ -3886,7 +3886,7 @@ void ScalingPreprocessor::RecoverSolution(ProblemSolution* solution) const {
         solution->primal_values[col] = variable_lower_bounds_[col];
         break;
       case VariableStatus::FREE:
-        ABSL_FALLTHROUGH_INTENDED;
+        // ABSL_FALLTHROUGH_INTENDED;
       case VariableStatus::BASIC:
         break;
     }

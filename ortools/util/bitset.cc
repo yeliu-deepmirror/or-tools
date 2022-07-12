@@ -13,7 +13,6 @@
 
 #include "ortools/util/bitset.h"
 
-#include "ortools/base/commandlineflags.h"
 #include "ortools/base/logging.h"
 
 namespace operations_research {

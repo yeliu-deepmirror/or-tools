@@ -11,7 +11,5 @@ cc_library(
     deps = [
         "//ortools/base",
         "//ortools/base:dynamic_library",
-        "//ortools/base:file",
-        "//ortools/base:status_macros",
     ],
 )

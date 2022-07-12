@@ -3,29 +3,6 @@ workspace(name = "com_google_ortools")
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository", "new_git_repository")
 
-# Bazel Skylib rules.
-git_repository(
-    name = "bazel_skylib",
-    tag = "1.2.1",
-    remote = "https://github.com/bazelbuild/bazel-skylib.git",
-)
-load("@bazel_skylib//:workspace.bzl", "bazel_skylib_workspace")
-bazel_skylib_workspace()
-
-# Bazel Platforms rules.
-git_repository(
-    name = "platforms",
-    tag = "0.0.5",
-    remote = "https://github.com/bazelbuild/platforms.git",
-)
-
-# Abseil-cpp
-git_repository(
-    name = "com_google_absl",
-    tag = "20211102.0",
-    remote = "https://github.com/abseil/abseil-cpp.git",
-)
-
 # Protobuf
 http_archive(
     name = "com_google_protobuf",
@@ -52,7 +29,6 @@ http_archive(
     patches = ["//bazel:bliss-0.73.patch"],
     sha256 = "f57bf32804140cad58b1240b804e0dbd68f7e6bf67eba8e0c0fa3a62fd7f0f84",
     url = "https://github.com/google/or-tools/releases/download/v9.0/bliss-0.73.zip",
-    #url = "http://www.tcs.hut.fi/Software/bliss/bliss-0.73.zip",
 )
 
 new_git_repository(
@@ -90,7 +66,7 @@ http_archive(
 # Eigen has no Bazel build.
 new_git_repository(
     name = "eigen",
-    tag = "3.4.0",
+    tag = "3.3.9",
     remote = "https://gitlab.com/libeigen/eigen.git",
     build_file_content =
 """

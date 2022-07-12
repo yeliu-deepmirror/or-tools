@@ -141,10 +141,8 @@ class DynamicMaximum {
   struct QueryStats : public StatsGroup {
     QueryStats()
         : StatsGroup("PricingStats"),
-          get_maximum("get_maximum", this),
           heap_size_on_hit("heap_size_on_hit", this),
           random_choices("random_choices", this) {}
-    TimeDistribution get_maximum;
     IntegerDistribution heap_size_on_hit;
     IntegerDistribution random_choices;
   };

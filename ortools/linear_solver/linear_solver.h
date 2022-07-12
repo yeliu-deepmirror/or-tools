@@ -144,14 +144,15 @@
 #include <utility>
 #include <vector>
 
+#include "google/protobuf/descriptor.h"
+#include "google/protobuf/text_format.h"
+
 #include "ortools/base/integral_types.h"
 #include "ortools/base/logging.h"
 #include "ortools/base/macros.h"
-#include "ortools/base/timer.h"
 #include "ortools/linear_solver/linear_expr.h"
 #include "ortools/linear_solver/linear_solver.pb.h"
 #include "ortools/linear_solver/linear_solver_callback.h"
-#include "ortools/port/proto_utils.h"
 
 namespace operations_research {
 
@@ -692,7 +693,7 @@ class MPSolver {
    * linear_solver_interfaces_test for an example of how to configure these
    * solvers for multiple solutions. Other solvers return false unconditionally.
    */
-  ABSL_MUST_USE_RESULT bool NextSolution();
+  bool NextSolution();
 
   // Does not take ownership of "mp_callback".
   //
@@ -826,6 +827,16 @@ inline std::ostream& operator<<(
     std::ostream& os,
     MPSolver::OptimizationProblemType optimization_problem_type) {
   return os << ToString(optimization_problem_type);
+}
+
+template <typename ProtoEnumType>
+std::string ProtoEnumToString(ProtoEnumType enum_value) {
+  auto enum_descriptor = google::protobuf::GetEnumDescriptor<ProtoEnumType>();
+  auto enum_value_descriptor = enum_descriptor->FindValueByNumber(enum_value);
+  if (enum_value_descriptor == nullptr) {
+    return std::string("Invalid enum value of: " + std::to_string(enum_value));
+  }
+  return enum_value_descriptor->name();
 }
 
 inline std::ostream& operator<<(std::ostream& os,

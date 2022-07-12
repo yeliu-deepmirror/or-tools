@@ -14,7 +14,7 @@
 #ifndef OR_TOOLS_LINEAR_SOLVER_SCIP_HELPER_MACROS_H_
 #define OR_TOOLS_LINEAR_SOLVER_SCIP_HELPER_MACROS_H_
 
-#include "ortools/base/status_macros.h"
+// #include "ortools/base/status_macros.h"
 
 namespace operations_research {
 namespace internal {
