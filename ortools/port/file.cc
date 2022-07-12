@@ -23,7 +23,6 @@
 
 #include "absl/strings/str_format.h"
 #include "absl/time/clock.h"
-#include "ortools/base/file.h"
 #endif  // !defined(__PORTABLE_PLATFORM__)
 
 namespace operations_research {

@@ -9,14 +9,10 @@ cc_library(
     hdrs = [
         "basictypes.h",
         "commandlineflags.h",
-        "init_google.h",
         "integral_types.h",
-        "log_severity.h",
         "logging.h",
-        "logging_export.h",
         "macros.h",
         "version.h",
-        "vlog_is_on.h",
     ],
     copts = [
         "-DOR_TOOLS_MAJOR=9999",
@@ -93,24 +89,6 @@ cc_library(
     deps = [
         ":base",
         "@com_google_absl//absl/strings",
-    ],
-)
-
-cc_library(
-    name = "file",
-    srcs = [
-        "file.cc",
-    ],
-    hdrs = [
-        "file.h",
-        "helpers.h",
-    ],
-    deps = [
-        ":base",
-        ":status_macros",
-        "@com_google_absl//absl/status",
-        "@com_google_absl//absl/strings",
-        "@com_google_protobuf//:protobuf",
     ],
 )
 
@@ -282,20 +260,6 @@ cc_library(
     ],
     deps = [
         ":base",
-    ],
-)
-
-cc_library(
-    name = "threadpool",
-    srcs = [
-        "threadpool.cc",
-    ],
-    hdrs = [
-        "threadpool.h",
-    ],
-    deps = [
-        ":base",
-        "@com_google_absl//absl/synchronization",
     ],
 )
 

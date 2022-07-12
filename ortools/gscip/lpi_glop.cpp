@@ -40,7 +40,6 @@
 #include "ortools/util/time_limit.h"
 
 #include "ortools/base/logging.h"
-#include "ortools/base/vlog_is_on.h"
 
 #include "lpi/lpi.h"
 #include "scip/pub_message.h"

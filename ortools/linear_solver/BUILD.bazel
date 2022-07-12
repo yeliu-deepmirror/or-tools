@@ -52,11 +52,9 @@ cc_library(
         "//ortools/base:dynamic_library",
         "//ortools/base:hash",
         "//ortools/base:map_util",
-        "//ortools/base:status_macros",
         "//ortools/base:stl_util",
         "//ortools/base:timer",
         "//ortools/base:cleanup",
-        "//ortools/base:threadpool",
         "//ortools/base",
         "//ortools/glop:lp_solver",
         "//ortools/glop:parameters_cc_proto",
@@ -79,6 +77,5 @@ cc_library(
     name = "scip_helper_macros",
     hdrs = ["scip_helper_macros.h"],
     deps = [
-        "//ortools/base:status_macros",
     ],
 )

@@ -14,8 +14,6 @@
 #ifndef OR_TOOLS_LINEAR_SOLVER_SCIP_HELPER_MACROS_H_
 #define OR_TOOLS_LINEAR_SOLVER_SCIP_HELPER_MACROS_H_
 
-#include "ortools/base/status_macros.h"
-
 namespace operations_research {
 namespace internal {
 // Our own version of SCIP_CALL to do error management.
