@@ -622,6 +622,8 @@ class MPSolver {
 
   int64_t TimeLimit() const { return time_limit_; }
 
+  void SetTimeLimit(int64_t limit) { time_limit_ = limit; }
+
   double DurationSinceConstruction() const {
     return (ortools::Time::Now().NanoSeconds() - construction_time_) * 0.000001;;
   }
