@@ -59,19 +59,6 @@ cc_library(
 )
 
 cc_library(
-    name = "status_macros",
-    hdrs = [
-        "status_macros.h",
-    ],
-    deps = [
-        ":base",
-        ":status_builder",
-        "@com_google_absl//absl/status",
-        "@com_google_absl//absl/status:statusor",
-    ],
-)
-
-cc_library(
     name = "ptr_util",
     hdrs = [
         "ptr_util.h",
@@ -88,7 +75,6 @@ cc_library(
     ],
     deps = [
         ":base",
-        "@com_google_absl//absl/strings",
     ],
 )
 
@@ -100,8 +86,6 @@ cc_library(
     ],
     deps = [
         ":base",
-        "@com_google_absl//absl/strings",
-        #"@com_google_protobuf//:protobuf",
     ],
 )
 
@@ -123,18 +107,6 @@ cc_library(
 )
 
 cc_library(
-    name = "murmur",
-    hdrs = [
-        "murmur.h",
-    ],
-    deps = [
-        ":base",
-        ":hash",
-        "@com_google_absl//absl/strings",
-    ],
-)
-
-cc_library(
     name = "map_util",
     hdrs = [
         "map_util.h",
@@ -151,18 +123,6 @@ cc_library(
     ],
     deps = [
         ":base",
-    ],
-)
-
-cc_library(
-    name = "status_builder",
-    hdrs = [
-        "status_builder.h",
-    ],
-    deps = [
-        ":base",
-        "@com_google_absl//absl/status",
-        "@com_google_absl//absl/strings",
     ],
 )
 
@@ -206,7 +166,6 @@ cc_library(
     ],
     deps = [
         ":base",
-        "@com_google_absl//absl/time",
     ],
 )
 
@@ -220,14 +179,6 @@ cc_library(
     name = "intops",
     hdrs = ["strong_int.h"],
     deps = [":int_type"],
-)
-
-cc_library(
-    name = "source_location",
-    hdrs = ["source_location.h"],
-    deps = [
-        "@com_google_absl//absl/base:config",
-    ],
 )
 
 cc_library(

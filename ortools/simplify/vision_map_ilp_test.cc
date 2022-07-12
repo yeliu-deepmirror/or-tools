@@ -12,6 +12,7 @@ TEST(VisionMapILP, SimpleTest) {
 
   const size_t num_images = 100;
   const size_t num_points = 10000;
+  const size_t init_min_points_per_image = 200;
   const size_t min_points_per_image = 100;
   const size_t desired_num_points = num_points * 0.5;
 
@@ -26,7 +27,7 @@ TEST(VisionMapILP, SimpleTest) {
   // make random observation (each image has 200 observations)
   static std::default_random_engine engine(2022);
   std::uniform_real_distribution<double> distribution(0, 1.0);
-  double prob_threshold = 200.0 / num_points;
+  double prob_threshold = static_cast<double>(init_min_points_per_image) / num_points;
   int obs_cnt = 0;
   for (size_t i = 0; i < num_images; i++) {
     std::vector<bool> image_viz(num_points, false);

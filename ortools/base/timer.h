@@ -14,8 +14,6 @@
 #ifndef OR_TOOLS_BASE_TIMER_H_
 #define OR_TOOLS_BASE_TIMER_H_
 
-#include "absl/time/clock.h"
-#include "absl/time/time.h"
 #include "ortools/base/basictypes.h"
 #include "ortools/base/logging.h"
 #include "ortools/base/macros.h"
@@ -30,7 +28,7 @@ class WallTimer {
   // When Start() is called multiple times, only the most recent is used.
   void Start() {
     running_ = true;
-    start_ = absl::GetCurrentTimeNanos();
+    start_ = ortools::Time::Now().NanoSeconds();
   }
   void Restart() {
     sum_ = 0;
@@ -38,21 +36,18 @@ class WallTimer {
   }
   void Stop() {
     if (running_) {
-      sum_ += absl::GetCurrentTimeNanos() - start_;
+      sum_ += ortools::Time::Now().NanoSeconds() - start_;
       running_ = false;
     }
   }
   double Get() const { return GetNanos() * 1e-9; }
   int64_t GetInMs() const { return GetNanos() / 1000000; }
   int64_t GetInUsec() const { return GetNanos() / 1000; }
-  inline absl::Duration GetDuration() const {
-    return absl::Nanoseconds(GetNanos());
-  }
   bool IsRunning() const { return running_; }
 
  protected:
   int64_t GetNanos() const {
-    return running_ ? absl::GetCurrentTimeNanos() - start_ + sum_ : sum_;
+    return running_ ? ortools::Time::Now().NanoSeconds() - start_ + sum_ : sum_;
   }
 
  private:
