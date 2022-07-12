@@ -692,7 +692,7 @@ class MPSolver {
    * linear_solver_interfaces_test for an example of how to configure these
    * solvers for multiple solutions. Other solvers return false unconditionally.
    */
-  ABSL_MUST_USE_RESULT bool NextSolution();
+  bool NextSolution();
 
   // Does not take ownership of "mp_callback".
   //
@@ -1494,7 +1494,7 @@ class MPSolverInterface {
 
   // Adds an indicator constraint. Returns true if the feature is supported by
   // the underlying solver.
-  virtual bool AddIndicatorConstraint(MPConstraint* const ct) {
+  virtual bool AddIndicatorConstraint(MPConstraint* const) {
     LOG(ERROR) << "Solver doesn't support indicator constraints.";
     return false;
   }
@@ -1520,7 +1520,7 @@ class MPSolverInterface {
   // Clears the objective from all its terms.
   virtual void ClearObjective() = 0;
 
-  virtual void BranchingPriorityChangedForVariable(int var_index) {}
+  virtual void BranchingPriorityChangedForVariable(int) {}
   // ------ Query statistics on the solution and the solve ------
   // Returns the number of simplex iterations. The problem must be discrete,
   // otherwise it crashes, or returns kUnknownNumberOfIterations in NDEBUG mode.
@@ -1603,8 +1603,8 @@ class MPSolverInterface {
 
   // See MPSolver::SetStartingLpBasis().
   virtual void SetStartingLpBasis(
-      const std::vector<MPSolver::BasisStatus>& variable_statuses,
-      const std::vector<MPSolver::BasisStatus>& constraint_statuses) {
+      const std::vector<MPSolver::BasisStatus>&,
+      const std::vector<MPSolver::BasisStatus>&) {
     LOG(FATAL) << "Not supported by this solver.";
   }
 
@@ -1614,7 +1614,7 @@ class MPSolverInterface {
   virtual bool NextSolution() { return false; }
 
   // See MPSolver::SetCallback() for details.
-  virtual void SetCallback(MPCallback* mp_callback) {
+  virtual void SetCallback(MPCallback*) {
     LOG(FATAL) << "Callbacks not supported for this solver.";
   }
 

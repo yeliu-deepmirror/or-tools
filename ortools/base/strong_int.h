@@ -151,8 +151,6 @@
 #include <ostream>  // NOLINT
 #include <type_traits>
 
-#include "absl/base/port.h"
-#include "absl/strings/string_view.h"
 #include "ortools/base/macros.h"
 
 namespace util_intops {
@@ -275,7 +273,7 @@ class StrongInt {
 
   COMPILE_ASSERT(std::is_integral<ValueType>::value,
                  invalid_integer_type_for_id_type_);
-} ABSL_ATTRIBUTE_PACKED;
+};
 
 // -- NON-MEMBER STREAM OPERATORS ----------------------------------------------
 // We provide the << operator, primarily for logging purposes.  Currently, there

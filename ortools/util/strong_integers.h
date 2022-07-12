@@ -58,8 +58,6 @@
 #include <ostream>  // NOLINT
 #include <type_traits>
 
-#include "absl/base/port.h"
-#include "absl/strings/string_view.h"
 #include "ortools/base/logging.h"
 #include "ortools/base/macros.h"
 
@@ -144,7 +142,7 @@ class StrongIndex {
     return StrongIndexName::TypeName();
   }
 
-  struct ABSL_DEPRECATED("Use absl::Hash instead") Hasher {
+  struct Hasher {
     size_t operator()(const StrongIndex& x) const {
       return static_cast<size_t>(x.value());
     }
@@ -201,7 +199,7 @@ class StrongInt64 {
     return StrongIntegerName::TypeName();
   }
 
-  struct ABSL_DEPRECATED("Use absl::Hash instead") Hasher {
+  struct Hasher {
     size_t operator()(const StrongInt64& x) const {
       return static_cast<size_t>(x.value());
     }

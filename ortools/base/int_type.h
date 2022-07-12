@@ -274,7 +274,7 @@ class IntType {
 
   COMPILE_ASSERT(std::is_integral<ValueType>::value,
                  invalid_integer_type_for_id_type_);
-} ABSL_ATTRIBUTE_PACKED;
+};
 
 // -- NON-MEMBER STREAM OPERATORS ----------------------------------------------
 // We provide the << operator, primarily for logging purposes.  Currently, there

@@ -13,8 +13,6 @@
 
 #include "ortools/base/version.h"
 
-#include "absl/strings/str_cat.h"
-
 namespace operations_research {
 
 int OrToolsMajorVersion() { return OR_TOOLS_MAJOR; }
@@ -22,9 +20,5 @@ int OrToolsMajorVersion() { return OR_TOOLS_MAJOR; }
 int OrToolsMinorVersion() { return OR_TOOLS_MINOR; }
 
 int OrToolsPatchVersion() { return OR_TOOLS_PATCH; }
-
-std::string OrToolsVersionString() {
-  return absl::StrCat(OR_TOOLS_MAJOR, ".", OR_TOOLS_MINOR, ".", OR_TOOLS_PATCH);
-}
 
 }  // namespace operations_research

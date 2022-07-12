@@ -97,7 +97,7 @@ class MinCostPerfectMatching {
     // instance.
     COST_OVERFLOW = 3,
   };
-  ABSL_MUST_USE_RESULT Status Solve();
+  Status Solve();
 
   // Returns the cost of the perfect matching. Only valid when the last solve
   // status was OPTIMAL.
@@ -311,7 +311,7 @@ class BlossomGraph {
   // Heuristic to start with a dual-feasible solution and some matched edges.
   // To be called once all edges are added. Returns false if the problem is
   // detected to be INFEASIBLE.
-  ABSL_MUST_USE_RESULT bool Initialize();
+  bool Initialize();
 
   // Enters a loop that perform one of Grow()/Augment()/Shrink()/Expand() until
   // a fixed point is reached.

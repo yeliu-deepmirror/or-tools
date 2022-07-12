@@ -13,8 +13,6 @@
 
 #include "ortools/util/time_limit.h"
 
-#include "absl/strings/str_cat.h"
-
 namespace operations_research {
 
 // static constants.
@@ -22,19 +20,12 @@ const double TimeLimit::kSafetyBufferSeconds = 1e-4;
 const int TimeLimit::kHistorySize = 100;
 
 std::string TimeLimit::DebugString() const {
-  std::string buffer = absl::StrCat(
-      "Time left: ", (GetTimeLeft()),
-      "\nDeterministic time left: ", (GetDeterministicTimeLeft()),
-      "\nElapsed time: ", (GetElapsedTime()),
-      "\nElapsed deterministic time: ", (GetElapsedDeterministicTime()));
-#ifndef NDEBUG
-  for (const auto& counter : deterministic_counters_) {
-    const std::string& counter_name = counter.first;
-    const double counter_value = counter.second;
-    absl::StrAppend(&buffer, "\n", counter_name, ": ", (counter_value));
-  }
-#endif
-  return buffer;
+  // std::string buffer = absl::StrCat(
+  //     "Time left: ", (GetTimeLeft()),
+  //     "\nDeterministic time left: ", (GetDeterministicTimeLeft()),
+  //     "\nElapsed time: ", (GetElapsedTime()),
+  //     "\nElapsed deterministic time: ", (GetElapsedDeterministicTime()));
+  return std::to_string(GetTimeLeft());
 }
 
 NestedTimeLimit::NestedTimeLimit(TimeLimit* base_time_limit,

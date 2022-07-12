@@ -67,8 +67,7 @@ class SolverLogger {
 };
 
 #define SOLVER_LOG(logger, ...)     \
-  if ((logger)->LoggingIsEnabled()) \
-  (logger)->LogInfo(__FILE__, __LINE__, absl::StrCat(__VA_ARGS__))
+  if ((logger)->LoggingIsEnabled()) {} \
 
 }  // namespace operations_research
 

@@ -5,7 +5,6 @@ package(default_visibility = ["//visibility:public"])
 cc_library(
     name = "lazy_mutable_copy",
     hdrs = ["lazy_mutable_copy.h"],
-    deps = ["@com_google_absl//absl/memory"],
 )
 
 cc_library(
@@ -28,11 +27,7 @@ cc_library(
     deps = [
         "//ortools/base",
         "//ortools/base:stl_util",
-        "@com_google_absl//absl/strings",
-        "@com_google_absl//absl/strings:str_format",
-        #"//ortools/port:sysinfo",
         "//ortools/base:timer",
-        #"//ortools/port:utf8",
     ],
 )
 
@@ -45,9 +40,6 @@ cc_library(
         "//ortools/base",
         "//ortools/base:sysinfo",
         "//ortools/base:timer",
-        "@com_google_absl//absl/container:flat_hash_map",
-        "@com_google_absl//absl/memory",
-        "@com_google_absl//absl/strings",
     ],
 )
 
@@ -93,7 +85,6 @@ cc_library(
     deps = [
         "//ortools/base",
         "//ortools/base:map_util",
-        "@com_google_absl//absl/strings",
     ],
 )
 
@@ -112,8 +103,6 @@ cc_library(
     deps = [
         "//ortools/base",
         "//ortools/base:file",
-        "@com_google_absl//absl/status",
-        "@com_google_absl//absl/strings",
     ],
 )
 
@@ -133,7 +122,6 @@ cc_library(
     visibility = ["//visibility:public"],
     deps = [
         "//ortools/base",
-        "@com_google_absl//absl/strings",
     ],
 )
 
@@ -142,6 +130,5 @@ cc_library(
     hdrs = ["strong_integers.h"],
     deps = [
         "//ortools/base",
-        "@com_google_absl//absl/strings",
     ],
 )

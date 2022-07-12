@@ -3,13 +3,6 @@ workspace(name = "com_google_ortools")
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository", "new_git_repository")
 
-# Abseil-cpp
-git_repository(
-    name = "com_google_absl",
-    tag = "20211102.0",
-    remote = "https://github.com/abseil/abseil-cpp.git",
-)
-
 # Protobuf
 http_archive(
     name = "com_google_protobuf",

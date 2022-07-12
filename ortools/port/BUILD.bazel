@@ -1,7 +1,5 @@
 package(default_visibility = ["//visibility:public"])
 
-
-
 cc_library(
     name = "proto_utils",
     hdrs = [
@@ -9,7 +7,6 @@ cc_library(
     ],
     deps = [
         "//ortools/base",
-        "@com_google_absl//absl/strings",
         "@com_google_protobuf//:protobuf",
     ],
 )

@@ -24,8 +24,6 @@ int OrToolsMinorVersion();
 
 int OrToolsPatchVersion();
 
-std::string OrToolsVersionString();
-
 }  // namespace operations_research
 
 #endif  // OR_TOOLS_BASE_VERSION_H_
