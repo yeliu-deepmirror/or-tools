@@ -26,7 +26,6 @@
 #include "absl/memory/memory.h"
 #include "absl/synchronization/mutex.h"
 #include "absl/time/clock.h"
-#include "ortools/base/commandlineflags.h"
 #include "ortools/base/logging.h"
 #include "ortools/base/macros.h"
 #include "ortools/base/timer.h"
@@ -34,18 +33,6 @@
 #ifdef HAS_PERF_SUBSYSTEM
 #include "exegesis/exegesis/itineraries/perf_subsystem.h"
 #endif  // HAS_PERF_SUBSYSTEM
-
-/**
- * Enables changing the behavior of the TimeLimit class to use -b usertime
- * instead of \b walltime. This is mainly useful for benchmarks.
- */
-ABSL_DECLARE_FLAG(bool, time_limit_use_usertime);
-
-/**
- * Adds support to measure the number of executed instructions in the TimeLimit
- * class.
- */
-ABSL_DECLARE_FLAG(bool, time_limit_use_instruction_count);
 
 namespace operations_research {
 
@@ -497,17 +484,17 @@ inline void TimeLimit::ResetTimers(double limit_in_seconds,
   deterministic_limit_ = deterministic_limit;
   instruction_limit_ = instruction_limit;
 
-  if (absl::GetFlag(FLAGS_time_limit_use_usertime)) {
-    user_timer_.Start();
-    limit_in_seconds_ = limit_in_seconds;
-  }
-#ifdef HAS_PERF_SUBSYSTEM
-  if (absl::GetFlag(FLAGS_time_limit_use_instruction_count)) {
-    perf_subsystem_.CleanUp();
-    perf_subsystem_.AddEvent(GetInstructionRetiredEventName());
-    perf_subsystem_.StartCollecting();
-  }
-#endif  // HAS_PERF_SUBSYSTEM
+  // if (absl::GetFlag(FLAGS_time_limit_use_usertime)) {
+  //   user_timer_.Start();
+  //   limit_in_seconds_ = limit_in_seconds;
+  // }
+// #ifdef HAS_PERF_SUBSYSTEM
+//   if (absl::GetFlag(FLAGS_time_limit_use_instruction_count)) {
+//     perf_subsystem_.CleanUp();
+//     perf_subsystem_.AddEvent(GetInstructionRetiredEventName());
+//     perf_subsystem_.StartCollecting();
+//   }
+// #endif  // HAS_PERF_SUBSYSTEM
   start_ns_ = absl::GetCurrentTimeNanos();
   last_ns_ = start_ns_;
   limit_ns_ = limit_in_seconds >= 1e-9 * (kint64max - start_ns_)
@@ -534,12 +521,12 @@ inline void TimeLimit::MergeWithGlobalTimeLimit(TimeLimit* other) {
 }
 
 inline double TimeLimit::ReadInstructionCounter() {
-#ifdef HAS_PERF_SUBSYSTEM
-  if (absl::GetFlag(FLAGS_time_limit_use_instruction_count)) {
-    return perf_subsystem_.ReadCounters().GetScaledOrDie(
-        GetInstructionRetiredEventName());
-  }
-#endif  // HAS_PERF_SUBSYSTEM
+// #ifdef HAS_PERF_SUBSYSTEM
+//   if (absl::GetFlag(FLAGS_time_limit_use_instruction_count)) {
+//     return perf_subsystem_.ReadCounters().GetScaledOrDie(
+//         GetInstructionRetiredEventName());
+//   }
+// #endif  // HAS_PERF_SUBSYSTEM
   return 0;
 }
 
@@ -563,16 +550,16 @@ inline bool TimeLimit::LimitReached() {
   running_max_.Add(std::max(safety_buffer_ns_, current_ns - last_ns_));
   last_ns_ = current_ns;
   if (current_ns + running_max_.GetCurrentMax() >= limit_ns_) {
-    if (absl::GetFlag(FLAGS_time_limit_use_usertime)) {
-      // To avoid making many system calls, we only check the user time when
-      // the "absolute" time limit has been reached. Note that the user time
-      // should advance more slowly, so this is correct.
-      const double time_left_s = limit_in_seconds_ - user_timer_.Get();
-      if (time_left_s > kSafetyBufferSeconds) {
-        limit_ns_ = static_cast<int64_t>(time_left_s * 1e9) + last_ns_;
-        return false;
-      }
-    }
+    // if (absl::GetFlag(FLAGS_time_limit_use_usertime)) {
+    //   // To avoid making many system calls, we only check the user time when
+    //   // the "absolute" time limit has been reached. Note that the user time
+    //   // should advance more slowly, so this is correct.
+    //   const double time_left_s = limit_in_seconds_ - user_timer_.Get();
+    //   if (time_left_s > kSafetyBufferSeconds) {
+    //     limit_ns_ = static_cast<int64_t>(time_left_s * 1e9) + last_ns_;
+    //     return false;
+    //   }
+    // }
 
     // To ensure that future calls to LimitReached() will return true.
     limit_ns_ = 0;
@@ -585,11 +572,12 @@ inline double TimeLimit::GetTimeLeft() const {
   if (limit_ns_ == kint64max) return std::numeric_limits<double>::infinity();
   const int64_t delta_ns = limit_ns_ - absl::GetCurrentTimeNanos();
   if (delta_ns < 0) return 0.0;
-  if (absl::GetFlag(FLAGS_time_limit_use_usertime)) {
-    return std::max(limit_in_seconds_ - user_timer_.Get(), 0.0);
-  } else {
-    return delta_ns * 1e-9;
-  }
+  // if (absl::GetFlag(FLAGS_time_limit_use_usertime)) {
+  //   return std::max(limit_in_seconds_ - user_timer_.Get(), 0.0);
+  // } else {
+  //   return delta_ns * 1e-9;
+  // }
+  return delta_ns * 1e-9;
 }
 
 inline double TimeLimit::GetInstructionsLeft() {

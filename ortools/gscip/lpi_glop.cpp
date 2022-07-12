@@ -2981,10 +2981,10 @@ SCIP_RETCODE SCIPlpiSetIntpar(
       SCIPdebugMessage("SCIPlpiSetIntpar: SCIP_LPPAR_TIMING -> %d.\n", ival);
       assert( 0 <= ival && ival <= 2 );
       lpi->timing = ival;
-      if ( ival == 1 )
-         absl::SetFlag(&FLAGS_time_limit_use_usertime, true);
-      else
-         absl::SetFlag(&FLAGS_time_limit_use_usertime, false);
+      // if ( ival == 1 )
+      //    absl::SetFlag(&FLAGS_time_limit_use_usertime, true);
+      // else
+      //    absl::SetFlag(&FLAGS_time_limit_use_usertime, false);
       break;
    case SCIP_LPPAR_RANDOMSEED:
       SCIPdebugMessage("SCIPlpiSetIntpar: SCIP_LPPAR_RANDOMSEED -> %d.\n", ival);
@@ -3027,10 +3027,10 @@ SCIP_RETCODE SCIPlpiGetRealpar(
       SCIPdebugMessage("SCIPlpiGetRealpar: SCIP_LPPAR_OBJLIM = %f.\n", *dval);
       break;
    case SCIP_LPPAR_LPTILIM:
-      if ( absl::GetFlag(FLAGS_time_limit_use_usertime) )
-         *dval = lpi->parameters->max_time_in_seconds();
-      else
-         *dval = lpi->parameters->max_deterministic_time();
+      // if ( absl::GetFlag(FLAGS_time_limit_use_usertime) )
+      //    *dval = lpi->parameters->max_time_in_seconds();
+      // else
+      //    *dval = lpi->parameters->max_deterministic_time();
       SCIPdebugMessage("SCIPlpiGetRealpar: SCIP_LPPAR_LPTILIM = %f.\n", *dval);
       break;
    case SCIP_LPPAR_CONDITIONLIMIT:
@@ -3079,10 +3079,10 @@ SCIP_RETCODE SCIPlpiSetRealpar(
       break;
    case SCIP_LPPAR_LPTILIM:
       SCIPdebugMessage("SCIPlpiSetRealpar: SCIP_LPPAR_LPTILIM -> %f.\n", dval);
-      if ( absl::GetFlag(FLAGS_time_limit_use_usertime) )
-         lpi->parameters->set_max_time_in_seconds(dval);
-      else
-         lpi->parameters->set_max_deterministic_time(dval);
+      // if ( absl::GetFlag(FLAGS_time_limit_use_usertime) )
+      //    lpi->parameters->set_max_time_in_seconds(dval);
+      // else
+      //    lpi->parameters->set_max_deterministic_time(dval);
       break;
    case SCIP_LPPAR_CONDITIONLIMIT:
       lpi->conditionlimit = dval;

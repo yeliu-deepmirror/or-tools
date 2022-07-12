@@ -3,12 +3,10 @@ package(default_visibility = ["//visibility:public"])
 cc_library(
     name = "base",
     srcs = [
-        "commandlineflags.cc",
         "version.cc",
     ],
     hdrs = [
         "basictypes.h",
-        "commandlineflags.h",
         "integral_types.h",
         "logging.h",
         "macros.h",

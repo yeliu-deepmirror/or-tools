@@ -206,19 +206,12 @@
 #include <vector>
 
 #include "absl/strings/str_format.h"
-#include "ortools/base/commandlineflags.h"
 #include "ortools/base/integral_types.h"
 #include "ortools/base/logging.h"
 #include "ortools/base/macros.h"
 #include "ortools/graph/ebert_graph.h"
 #include "ortools/util/permutation.h"
 #include "ortools/util/zvector.h"
-
-#ifndef SWIG
-ABSL_DECLARE_FLAG(int64_t, assignment_alpha);
-ABSL_DECLARE_FLAG(int, assignment_progress_logging_period);
-ABSL_DECLARE_FLAG(bool, assignment_stack_order);
-#endif
 
 namespace operations_research {
 

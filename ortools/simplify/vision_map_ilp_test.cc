@@ -7,14 +7,13 @@
 
 namespace dm::graph {
 
-TEST(VisionMapILP, SimpleTest) {
+void TestRandomProblem(size_t num_images, double ratio) {
   // make a random problem to solve
-
-  const size_t num_images = 100;
+  // const size_t num_images = 100;
   const size_t num_points = 10000;
   const size_t init_min_points_per_image = 200;
   const size_t min_points_per_image = 100;
-  const size_t desired_num_points = num_points * 0.5;
+  const size_t desired_num_points = num_points * ratio;
 
   VisionSummarizationProblem problem;
   problem.num_images = num_images;
@@ -57,6 +56,14 @@ TEST(VisionMapILP, SimpleTest) {
     // EXPECT_GE(cnt, min_points_per_image);
   }
   LOG(INFO) << "mean observation per image after optimization: " << total_cnt / num_images;
+}
+
+TEST(VisionMapILP, SimpleTest1) {
+  TestRandomProblem(100, 0.5);
+}
+
+TEST(VisionMapILP, SimpleTest2) {
+  TestRandomProblem(300, 0.2);
 }
 
 }  // namespace dm::graph

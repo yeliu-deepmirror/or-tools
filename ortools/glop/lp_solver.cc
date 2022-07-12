@@ -17,7 +17,6 @@
 #include <stack>
 #include <vector>
 
-#include "ortools/base/commandlineflags.h"
 #include "ortools/base/integral_types.h"
 #include "ortools/base/timer.h"
 #include "ortools/glop/preprocessor.h"
@@ -26,24 +25,6 @@
 #include "ortools/lp_data/lp_utils.h"
 #include "ortools/lp_data/proto_utils.h"
 #include "ortools/util/fp_utils.h"
-
-ABSL_FLAG(bool, lp_dump_compressed_file, true,
-          "Whether the proto dump file is compressed.");
-ABSL_FLAG(bool, lp_dump_binary_file, false,
-          "Whether the proto dump file is binary.");
-ABSL_FLAG(int, lp_dump_file_number, -1,
-          "Number for the dump file, in the form name-000048.pb. "
-          "If < 0, the file is automatically numbered from the number of "
-          "calls to LPSolver::Solve().");
-ABSL_FLAG(std::string, lp_dump_dir, "/tmp",
-          "Directory where dump files are written.");
-ABSL_FLAG(std::string, lp_dump_file_basename, "",
-          "Base name for dump files. LinearProgram::name_ is used if "
-          "lp_dump_file_basename is empty. If LinearProgram::name_ is "
-          "empty, \"linear_program_dump_file\" is used.");
-ABSL_FLAG(std::string, glop_params, "",
-          "Override any user parameters with the value of this flag. This is "
-          "interpreted as a GlopParameters proto in text format.");
 
 namespace operations_research {
 namespace glop {

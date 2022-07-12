@@ -15,7 +15,6 @@
 #define OR_TOOLS_GUROBI_ENVIRONMENT_H_
 
 #include <mutex>
-#include "ortools/base/commandlineflags.h"
 #include "ortools/base/dynamic_library.h"
 #include "ortools/base/logging.h"
 
