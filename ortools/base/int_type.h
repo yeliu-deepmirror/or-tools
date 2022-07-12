@@ -165,7 +165,7 @@ class IntType;
 // type is created per int_type_name.
 #define DEFINE_INT_TYPE(int_type_name, value_type)                           \
   struct int_type_name##_tag_ {                                              \
-    static constexpr absl::string_view TypeName() { return #int_type_name; } \
+    static constexpr std::string_view TypeName() { return #int_type_name; } \
   };                                                                         \
   typedef ::gtl::IntType<int_type_name##_tag_, value_type> int_type_name;
 
@@ -185,7 +185,7 @@ class IntType {
   typedef _ValueType ValueType;                      // for non-member operators
   typedef IntType<IntTypeName, ValueType> ThisType;  // Syntactic sugar.
 
-  static constexpr absl::string_view TypeName() {
+  static constexpr std::string_view TypeName() {
     return IntTypeName::TypeName();
   }
 

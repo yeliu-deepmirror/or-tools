@@ -78,8 +78,7 @@
 
 #include <ostream>
 #include <string>
-
-#include "absl/container/flat_hash_map.h"
+#include <map>
 
 namespace operations_research {
 
@@ -140,7 +139,7 @@ class LinearExpr {
   LinearExpr operator-() const;
 
   double offset() const { return offset_; }
-  const absl::flat_hash_map<const MPVariable*, double>& terms() const {
+  const std::map<const MPVariable*, double>& terms() const {
     return terms_;
   }
 
@@ -159,7 +158,7 @@ class LinearExpr {
 
  private:
   double offset_;
-  absl::flat_hash_map<const MPVariable*, double> terms_;
+  std::map<const MPVariable*, double> terms_;
 };
 
 std::ostream& operator<<(std::ostream& stream, const LinearExpr& linear_expr);

@@ -52,14 +52,6 @@
 #include <utility>
 #include <vector>
 
-#include "absl/status/statusor.h"
-#include "absl/strings/str_cat.h"
-#include "absl/strings/str_join.h"
-#include "absl/strings/str_split.h"
-#include "absl/base/attributes.h"
-#include "absl/status/status.h"
-#include "absl/strings/match.h"
-#include "absl/strings/str_format.h"
 #include "ortools/base/commandlineflags.h"
 #include "ortools/base/integral_types.h"
 #include "ortools/base/logging.h"
@@ -71,10 +63,9 @@
 #include "ortools/linear_solver/linear_solver_callback.h"
 #include "ortools/util/time_limit.h"
 
-ABSL_FLAG(int, num_gurobi_threads, 4,
-          "Number of threads available for Gurobi.");
-
 namespace operations_research {
+
+constexpr int num_gurobi_threads = 4;
 
 class GurobiInterface : public MPSolverInterface {
  public:
@@ -88,7 +79,7 @@ class GurobiInterface : public MPSolverInterface {
   // ----- Solve -----
   // Solves the problem using the parameter values specified.
   MPSolver::ResultStatus Solve(const MPSolverParameters& param) override;
-  
+
   // Writes the model.
   void Write(const std::string& filename) override;
 
@@ -150,7 +141,7 @@ class GurobiInterface : public MPSolverInterface {
   }
 
   bool InterruptSolve() override {
-    const absl::MutexLock lock(&hold_interruptions_mutex_);
+    std::lock_guard<std::mutex> lock(hold_interruptions_mutex_);
     if (model_ != nullptr) GRBterminate(model_);
     return true;
   }
@@ -262,7 +253,7 @@ class GurobiInterface : public MPSolverInterface {
   // Mutex is held to prevent InterruptSolve() to call GRBterminate() when
   // model_ is not completely built. It also prevents model_ to be changed
   // during the execution of GRBterminate().
-  mutable absl::Mutex hold_interruptions_mutex_;
+  mutable std::mutex hold_interruptions_mutex_;
 };
 
 namespace {
@@ -271,47 +262,6 @@ void CheckedGurobiCall(int err, GRBenv* const env) {
   CHECK_EQ(0, err) << "Fatal error with code " << err << ", due to "
                    << GRBgeterrormsg(env);
 }
-
-absl::Status SetSolverSpecificParameters(const std::string& parameters,
-                                         GRBenv* gurobi) {
-  if (parameters.empty()) return absl::OkStatus();
-  std::vector<std::string> error_messages;
-  for (absl::string_view line : absl::StrSplit(parameters, '\n')) {
-    // Comment tokens end at the next new-line, or the end of the string.
-    // The first character must be '#'
-    if (line[0] == '#') continue;
-    for (absl::string_view token :
-         absl::StrSplit(line, ',', absl::SkipWhitespace())) {
-      if (token.empty()) continue;
-      std::vector<std::string> key_value =
-          absl::StrSplit(token, absl::ByAnyChar(" ="), absl::SkipWhitespace());
-      // If one parameter fails, we keep processing the list of parameters.
-      if (key_value.size() != 2) {
-        const std::string current_message =
-            absl::StrCat("Cannot parse parameter '", token,
-                         "'. Expected format is 'ParameterName value' or "
-                         "'ParameterName=value'");
-        error_messages.push_back(current_message);
-        continue;
-      }
-      const int gurobi_code =
-          GRBsetparam(gurobi, key_value[0].c_str(), key_value[1].c_str());
-      if (gurobi_code != 0) {   //  GRB_OK = 0
-        const std::string current_message = absl::StrCat(
-            "Error setting parameter '", key_value[0], "' to value '",
-            key_value[1], "': ", GRBgeterrormsg(gurobi));
-        error_messages.push_back(current_message);
-        continue;
-      }
-      VLOG(2) << absl::StrCat("Set parameter '", key_value[0], "' to value '",
-                              key_value[1]);
-    }
-  }
-
-  if (error_messages.empty()) return absl::OkStatus();
-  return absl::InvalidArgumentError(absl::StrJoin(error_messages, "\n"));
-}
-
 
 // For interacting directly with the Gurobi C API for callbacks.
 struct GurobiInternalCallbackContext {
@@ -334,7 +284,7 @@ class GurobiMPCallbackContext : public MPCallbackContext {
   void AddCut(const LinearRange& cutting_plane) override;
   void AddLazyConstraint(const LinearRange& lazy_constraint) override;
   double SuggestSolution(
-      const absl::flat_hash_map<const MPVariable*, double>& solution) override;
+      const std::map<const MPVariable*, double>& solution) override;
   int64_t NumExploredNodes() override;
 
   // Call this method to update the internal state of the callback context
@@ -532,7 +482,7 @@ void GurobiMPCallbackContext::AddLazyConstraint(
 }
 
 double GurobiMPCallbackContext::SuggestSolution(
-    const absl::flat_hash_map<const MPVariable*, double>& solution) {
+    const std::map<const MPVariable*, double>& solution) {
   const MPCallbackEvent where = Event();
   CHECK(where == MPCallbackEvent::kMipNode)
       << "Feasible solutions can only be added at MIP_NODE, tried to add "
@@ -650,7 +600,7 @@ GurobiInterface::GurobiInterface(MPSolver* const solver, bool mip)
       env_(nullptr),
       mip_(mip),
       current_solution_index_(0) {
-  env_ = GetGurobiEnv().value();
+  env_ = GetGurobiEnv();
   CheckedGurobiCall(GRBnewmodel(env_, &model_, solver_->name_.c_str(),
                                 0,          // numvars
                                 nullptr,    // obj
@@ -659,8 +609,7 @@ GurobiInterface::GurobiInterface(MPSolver* const solver, bool mip)
                                 nullptr,    // vtype
                                 nullptr));  // varnanes
   SetIntAttr(GRB_INT_ATTR_MODELSENSE, maximize_ ? GRB_MAXIMIZE : GRB_MINIMIZE);
-  CheckedGurobiCall(GRBsetintparam(env_, GRB_INT_PAR_THREADS,
-                                   absl::GetFlag(FLAGS_num_gurobi_threads)));
+  CheckedGurobiCall(GRBsetintparam(env_, GRB_INT_PAR_THREADS, num_gurobi_threads));
 }
 
 GurobiInterface::~GurobiInterface() {
@@ -672,7 +621,7 @@ GurobiInterface::~GurobiInterface() {
 
 void GurobiInterface::Reset() {
   // We hold calls to GRBterminate() until the new model_ is ready.
-  const absl::MutexLock lock(&hold_interruptions_mutex_);
+  std::lock_guard<std::mutex> lock(hold_interruptions_mutex_);
 
   GRBmodel* old_model = model_;
   CheckedGurobiCall(GRBnewmodel(env_, &model_, solver_->name_.c_str(),
@@ -1081,7 +1030,8 @@ void GurobiInterface::SetParameters(const MPSolverParameters& param) {
 
 bool GurobiInterface::SetSolverSpecificParametersAsString(
     const std::string& parameters) {
-  return SetSolverSpecificParameters(parameters, GRBgetenv(model_)).ok();
+  LOG(ERROR) << "not implemented.";
+  return false;
 }
 
 void GurobiInterface::SetRelativeMipGap(double value) {
@@ -1205,8 +1155,6 @@ MPSolver::ResultStatus GurobiInterface::Solve(const MPSolverParameters& param) {
   ExtractModel();
   // Sync solver.
   CheckedGurobiCall(GRBupdatemodel(model_));
-  VLOG(1) << fmt::format("Model built in %s.",
-                             absl::FormatDuration(timer.GetDuration()));
 
   // Set solution hints if any.
   for (const std::pair<const MPVariable*, double>& p :
@@ -1266,13 +1214,6 @@ MPSolver::ResultStatus GurobiInterface::Solve(const MPSolverParameters& param) {
   // Solve
   timer.Restart();
   const int status = GRBoptimize(model_);
-
-  if (status) {
-    VLOG(1) << "Failed to optimize MIP." << GRBgeterrormsg(env_);
-  } else {
-    VLOG(1) << fmt::format("Solved in %s.",
-                               absl::FormatDuration(timer.GetDuration()));
-  }
 
   // Get the status.
   const int optimization_status = GetIntAttr(GRB_INT_ATTR_STATUS);

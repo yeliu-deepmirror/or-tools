@@ -16,13 +16,13 @@
 
 #include <string>
 
-#include "absl/status/status.h"
+#include "ortools/base/logging.h"
 #include "scip/scip.h"
 #include "scip/type_scip.h"
 
 namespace operations_research {
 
-absl::Status LegacyScipSetSolverSpecificParameters(
+OrToolsStatus LegacyScipSetSolverSpecificParameters(
     const std::string& parameters, SCIP* scip);
 }
 

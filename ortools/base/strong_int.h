@@ -165,7 +165,7 @@ class StrongInt;
 // type is created per int_type_name.
 #define DEFINE_STRONG_INT_TYPE(int_type_name, value_type)                    \
   struct int_type_name##_tag_ {                                              \
-    static constexpr absl::string_view TypeName() { return #int_type_name; } \
+    static constexpr std::string_view TypeName() { return #int_type_name; } \
   };                                                                         \
   typedef ::util_intops::StrongInt<int_type_name##_tag_, value_type>         \
       int_type_name;
@@ -186,7 +186,7 @@ class StrongInt {
   typedef _ValueType ValueType;  // for non-member operators
   typedef StrongInt<StrongIntName, ValueType> ThisType;  // Syntactic sugar.
 
-  static constexpr absl::string_view TypeName() {
+  static constexpr std::string_view TypeName() {
     return StrongIntName::TypeName();
   }
 

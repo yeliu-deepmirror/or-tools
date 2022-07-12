@@ -144,13 +144,6 @@
 #include <utility>
 #include <vector>
 
-#include "absl/base/port.h"
-#include "absl/flags/parse.h"
-#include "absl/flags/usage.h"
-#include "absl/status/status.h"
-#include "absl/strings/match.h"
-#include "absl/strings/str_format.h"
-#include "absl/types/optional.h"
 #include "ortools/base/integral_types.h"
 #include "ortools/base/logging.h"
 #include "ortools/base/macros.h"
@@ -159,8 +152,6 @@
 #include "ortools/linear_solver/linear_solver.pb.h"
 #include "ortools/linear_solver/linear_solver_callback.h"
 #include "ortools/port/proto_utils.h"
-
-ABSL_DECLARE_FLAG(bool, linear_solver_enable_verbose_output);
 
 namespace operations_research {
 
@@ -270,7 +261,7 @@ class MPSolver {
    * successfully parsed as one of the OptimizationProblemType.
    * See the documentation of CreateSolver() for the list of supported names.
    */
-  static bool ParseSolverType(absl::string_view solver_id,
+  static bool ParseSolverType(std::string_view solver_id,
                               OptimizationProblemType* type);
 
   /**
@@ -531,51 +522,11 @@ class MPSolver {
            solver == MPModelRequest::PDLP_LINEAR_PROGRAMMING;
   }
 
-  /// Exports model to protocol buffer.
-  void ExportModelToProto(MPModelProto* output_model) const;
-
-  /**
-   * Load a solution encoded in a protocol buffer onto this solver for easy
-  access via the MPSolver interface.
-   *
-   * IMPORTANT: This may only be used in conjunction with ExportModel(),
-  following this example:
-   *
-   \code
-     MPSolver my_solver;
-     ... add variables and constraints ...
-     MPModelProto model_proto;
-     my_solver.ExportModelToProto(&model_proto);
-     MPSolutionResponse solver_response;
-     MPSolver::SolveWithProto(model_proto, &solver_response);
-     if (solver_response.result_status() == MPSolutionResponse::OPTIMAL) {
-       CHECK_OK(my_solver.LoadSolutionFromProto(solver_response));
-       ... inspect the solution using the usual API: solution_value(), etc...
-     }
-  \endcode
-   *
-   * The response must be in OPTIMAL or FEASIBLE status.
-   *
-   * Returns a non-OK status if a problem arised (typically, if it wasn't used
-   *     like it should be):
-   * - loading a solution whose variables don't correspond to the solver's
-   *   current variables
-   * - loading a dual solution whose constraints don't correspond to the
-   *   solver's current constraints
-   * - loading a solution with a status other than OPTIMAL / FEASIBLE.
-   *
-   * Note: the objective value isn't checked. You can use VerifySolution() for
-   *       that.
-   */
-  absl::Status LoadSolutionFromProto(
-      const MPSolutionResponse& response,
-      double tolerance = std::numeric_limits<double>::infinity());
-
   /**
    * Resets values of out of bound variables to the corresponding bound and
    * returns an error if any of the variables have NaN value.
    */
-  absl::Status ClampSolutionWithinBounds();
+  OrToolsStatus ClampSolutionWithinBounds();
 
   /**
    *  Sets the number of threads to use by the underlying solver.
@@ -587,7 +538,7 @@ class MPSolver {
    * details). Also, some solvers may not (yet) support this function, but still
    * enable multi-threading via SetSolverSpecificParametersAsString().
    */
-  absl::Status SetNumThreads(int num_threads);
+  OrToolsStatus SetNumThreads(int num_threads);
 
   /// Returns the number of threads to be used during solve.
   int GetNumThreads() const { return num_threads_; }
@@ -668,14 +619,10 @@ class MPSolver {
   /// Suppresses solver logging.
   void SuppressOutput();
 
-  absl::Duration TimeLimit() const { return time_limit_; }
-  void SetTimeLimit(absl::Duration time_limit) {
-    DCHECK_GE(time_limit, absl::ZeroDuration());
-    time_limit_ = time_limit;
-  }
+  int64_t TimeLimit() const { return time_limit_; }
 
-  absl::Duration DurationSinceConstruction() const {
-    return absl::Now() - construction_time_;
+  double DurationSinceConstruction() const {
+    return (ortools::Time::Now().NanoSeconds() - construction_time_) * 0.000001;;
   }
 
   /// Returns the number of simplex iterations.
@@ -762,26 +709,13 @@ class MPSolver {
   static int64_t global_num_variables();
   static int64_t global_num_constraints();
 
-  // DEPRECATED: Use TimeLimit() and SetTimeLimit(absl::Duration) instead.
-  // NOTE: These deprecated functions used the convention time_limit = 0 to mean
-  // "no limit", which now corresponds to time_limit_ = InfiniteDuration().
   int64_t time_limit() const {
-    return time_limit_ == absl::InfiniteDuration()
+    return time_limit_ == std::numeric_limits<int64_t>::max()
                ? 0
-               : absl::ToInt64Milliseconds(time_limit_);
-  }
-  void set_time_limit(int64_t time_limit_milliseconds) {
-    SetTimeLimit(time_limit_milliseconds == 0
-                     ? absl::InfiniteDuration()
-                     : absl::Milliseconds(time_limit_milliseconds));
+               : time_limit_ * 0.000001;
   }
   double time_limit_in_secs() const {
     return static_cast<double>(time_limit()) / 1000.0;
-  }
-
-  // DEPRECATED: Use DurationSinceConstruction() instead.
-  int64_t wall_time() const {
-    return absl::ToInt64Milliseconds(DurationSinceConstruction());
   }
 
   friend class GLPKInterface;
@@ -833,7 +767,7 @@ class MPSolver {
   // The vector of variables in the problem.
   std::vector<MPVariable*> variables_;
   // A map from a variable's name to its index in variables_.
-  mutable absl::optional<absl::flat_hash_map<std::string, int> >
+  mutable std::optional<std::map<std::string, int> >
       variable_name_to_index_;
   // Whether variables have been extracted to the underlying interface.
   std::vector<bool> variable_is_extracted_;
@@ -841,7 +775,7 @@ class MPSolver {
   // The vector of constraints in the problem.
   std::vector<MPConstraint*> constraints_;
   // A map from a constraint's name to its index in constraints_.
-  mutable absl::optional<absl::flat_hash_map<std::string, int> >
+  mutable std::optional<std::map<std::string, int> >
       constraint_name_to_index_;
   // Whether constraints have been extracted to the underlying interface.
   std::vector<bool> constraint_is_extracted_;
@@ -858,9 +792,9 @@ class MPSolver {
   // hint is provided and a std::vector<double> for the hint value.
   std::vector<std::pair<const MPVariable*, double> > solution_hint_;
 
-  absl::Duration time_limit_ = absl::InfiniteDuration();  // Default = No limit.
+  int64_t time_limit_ = std::numeric_limits<int64_t>::max();
 
-  const absl::Time construction_time_;
+  const int64_t construction_time_;
 
   // Permanent storage for the number of threads.
   int num_threads_ = 1;
@@ -868,10 +802,10 @@ class MPSolver {
   // Permanent storage for SetSolverSpecificParametersAsString().
   std::string solver_specific_parameter_string_;
 
-  static absl::Mutex global_count_mutex_;
+  static std::mutex global_count_mutex_;
 #ifndef SWIG
-  static int64_t global_num_variables_ ABSL_GUARDED_BY(global_count_mutex_);
-  static int64_t global_num_constraints_ ABSL_GUARDED_BY(global_count_mutex_);
+  static int64_t global_num_variables_;
+  static int64_t global_num_constraints_;
 #endif
 
   MPSolverResponseStatus LoadModelFromProtoInternal(
@@ -885,7 +819,7 @@ inline bool SolverTypeIsMip(MPSolver::OptimizationProblemType solver_type) {
   return SolverTypeIsMip(static_cast<MPModelRequest::SolverType>(solver_type));
 }
 
-const absl::string_view ToString(
+const std::string_view ToString(
     MPSolver::OptimizationProblemType optimization_problem_type);
 
 inline std::ostream& operator<<(
@@ -900,7 +834,7 @@ inline std::ostream& operator<<(std::ostream& os,
              static_cast<MPSolverResponseStatus>(status));
 }
 
-bool AbslParseFlag(absl::string_view text,
+bool AbslParseFlag(std::string_view text,
                    MPSolver::OptimizationProblemType* solver_type,
                    std::string* error);
 
@@ -938,7 +872,7 @@ class MPObjective {
    *
    * If a variable is not present in the map, then its coefficient is zero.
    */
-  const absl::flat_hash_map<const MPVariable*, double>& terms() const {
+  const std::map<const MPVariable*, double>& terms() const {
     return coefficients_;
   }
 
@@ -1025,12 +959,12 @@ class MPObjective {
   // At construction, an MPObjective has no terms (which is equivalent
   // on having a coefficient of 0 for all variables), and an offset of 0.
   explicit MPObjective(MPSolverInterface* const interface_in)
-      : interface_(interface_in), coefficients_(1), offset_(0.0) {}
+      : interface_(interface_in), offset_(0.0) {}
 
   MPSolverInterface* const interface_;
 
   // Mapping var -> coefficient.
-  absl::flat_hash_map<const MPVariable*, double> coefficients_;
+  std::map<const MPVariable*, double> coefficients_;
   // Constant term.
   double offset_;
 
@@ -1191,7 +1125,7 @@ class MPConstraint {
    *
    * If a variable is not present in the map, then its coefficient is zero.
    */
-  const absl::flat_hash_map<const MPVariable*, double>& terms() const {
+  const std::map<const MPVariable*, double>& terms() const {
     return coefficients_;
   }
 
@@ -1276,8 +1210,7 @@ class MPConstraint {
   // to several models.
   MPConstraint(int index, double lb, double ub, const std::string& name,
                MPSolverInterface* const interface_in)
-      : coefficients_(1),
-        index_(index),
+      : index_(index),
         lb_(lb),
         ub_(ub),
         name_(name.empty() ? fmt::format("auto_c_%09d", index) : name),
@@ -1294,7 +1227,7 @@ class MPConstraint {
   bool ContainsNewVariables();
 
   // Mapping var -> coefficient.
-  absl::flat_hash_map<const MPVariable*, double> coefficients_;
+  std::map<const MPVariable*, double> coefficients_;
 
   const int index_;  // See index().
 
@@ -1536,20 +1469,6 @@ class MPSolverInterface {
   // solution is optimal.
   virtual MPSolver::ResultStatus Solve(const MPSolverParameters& param) = 0;
 
-  // Attempts to directly solve a MPModelRequest, bypassing the MPSolver data
-  // structures entirely. Like MPSolver::SolveWithProto(), optionally takes in
-  // an 'interrupt' boolean.
-  // Returns {} (eg. absl::nullopt) if direct-solve is not supported by the
-  // underlying solver (possibly because interrupt != nullptr), in which case
-  // the user should fall back to using MPSolver.
-  virtual absl::optional<MPSolutionResponse> DirectlySolveProto(
-      const MPModelRequest& request,
-      // `interrupt` is non-const because the internal
-      // solver may set it to true itself, in some cases.
-      std::atomic<bool>* interrupt) {
-    return absl::nullopt;
-  }
-
   // Writes the model using the solver internal write function.  Currently only
   // available for GurobiInterface.
   virtual void Write(const std::string& filename);
@@ -1773,7 +1692,7 @@ class MPSolverInterface {
   virtual void SetPresolveMode(int value) = 0;
 
   // Sets the number of threads to be used by the solver.
-  virtual absl::Status SetNumThreads(int num_threads);
+  virtual OrToolsStatus SetNumThreads(int num_threads);
 
   // Pass solver specific parameters in text format. The format is
   // solver-specific and is the same as the corresponding solver configuration

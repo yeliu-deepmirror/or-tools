@@ -39,13 +39,6 @@ http_archive(
 load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
 protobuf_deps()
 
-git_repository(
-    name = "com_google_re2",
-    patches = ["//bazel:re2.patch"],
-    tag = "2022-02-01",
-    remote = "https://github.com/google/re2.git",
-)
-
 http_archive(
     name = "com_google_googletest",
     sha256 = "9dc9157a9a1551ec7a7e43daea9a694a0bb5fb8bec81235d8a1e6ef64c716dcb",

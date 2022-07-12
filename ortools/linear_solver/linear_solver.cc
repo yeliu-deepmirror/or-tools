@@ -26,16 +26,6 @@
 #include <string>
 #include <utility>
 
-#include "absl/status/status.h"
-#include "absl/status/statusor.h"
-#include "absl/strings/ascii.h"
-#include "absl/strings/match.h"
-#include "absl/strings/str_cat.h"
-#include "absl/strings/str_format.h"
-#include "absl/strings/str_replace.h"
-#include "absl/synchronization/mutex.h"
-#include "absl/synchronization/notification.h"
-#include "absl/time/time.h"
 #include "ortools/base/accurate_sum.h"
 #include "ortools/base/commandlineflags.h"
 #include "ortools/base/integral_types.h"
@@ -44,29 +34,13 @@
 #include "ortools/base/stl_util.h"
 #include "ortools/base/threadpool.h"
 #include "ortools/linear_solver/linear_solver.pb.h"
-// #include "ortools/linear_solver/model_exporter.h"
-// #include "ortools/linear_solver/model_validator.h"
-//#include "ortools/port/file.h"
 #include "ortools/util/fp_utils.h"
 #include "ortools/util/time_limit.h"
 
-ABSL_FLAG(bool, verify_solution, false,
-          "Systematically verify the solution when calling Solve()"
-          ", and change the return value of Solve() to ABNORMAL if"
-          " an error was detected.");
-ABSL_FLAG(bool, log_verification_errors, true,
-          "If --verify_solution is set: LOG(ERROR) all errors detected"
-          " during the verification of the solution.");
-ABSL_FLAG(bool, linear_solver_enable_verbose_output, false,
-          "If set, enables verbose output for the solver. Setting this flag"
-          " is the same as calling MPSolver::EnableOutput().");
-
-ABSL_FLAG(bool, mpsolver_bypass_model_validation, false,
-          "If set, the user-provided Model won't be verified before Solve()."
-          " Invalid models will typically trigger various error responses"
-          " from the underlying solvers; sometimes crashes.");
-
 namespace operations_research {
+
+constexpr bool kVerfySolution = false;
+constexpr bool linear_solver_enable_verbose_output = false;
 
 bool SolverTypeIsMip(MPModelRequest::SolverType solver_type) {
   switch (solver_type) {
@@ -339,11 +313,11 @@ void* MPSolver::underlying_solver() { return interface_->underlying_solver(); }
 
 // ---- Solver-specific parameters ----
 
-absl::Status MPSolver::SetNumThreads(int num_threads) {
+OrToolsStatus MPSolver::SetNumThreads(int num_threads) {
   if (num_threads < 1) {
-    return absl::InvalidArgumentError("num_threads must be a positive number.");
+    return OrToolsStatus::Error("num_threads must be a positive number.");
   }
-  const absl::Status status = interface_->SetNumThreads(num_threads);
+  OrToolsStatus status = interface_->SetNumThreads(num_threads);
   if (status.ok()) {
     num_threads_ = num_threads;
   }
@@ -457,9 +431,9 @@ MPSolver::MPSolver(const std::string& name,
                    OptimizationProblemType problem_type)
     : name_(name),
       problem_type_(problem_type),
-      construction_time_(absl::Now()) {
+      construction_time_(ortools::Time::Now().NanoSeconds()) {
   interface_.reset(BuildSolverInterface(this));
-  if (absl::GetFlag(FLAGS_linear_solver_enable_verbose_output)) {
+  if (linear_solver_enable_verbose_output) {
     EnableOutput();
   }
   objective_.reset(new MPObjective(interface_.get()));
@@ -510,12 +484,12 @@ bool MPSolver::SupportsProblemType(OptimizationProblemType problem_type) {
 }
 
 // TODO(user): post c++ 14, instead use
-//   std::pair<MPSolver::OptimizationProblemType, const absl::string_view>
+//   std::pair<MPSolver::OptimizationProblemType, const std::string_view>
 // once pair gets a constexpr constructor.
 namespace {
 struct NamedOptimizationProblemType {
   MPSolver::OptimizationProblemType problem_type;
-  absl::string_view name;
+  std::string_view name;
 };
 }  // namespace
 
@@ -544,11 +518,10 @@ constexpr
 
 };
 // static
-bool MPSolver::ParseSolverType(absl::string_view solver_id,
+bool MPSolver::ParseSolverType(std::string_view solver_id,
                                MPSolver::OptimizationProblemType* type) {
   // Normalize the solver id.
-  const std::string id =
-      absl::StrReplaceAll(absl::AsciiStrToUpper(solver_id), {{"-", "_"}});
+  const std::string id(solver_id);
 
   // Support the full enum name
   MPModelRequest::SolverType solver_type;
@@ -557,31 +530,17 @@ bool MPSolver::ParseSolverType(absl::string_view solver_id,
     return true;
   }
 
-  // Names are stored in lower case.
-  std::string lower_id = absl::AsciiStrToLower(id);
-
-  // Remove any "_mip" suffix, since they are optional.
-  if (absl::EndsWith(lower_id, "_mip")) {
-    lower_id = lower_id.substr(0, lower_id.size() - 4);
-  }
-
-  // Rewrite CP-SAT into SAT.
-  if (lower_id == "cp_sat") {
-    lower_id = "sat";
-  }
-
   // Reverse lookup in the kOptimizationProblemTypeNames[] array.
   for (auto& named_solver : kOptimizationProblemTypeNames) {
-    if (named_solver.name == lower_id) {
+    if (named_solver.name == id) {
       *type = named_solver.problem_type;
       return true;
     }
   }
-
   return false;
 }
 
-const absl::string_view ToString(
+const std::string_view ToString(
     MPSolver::OptimizationProblemType optimization_problem_type) {
   for (const auto& named_solver : kOptimizationProblemTypeNames) {
     if (named_solver.problem_type == optimization_problem_type) {
@@ -593,14 +552,14 @@ const absl::string_view ToString(
   return "";
 }
 
-bool AbslParseFlag(const absl::string_view text,
+bool AbslParseFlag(const std::string_view text,
                    MPSolver::OptimizationProblemType* solver_type,
                    std::string* error) {
   DCHECK(solver_type != nullptr);
   DCHECK(error != nullptr);
   const bool result = MPSolver::ParseSolverType(text, solver_type);
   if (!result) {
-    *error = absl::StrCat("Solver type: ", text, " does not exist.");
+    *error = std::string("Solver type: ") + std::string(text) + " does not exist.";
   }
   return result;
 }
@@ -632,7 +591,7 @@ MPSolver* MPSolver::CreateSolver(const std::string& solver_id) {
 MPVariable* MPSolver::LookupVariableOrNull(const std::string& var_name) const {
   if (!variable_name_to_index_) GenerateVariableNameIndex();
 
-  absl::flat_hash_map<std::string, int>::const_iterator it =
+  std::map<std::string, int>::const_iterator it =
       variable_name_to_index_->find(var_name);
   if (it == variable_name_to_index_->end()) return nullptr;
   return variables_[it->second];
@@ -647,200 +606,9 @@ MPConstraint* MPSolver::LookupConstraintOrNull(
   return constraints_[it->second];
 }
 
-namespace {
-bool InCategory(int status, int category) {
-  if (category == MPSOLVER_OPTIMAL) return status == MPSOLVER_OPTIMAL;
-  while (status > category) status >>= 4;
-  return status == category;
-}
-
-void AppendStatusStr(const std::string& msg, MPSolutionResponse* response) {
-  response->set_status_str(
-      absl::StrCat(response->status_str(),
-                   (response->status_str().empty() ? "" : "\n"), msg));
-}
-}  // namespace
-
-void MPSolver::ExportModelToProto(MPModelProto* output_model) const {
-  DCHECK(output_model != nullptr);
-  output_model->Clear();
-  // Name
-  output_model->set_name(Name());
-  // Variables
-  for (int j = 0; j < variables_.size(); ++j) {
-    const MPVariable* const var = variables_[j];
-    MPVariableProto* const variable_proto = output_model->add_variable();
-    // TODO(user): Add option to avoid filling the var name to avoid overly
-    // large protocol buffers.
-    variable_proto->set_name(var->name());
-    variable_proto->set_lower_bound(var->lb());
-    variable_proto->set_upper_bound(var->ub());
-    variable_proto->set_is_integer(var->integer());
-    if (objective_->GetCoefficient(var) != 0.0) {
-      variable_proto->set_objective_coefficient(
-          objective_->GetCoefficient(var));
-    }
-    if (var->branching_priority() != 0) {
-      variable_proto->set_branching_priority(var->branching_priority());
-    }
-  }
-
-  // Map the variables to their indices. This is needed to output the
-  // variables in the order they were created, which in turn is needed to have
-  // repeatable results with ExportModelAsLpFormat and ExportModelAsMpsFormat.
-  // This step is needed as long as the variable indices are given by the
-  // underlying solver at the time of model extraction.
-  // TODO(user): remove this step.
-  absl::flat_hash_map<const MPVariable*, int> var_to_index;
-  for (int j = 0; j < variables_.size(); ++j) {
-    var_to_index[variables_[j]] = j;
-  }
-
-  // Constraints
-  for (int i = 0; i < constraints_.size(); ++i) {
-    MPConstraint* const constraint = constraints_[i];
-    MPConstraintProto* constraint_proto;
-    if (constraint->indicator_variable() != nullptr) {
-      MPGeneralConstraintProto* const general_constraint_proto =
-          output_model->add_general_constraint();
-      general_constraint_proto->set_name(constraint->name());
-      MPIndicatorConstraint* const indicator_constraint_proto =
-          general_constraint_proto->mutable_indicator_constraint();
-      indicator_constraint_proto->set_var_index(
-          constraint->indicator_variable()->index());
-      indicator_constraint_proto->set_var_value(constraint->indicator_value());
-      constraint_proto = indicator_constraint_proto->mutable_constraint();
-    } else {
-      constraint_proto = output_model->add_constraint();
-    }
-    constraint_proto->set_name(constraint->name());
-    constraint_proto->set_lower_bound(constraint->lb());
-    constraint_proto->set_upper_bound(constraint->ub());
-    constraint_proto->set_is_lazy(constraint->is_lazy());
-    // Vector linear_term will contain pairs (variable index, coeff), that will
-    // be sorted by variable index.
-    std::vector<std::pair<int, double>> linear_term;
-    for (const auto& entry : constraint->coefficients_) {
-      const MPVariable* const var = entry.first;
-      const int var_index = gtl::FindWithDefault(var_to_index, var, -1);
-      DCHECK_NE(-1, var_index);
-      const double coeff = entry.second;
-      linear_term.push_back(std::pair<int, double>(var_index, coeff));
-    }
-    // The cost of sort is expected to be low as constraints usually have very
-    // few terms.
-    std::sort(linear_term.begin(), linear_term.end());
-    // Now use linear term.
-    for (const std::pair<int, double>& var_and_coeff : linear_term) {
-      constraint_proto->add_var_index(var_and_coeff.first);
-      constraint_proto->add_coefficient(var_and_coeff.second);
-    }
-  }
-
-  output_model->set_maximize(Objective().maximization());
-  output_model->set_objective_offset(Objective().offset());
-
-  if (!solution_hint_.empty()) {
-    PartialVariableAssignment* const hint =
-        output_model->mutable_solution_hint();
-    for (const auto& var_value_pair : solution_hint_) {
-      hint->add_var_index(var_value_pair.first->index());
-      hint->add_var_value(var_value_pair.second);
-    }
-  }
-}
-
-absl::Status MPSolver::LoadSolutionFromProto(const MPSolutionResponse& response,
-                                             double tolerance) {
-  interface_->result_status_ = static_cast<ResultStatus>(response.status());
-  if (response.status() != MPSOLVER_OPTIMAL &&
-      response.status() != MPSOLVER_FEASIBLE) {
-    return absl::InvalidArgumentError(absl::StrCat(
-        "Cannot load a solution unless its status is OPTIMAL or FEASIBLE"
-        " (status was: ",
-        ProtoEnumToString<MPSolverResponseStatus>(response.status()), ")"));
-  }
-  // Before touching the variables, verify that the solution looks legit:
-  // each variable of the MPSolver must have its value listed exactly once, and
-  // each listed solution should correspond to a known variable.
-  if (response.variable_value_size() != variables_.size()) {
-    return absl::InvalidArgumentError(absl::StrCat(
-        "Trying to load a solution whose number of variables (",
-        response.variable_value_size(),
-        ") does not correspond to the Solver's (", variables_.size(), ")"));
-  }
-  interface_->ExtractModel();
-
-  if (tolerance != infinity()) {
-    // Look further: verify that the variable values are within the bounds.
-    double largest_error = 0;
-    int num_vars_out_of_bounds = 0;
-    int last_offending_var = -1;
-    for (int i = 0; i < response.variable_value_size(); ++i) {
-      const double var_value = response.variable_value(i);
-      MPVariable* var = variables_[i];
-      // TODO(user): Use parameter when they become available in this class.
-      const double lb_error = var->lb() - var_value;
-      const double ub_error = var_value - var->ub();
-      if (lb_error > tolerance || ub_error > tolerance) {
-        ++num_vars_out_of_bounds;
-        largest_error = std::max(largest_error, std::max(lb_error, ub_error));
-        last_offending_var = i;
-      }
-    }
-    if (num_vars_out_of_bounds > 0) {
-      return absl::InvalidArgumentError(absl::StrCat(
-          "Loaded a solution whose variables matched the solver's, but ",
-          num_vars_out_of_bounds, " of ", variables_.size(),
-          " variables were out of their bounds, by more than the primal"
-          " tolerance which is: ",
-          tolerance, ". Max error: ", largest_error, ", last offender var is #",
-          last_offending_var, ": '", variables_[last_offending_var]->name(),
-          "'"));
-    }
-  }
-  for (int i = 0; i < response.variable_value_size(); ++i) {
-    variables_[i]->set_solution_value(response.variable_value(i));
-  }
-  if (response.dual_value_size() > 0) {
-    if (response.dual_value_size() != constraints_.size()) {
-      return absl::InvalidArgumentError(absl::StrCat(
-          "Trying to load a dual solution whose number of entries (",
-          response.dual_value_size(), ") does not correspond to the Solver's (",
-          constraints_.size(), ")"));
-    }
-    for (int i = 0; i < response.dual_value_size(); ++i) {
-      constraints_[i]->set_dual_value(response.dual_value(i));
-    }
-  }
-  if (response.reduced_cost_size() > 0) {
-    if (response.reduced_cost_size() != variables_.size()) {
-      return absl::InvalidArgumentError(absl::StrCat(
-          "Trying to load a reduced cost solution whose number of entries (",
-          response.reduced_cost_size(),
-          ") does not correspond to the Solver's (", variables_.size(), ")"));
-    }
-    for (int i = 0; i < response.reduced_cost_size(); ++i) {
-      variables_[i]->set_reduced_cost(response.reduced_cost(i));
-    }
-  }
-  // Set the objective value, if is known.
-  // NOTE(user): We do not verify the objective, even though we could!
-  if (response.has_objective_value()) {
-    interface_->objective_value_ = response.objective_value();
-  }
-  if (response.has_best_objective_bound()) {
-    interface_->best_objective_bound_ = response.best_objective_bound();
-  }
-  // Mark the status as SOLUTION_SYNCHRONIZED, so that users may inspect the
-  // solution normally.
-  interface_->sync_status_ = MPSolverInterface::SOLUTION_SYNCHRONIZED;
-  return absl::OkStatus();
-}
-
 void MPSolver::Clear() {
   {
-    absl::MutexLock lock(&global_count_mutex_);
+    std::lock_guard<std::mutex> guard(global_count_mutex_);
     global_num_variables_ += variables_.size();
     global_num_constraints_ += constraints_.size();
   }
@@ -1025,13 +793,12 @@ MPSolver::ResultStatus MPSolver::Solve(const MPSolverParameters& param) {
   }
 
   MPSolver::ResultStatus status = interface_->Solve(param);
-  if (absl::GetFlag(FLAGS_verify_solution)) {
+  if (kVerfySolution) {
     if (status != MPSolver::OPTIMAL && status != MPSolver::FEASIBLE) {
       VLOG(1) << "--verify_solution enabled, but the solver did not find a"
               << " solution: skipping the verification.";
     } else if (!VerifySolution(
-                   param.GetDoubleParam(MPSolverParameters::PRIMAL_TOLERANCE),
-                   absl::GetFlag(FLAGS_log_verification_errors))) {
+                   param.GetDoubleParam(MPSolverParameters::PRIMAL_TOLERANCE), true)) {
       status = MPSolver::ABNORMAL;
       interface_->result_status_ = status;
     }
@@ -1105,13 +872,12 @@ std::string PrettyPrintConstraint(const MPConstraint& constraint) {
 }
 }  // namespace
 
-absl::Status MPSolver::ClampSolutionWithinBounds() {
+OrToolsStatus MPSolver::ClampSolutionWithinBounds() {
   interface_->ExtractModel();
   for (MPVariable* const variable : variables_) {
     const double value = variable->solution_value();
     if (std::isnan(value)) {
-      return absl::InvalidArgumentError(
-          absl::StrCat("NaN value for ", PrettyPrintVar(*variable)));
+      return OrToolsStatus::Error(std::string("NaN value for ") + PrettyPrintVar(*variable));
     }
     if (value < variable->lb()) {
       variable->set_solution_value(variable->lb());
@@ -1120,7 +886,7 @@ absl::Status MPSolver::ClampSolutionWithinBounds() {
     }
   }
   interface_->sync_status_ = MPSolverInterface::SOLUTION_SYNCHRONIZED;
-  return absl::OkStatus();
+  return OrToolsStatus::OK();
 }
 
 std::vector<double> MPSolver::ComputeConstraintActivities() const {
@@ -1316,7 +1082,7 @@ void MPSolver::SetHint(std::vector<std::pair<const MPVariable*, double>> hint) {
 
 void MPSolver::GenerateVariableNameIndex() const {
   if (variable_name_to_index_) return;
-  variable_name_to_index_ = absl::flat_hash_map<std::string, int>();
+  variable_name_to_index_ = std::map<std::string, int>();
   for (const MPVariable* const var : variables_) {
     gtl::InsertOrDie(&*variable_name_to_index_, var->name(), var->index());
   }
@@ -1324,7 +1090,7 @@ void MPSolver::GenerateVariableNameIndex() const {
 
 void MPSolver::GenerateConstraintNameIndex() const {
   if (constraint_name_to_index_) return;
-  constraint_name_to_index_ = absl::flat_hash_map<std::string, int>();
+  constraint_name_to_index_ = std::map<std::string, int>();
   for (const MPConstraint* const cst : constraints_) {
     gtl::InsertOrDie(&*constraint_name_to_index_, cst->name(), cst->index());
   }
@@ -1341,21 +1107,21 @@ bool MPSolver::SupportsCallbacks() const {
 }
 
 // Global counters.
-absl::Mutex MPSolver::global_count_mutex_(absl::kConstInit);
+std::mutex MPSolver::global_count_mutex_;
 int64_t MPSolver::global_num_variables_ = 0;
 int64_t MPSolver::global_num_constraints_ = 0;
 
 // static
 int64_t MPSolver::global_num_variables() {
   // Why not ReaderMutexLock? See go/totw/197#when-are-shared-locks-useful.
-  absl::MutexLock lock(&global_count_mutex_);
+  std::lock_guard<std::mutex> guard(global_count_mutex_);
   return global_num_variables_;
 }
 
 // static
 int64_t MPSolver::global_num_constraints() {
   // Why not ReaderMutexLock? See go/totw/197#when-are-shared-locks-useful.
-  absl::MutexLock lock(&global_count_mutex_);
+  std::lock_guard<std::mutex> guard(global_count_mutex_);
   return global_num_constraints_;
 }
 
@@ -1555,9 +1321,8 @@ void MPSolverInterface::SetIntegerParamToUnsupportedValue(
                << " to an unsupported value: " << value;
 }
 
-absl::Status MPSolverInterface::SetNumThreads(int num_threads) {
-  return absl::UnimplementedError(
-      fmt::format("SetNumThreads() not supported by %s.", SolverVersion()));
+OrToolsStatus MPSolverInterface::SetNumThreads(int num_threads) {
+  return OrToolsStatus::FormatError("SetNumThreads() not supported by %s.", SolverVersion());
 }
 
 bool MPSolverInterface::SetSolverSpecificParametersAsString(

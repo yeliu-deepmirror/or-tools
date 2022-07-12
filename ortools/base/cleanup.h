@@ -15,20 +15,14 @@
 #define OR_TOOLS_BASE_CLEANUP_H_
 
 #include <utility>
-
-#include "absl/base/macros.h"
 #include "ortools/base/logging.h"
 
-namespace absl {
+namespace ortools {
 
 namespace cleanup_internal {
 
 template <typename Callback>
 class Storage {
-  using InvokeT = absl::base_internal::invoke_result_t<Callback>;
-  static_assert(std::is_same<InvokeT, void>::value, "");
-  static_assert(!std::is_reference<Callback>::value, "");
-
  public:
   Storage() : contains_callback_(false), callback_() {}
 
@@ -83,22 +77,15 @@ struct AccessStorage {
 }  // namespace cleanup_internal
 
 template <typename Callback>
-class ABSL_MUST_USE_RESULT Cleanup {
+class Cleanup {
   using Storage = cleanup_internal::Storage<Callback>;
   using AccessStorage = cleanup_internal::AccessStorage;
 
  public:
   Cleanup() = default;
 
-  Cleanup(Cleanup&&) = default;
-
-  template <typename TheCallback>
-  explicit Cleanup(TheCallback&& the_callback)
-      : storage_(std::forward<TheCallback>(the_callback)) {}
-
-  template <typename OtherCallback>
-  Cleanup(Cleanup<OtherCallback>&& other_cleanup)  // NOLINT
-      : storage_(std::move(AccessStorage::From(other_cleanup))) {}
+  explicit Cleanup(Callback callback)
+      : storage_(std::move(callback)) {}
 
   ~Cleanup() {
     if (storage_.ContainsCallback()) storage_.InvokeCallback();
@@ -122,11 +109,10 @@ class ABSL_MUST_USE_RESULT Cleanup {
 };
 
 template <int&... PreventExplicitTemplateArguments, typename Callback>
-absl::Cleanup<absl::decay_t<Callback>> MakeCleanup(Callback&& callback) {
-  return absl::Cleanup<absl::decay_t<Callback>>(
-      std::forward<Callback>(callback));
+ortools::Cleanup<Callback> MakeCleanup(Callback&& callback) {
+  return ortools::Cleanup<Callback>(std::move(callback));
 }
 
-}  // namespace absl
+}  // namespace ortools
 
 #endif  // OR_TOOLS_BASE_CLEANUP_H_

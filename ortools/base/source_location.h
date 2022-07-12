@@ -129,7 +129,7 @@ class SourceLocation {
 //
 // Usage:
 //
-//   void MyLog(absl::string_view msg,
+//   void MyLog(std::string_view msg,
 //              absl::SourceLocation loc ABSL_LOC_CURRENT_DEFAULT_ARG) {
 //     std::cout << loc.file_name() << "@" << loc.line() << ": " << msg;
 //   }

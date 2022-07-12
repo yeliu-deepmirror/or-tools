@@ -16,7 +16,7 @@
 namespace operations_research {
 
 void LinearSolverTest() {
-  MPSolver* solver = MPSolver::CreateSolver("GLOP");
+  MPSolver* solver = MPSolver::CreateSolver("glop");
 
   const double infinity = solver->infinity();
   // Create the variables x and y.
@@ -63,8 +63,8 @@ void LinearSolverTest() {
   // [END print_solution]
 
   // [START advanced]
-  LOG(INFO) << "\nAdvanced usage:";
-  LOG(INFO) << "Problem solved in " << solver->wall_time() << " milliseconds";
+  LOG(INFO) << "Advanced usage:";
+  LOG(INFO) << "Problem solved in " << solver->DurationSinceConstruction() << " milliseconds";
   LOG(INFO) << "Problem solved in " << solver->iterations() << " iterations";
   // [END advanced]
 }
@@ -82,7 +82,7 @@ void AssignmentProgramTest() {
 
   // Solver
   // Create the mip solver with the SCIP backend.
-  std::unique_ptr<MPSolver> solver(MPSolver::CreateSolver("SCIP"));
+  std::unique_ptr<MPSolver> solver(MPSolver::CreateSolver("scip"));
   if (!solver) {
     LOG(WARNING) << "SCIP solver unavailable.";
     return;
@@ -132,7 +132,7 @@ void AssignmentProgramTest() {
   // Print solution.
   // Check that the problem has a feasible solution.
   if (result_status != MPSolver::OPTIMAL && result_status != MPSolver::FEASIBLE) {
-    LOG(FATAL) << "No solution found.";
+    LOG(FATAL) << "No solution found " << result_status;
   }
 
   LOG(INFO) << "Total cost = " << objective->Value() << "\n\n";
@@ -146,14 +146,17 @@ void AssignmentProgramTest() {
       }
     }
   }
+  LOG(INFO) << "Advanced usage:";
+  LOG(INFO) << "Problem solved in " << solver->DurationSinceConstruction() << " milliseconds";
+  LOG(INFO) << "Problem solved in " << solver->iterations() << " iterations";
 }
 
 }  // namespace operations_research
 
 int main(int argc, char** argv) {
-  LOG(INFO) << "LinearSolverTest";
+  LOG(INFO) << "\nLinearSolverTest";
   operations_research::LinearSolverTest();
-  LOG(INFO) << "AssignmentProgramTest";
+  LOG(INFO) << "\nAssignmentProgramTest";
   operations_research::AssignmentProgramTest();
   LOG(INFO) << "done.";
   return 1;

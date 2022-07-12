@@ -37,7 +37,7 @@ class File {
   static File* Open(const char* const name, const char* const flag);
 
 #ifndef SWIG  // no overloading
-  inline static File* Open(const absl::string_view& name,
+  inline static File* Open(const std::string_view& name,
                            const char* const mode) {
     return Open(name.data(), mode);
   }
@@ -48,7 +48,7 @@ class File {
   static File* OpenOrDie(const char* const name, const char* const flag);
 
 #ifndef SWIG  // no overloading
-  inline static File* OpenOrDie(const absl::string_view& name,
+  inline static File* OpenOrDie(const std::string_view& name,
                                 const char* const flag) {
     return OpenOrDie(name.data(), flag);
   }
@@ -96,11 +96,11 @@ class File {
   static void Init();
 
   // Returns the file name.
-  absl::string_view filename() const;
+  std::string_view filename() const;
 
   // Deletes a file.
   static bool Delete(const char* const name);
-  static bool Delete(const absl::string_view& name) {
+  static bool Delete(const std::string_view& name) {
     return Delete(name.data());
   }
 
@@ -110,65 +110,65 @@ class File {
   bool Open() const;
 
  private:
-  File(FILE* const descriptor, const absl::string_view& name);
+  File(FILE* const descriptor, const std::string_view& name);
 
   FILE* f_;
-  const absl::string_view name_;
+  const std::string_view name_;
 };
 
 namespace file {
 inline int Defaults() { return 0xBABA; }
 
 // As of 2016-01, these methods can only be used with flags = file::Defaults().
-absl::Status Open(const absl::string_view& filename,
-                  const absl::string_view& mode, File** f, int flags);
-File* OpenOrDie(const absl::string_view& filename,
-                const absl::string_view& mode, int flags);
-absl::Status GetTextProto(const absl::string_view& filename,
+absl::Status Open(const std::string_view& filename,
+                  const std::string_view& mode, File** f, int flags);
+File* OpenOrDie(const std::string_view& filename,
+                const std::string_view& mode, int flags);
+absl::Status GetTextProto(const std::string_view& filename,
                           google::protobuf::Message* proto, int flags);
 template <typename T>
-absl::StatusOr<T> GetTextProto(absl::string_view filename, int flags) {
+absl::StatusOr<T> GetTextProto(std::string_view filename, int flags) {
   T proto;
   RETURN_IF_ERROR(GetTextProto(filename, &proto, flags));
   return proto;
 }
-absl::Status SetTextProto(const absl::string_view& filename,
+absl::Status SetTextProto(const std::string_view& filename,
                           const google::protobuf::Message& proto, int flags);
-absl::Status GetBinaryProto(absl::string_view filename,
+absl::Status GetBinaryProto(std::string_view filename,
                             google::protobuf::Message* proto, int flags);
 template <typename T>
-absl::StatusOr<T> GetBinaryProto(absl::string_view filename, int flags) {
+absl::StatusOr<T> GetBinaryProto(std::string_view filename, int flags) {
   T proto;
   RETURN_IF_ERROR(GetBinaryProto(filename, &proto, flags));
   return proto;
 }
-absl::Status SetBinaryProto(const absl::string_view& filename,
+absl::Status SetBinaryProto(const std::string_view& filename,
                             const google::protobuf::Message& proto, int flags);
-absl::Status SetContents(const absl::string_view& filename,
-                         const absl::string_view& contents, int flags);
-absl::Status GetContents(const absl::string_view& filename, std::string* output,
+absl::Status SetContents(const std::string_view& filename,
+                         const std::string_view& contents, int flags);
+absl::Status GetContents(const std::string_view& filename, std::string* output,
                          int flags);
-absl::Status WriteString(File* file, const absl::string_view& contents,
+absl::Status WriteString(File* file, const std::string_view& contents,
                          int flags);
 
-bool ReadFileToString(const absl::string_view& file_name, std::string* output);
+bool ReadFileToString(const std::string_view& file_name, std::string* output);
 bool WriteStringToFile(const std::string& data,
-                       const absl::string_view& file_name);
-bool ReadFileToProto(const absl::string_view& file_name,
+                       const std::string_view& file_name);
+bool ReadFileToProto(const std::string_view& file_name,
                      google::protobuf::Message* proto);
-void ReadFileToProtoOrDie(const absl::string_view& file_name,
+void ReadFileToProtoOrDie(const std::string_view& file_name,
                           google::protobuf::Message* proto);
 bool WriteProtoToASCIIFile(const google::protobuf::Message& proto,
-                           const absl::string_view& file_name);
+                           const std::string_view& file_name);
 void WriteProtoToASCIIFileOrDie(const google::protobuf::Message& proto,
-                                const absl::string_view& file_name);
+                                const std::string_view& file_name);
 bool WriteProtoToFile(const google::protobuf::Message& proto,
-                      const absl::string_view& file_name);
+                      const std::string_view& file_name);
 void WriteProtoToFileOrDie(const google::protobuf::Message& proto,
-                           const absl::string_view& file_name);
+                           const std::string_view& file_name);
 
-absl::Status Delete(const absl::string_view& path, int flags);
-absl::Status Exists(const absl::string_view& path, int flags);
+absl::Status Delete(const std::string_view& path, int flags);
+absl::Status Exists(const std::string_view& path, int flags);
 
 }  // namespace file
 

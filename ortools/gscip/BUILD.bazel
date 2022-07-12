@@ -7,10 +7,8 @@ cc_library(
     hdrs = ["legacy_scip_params.h"],
     deps = [
         ":scip_with_glop",
+        "//ortools/base:base",
         "//ortools/linear_solver:scip_helper_macros",
-        "@com_google_absl//absl/status",
-        "@com_google_absl//absl/strings",
-        "@com_google_absl//absl/strings:str_format",
     ],
 )
 

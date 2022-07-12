@@ -28,8 +28,8 @@
 
 namespace operations_research {
 
-::absl::Status PortableFileSetContents(absl::string_view file_name,
-                                       absl::string_view content) {
+::absl::Status PortableFileSetContents(std::string_view file_name,
+                                       std::string_view content) {
 #if defined(__PORTABLE_PLATFORM__)
   return absl::Status(absl::StatusCode::kUnimplemented,
                       "File io is not implemented for this platform.");
@@ -38,7 +38,7 @@ namespace operations_research {
 #endif  // !defined(__PORTABLE_PLATFORM__)
 }
 
-::absl::Status PortableFileGetContents(absl::string_view file_name,
+::absl::Status PortableFileGetContents(std::string_view file_name,
                                        std::string* output) {
 #if defined(__PORTABLE_PLATFORM__)
   return absl::Status(absl::StatusCode::kUnimplemented,
@@ -71,7 +71,7 @@ bool PortableTemporaryFile(const char* directory_prefix,
 #endif  // !defined(__PORTABLE_PLATFORM__)
 }
 
-::absl::Status PortableDeleteFile(absl::string_view file_name) {
+::absl::Status PortableDeleteFile(std::string_view file_name) {
 #if defined(__PORTABLE_PLATFORM__)
   return absl::Status(absl::StatusCode::kUnimplemented,
                       "File io is not implemented for this platform.");

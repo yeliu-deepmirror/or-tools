@@ -17,8 +17,6 @@
 
 #include <cstdint>
 
-#include "absl/strings/str_cat.h"
-#include "absl/types/span.h"
 #include "ortools/base/logging.h"
 #include "ortools/linear_solver/scip_helper_macros.h"
 #include "scip/cons_linear.h"
@@ -112,7 +110,7 @@ bool LinearConstraintIsViolated(const ScipConstraintHandlerContext& context,
 //   returns kDidNotFind
 ScipSeparationResult RunSeparation(internal::ScipCallbackRunner* runner,
                                    const ScipConstraintHandlerContext& context,
-                                   absl::Span<SCIP_CONS*> constraints,
+                                   std::vector<SCIP_CONS*> constraints,
                                    bool is_integral) {
   ScipSeparationResult result = ScipSeparationResult::kDidNotFind;
   SCIP* scip = context.scip();
@@ -211,20 +209,24 @@ struct CallbackSetup {
   SCIP_CONSHDLRDATA* scip_handler_data;
   internal::ScipCallbackRunner* callback_runner;
   ScipConstraintHandlerContext context;
-  absl::Span<SCIP_CONS*> useful_constraints;
-  absl::Span<SCIP_CONS*> unlikely_useful_constraints;
+  std::vector<SCIP_CONS*> useful_constraints;
+  std::vector<SCIP_CONS*> unlikely_useful_constraints;
 
   CallbackSetup(SCIP* scip, SCIP_CONSHDLR* scip_handler, SCIP_CONS** conss,
                 int nconss, int nusefulconss, SCIP_SOL* sol,
                 bool is_pseudo_solution)
       : scip_handler_data(SCIPconshdlrGetData(scip_handler)),
         callback_runner(scip_handler_data->runner.get()),
-        context(scip, sol, is_pseudo_solution),
-        useful_constraints(absl::MakeSpan(conss, nusefulconss)),
-        unlikely_useful_constraints(
-            absl::MakeSpan(conss, nconss).subspan(nusefulconss)) {
+        context(scip, sol, is_pseudo_solution) {
     CHECK(scip_handler_data != nullptr);
     CHECK(callback_runner != nullptr);
+
+    for (int i = 0; i < nusefulconss; i++) {
+      useful_constraints.push_back(conss[i]);
+    }
+    for (int i = nusefulconss; i < nconss; i++) {
+      unlikely_useful_constraints.push_back(conss[i]);
+    }
   }
 };
 
